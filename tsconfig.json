@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "outDir": "build",
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "isolatedModules": true,
+    "sourceMap": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": true,
+    "composite": false,
+    "lib": [
+      "esnext"
+    ],
+    "allowJs": false,
+    "skipLibCheck": false,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src"
+  ]
+}
