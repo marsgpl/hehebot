@@ -13,5 +13,6 @@ COPY package-lock.json .
 RUN npm ci
 
 COPY build.uglified /hehebot/build
+COPY views /hehebot/views
 
 CMD ["node", "--experimental-json-modules", "build/index.js"]

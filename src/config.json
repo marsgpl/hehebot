@@ -1,11 +1,13 @@
 {
+    "bot": {
+        "login": "pkairevent@gmail.com",
+        "password": "SDJAOSdjn2f09385bgw0e9n0f1",
+        "cache": ".hhbot.cache"
+    },
     "listen": {
         "addr": "127.0.0.1",
         "port": 58000
     },
-    "login": "pkairevent@gmail.com",
-    "password": "SDJAOSdjn2f09385bgw0e9n0f1",
-    "cache": ".hhbot.cache",
     "build": {
         "version": "latest",
         "timestamp": "1234567890000"

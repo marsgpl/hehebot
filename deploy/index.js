@@ -10,7 +10,7 @@ import destroyDockerContainer from './helpers/destroyDockerContainer.js';
 const DOCKER_CONTAINER_NAME = 'hehebot';
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';
 const DOCKER_LOGIN_CMD = 'echo OPqsj9d02e8nrJsoidvh44pHBV | docker login --username ewj9f4wsk3j90rghtOJ02fhig --password-stdin docker.marsgpl.com';
-const DOCKER_REMOVE_DANGLING_IMAGES_CMD = 'docker images -q -f dangling=true | xargs docker image rm || true';
+const DOCKER_REMOVE_DANGLING_IMAGES_CMD = 'docker images -q -f dangling=true | xargs docker image rm &>/dev/null || true';
 const CWD = path.dirname(new URL(import.meta.url).pathname);
 
 let cmd;

@@ -1,8 +1,14 @@
 import Koa from 'koa';
+import render from 'koa-ejs';
+import path from 'path';
+import { URL } from 'url';
+
+import HeheBot from './HeheBot.js';
 
 import config from './config.json';
 
 const NODE_ENV = process.env.NODE_ENV;
+const CWD = path.dirname(new URL(import.meta.url).pathname);
 
 function reportError(...errors: any) {
     console.error('🔸 Error:', ...errors);
@@ -31,6 +37,15 @@ process.on('SIGUSR1', () => {
 
 const app = new Koa;
 
+const bot = new HeheBot(config.bot);
+
+render(app, {
+    root: path.join(CWD, '..', 'views'),
+    viewExt: 'ejs',
+    cache: NODE_ENV === 'production',
+    debug: false,
+});
+
 app.use(async (ctx, next) => {
     try {
         await next();
@@ -45,7 +60,7 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async (ctx) => {
-    ctx.body = 'lol';
+    await ctx.render('stat', bot.stat());
 });
 
 app.listen(config.listen.port, config.listen.addr, 0, () => {
