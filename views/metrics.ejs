@@ -1,12 +1,27 @@
-<table border>
+<table border class="Metrics">
     <tr>
-        <th class="key">key</th>
-        <th>value</th>
+        <th colspan="2">Metrics</th>
     </tr>
-    <% for (let key in metrics) { %>
+    <% for (const key in metrics) {
+        const value = metrics[key];
+    %>
         <tr>
-            <td><%= key %></td>
-            <td><%= JSON.stringify(metrics[key]) %></td>
+            <td class="key"><%= key %></td>
+            <td><%= (typeof value !== 'string' ? JSON.stringify(value) : value) %></td>
+        </tr>
+    <% } %>
+</table>
+
+<table border class="Debug">
+    <tr>
+        <th colspan="2">Debug</th>
+    </tr>
+    <% for (const key in debug) {
+        const value = debug[key];
+    %>
+        <tr>
+            <td class="key"><%= key %></td>
+            <td><%= (typeof value !== 'string' ? JSON.stringify(value) : value) %></td>
         </tr>
     <% } %>
 </table>
@@ -17,13 +32,18 @@
         font-size: 16px;
         margin: 0;
     }
-    table {
+    table.Metrics,
+    table.Debug {
         width: 100%;
         border-collapse: collapse;
         border: 1px solid #ddd;
     }
+    table.Debug {
+        margin-top: 50px;
+    }
     th {
         user-select: none;
+        background: #f4f4f4;
     }
     th, td {
         padding: 15px;

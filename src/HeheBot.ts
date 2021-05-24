@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 
-// import sleep from './sleep.js';
+import sleep from './sleep.js';
 import { Browser, compileFormData, FormData } from './Browser.js';
 import { CookieJar, CookieJarCookies } from './CookieJar.js';
 
@@ -14,8 +14,21 @@ const AJAX_URL = `${BASE_URL}/ajax.php`;
 const PHOENIX_AJAX_URL = `${BASE_URL}/phoenix-ajax.php`;
 const HOME_URL = `${BASE_URL}/home.html`;
 
+const MIN_CYCLE_DELAY_MS = 30000;
+
 type json = {[key: string]: any};
 type html = string;
+
+function isGuest(html: html): boolean {
+    return Boolean(
+        html.match('phoenix_member_login') &&
+        html.match('phoenix_member_register'));
+}
+
+function m(source: string, regExp: RegExp): string {
+    const m = source.match(regExp);
+    return m && m[1] || '';
+}
 
 export interface HeheBotConfig {
     login: string;
@@ -25,15 +38,27 @@ export interface HeheBotConfig {
 }
 
 export interface HeheBotState {
-    level?: number;
+    /**
+     * if > 0 then local time is in future
+     */
+    serverDate?: Date;
+    timeDeltaMs?: number;
+    memberInfo?: json;
+    heroInfo?: json;
+    heroEnergies?: json;
+    girls?: json;
+    nextCycleTs?: number;
+    lastQueryTs?: number;
+    nextCycleDelayMs?: number;
 }
 
 export interface HeheBotCache {
+    requestsN?: number;
+    moneyCollected?: number;
     cookies?: CookieJarCookies;
 }
 
 export class HeheBot {
-    protected error?: any;
     protected cache: HeheBotCache = {}; // persistent storage
     protected state: HeheBotState = {}; // runtime storage
     protected browser: Browser;
@@ -54,13 +79,19 @@ export class HeheBot {
             userAgent: USER_AGENT,
             cookieJar: this.cookieJar,
             debug: this.config.debug,
+            onRequest: async () => {
+                this.cache.requestsN = (this.cache.requestsN || 0) + 1;
+                this.state.lastQueryTs = Date.now();
+                await this.saveCache();
+            },
         });
     }
 
     protected async loadCache(): Promise<void> {
         try {
             this.cache = JSON.parse(await fs.readFile(this.config.cache, { encoding: 'utf8' }));
-        } catch {
+        } catch (error) {
+            console.log('🔸 loadCache fail:', error);
             this.cache = {};
         }
     }
@@ -74,29 +105,20 @@ export class HeheBot {
         return this.cookieJar.hasCookie(BASE_HOST, cookieName);
     }
 
-    public getMetrics() {
-        return {
-            login: this.config.login,
-            error: this.error,
-            ...this.state,
-            cache: this.cache,
-        };
-    }
-
     protected async getPage(page: string): Promise<html> {
         let html: string;
 
-        html = await this.getPageRaw(page);
+        html = await this._getPageRaw(page);
 
-        if (!this.isGuest(html)) {
+        if (!isGuest(html)) {
             return html;
         }
 
         await this.auth();
 
-        html = await this.getPageRaw(page);
+        html = await this._getPageRaw(page);
 
-        if (this.isGuest(html)) {
+        if (isGuest(html)) {
             throw `auth complete but page '${page}' still says we are guest`;
         }
 
@@ -148,12 +170,6 @@ export class HeheBot {
         if (!json.success) {
             throw `session_token_authentication failed: ${JSON.stringify(json)}`;
         }
-    }
-
-    protected isGuest(html: html): boolean {
-        return Boolean(
-            html.match('phoenix_member_login') &&
-            html.match('phoenix_member_register'));
     }
 
     protected async saveScreenRatio(): Promise<void> {
@@ -216,7 +232,7 @@ export class HeheBot {
         return JSON.parse(response.body);
     }
 
-    protected async getPageRaw(page: string): Promise<html> {
+    protected async _getPageRaw(page: string): Promise<html> {
         const response = await this.browser.get(page, {
             headers: {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -236,7 +252,7 @@ export class HeheBot {
         });
 
         if (response.statusCode !== 200) {
-            throw `getPageRaw '${page}' returned non-200: ${JSON.stringify(response)}`;
+            throw `_getPageRaw '${page}' returned non-200: ${JSON.stringify(response)}`;
         }
 
         return response.body;
@@ -272,25 +288,156 @@ export class HeheBot {
         return JSON.parse(response.body);
     }
 
-    public async start() {
-        await this.loadCache();
-        await this.cookieJar.load();
-
-        try {
-            await this.verifyAge();
-            await this.fetchHome();
-        } catch (error) {
-            this.error = error;
-        }
-
-        if (this.error) {
-            console.error('🔸 Error:', this.error);
-        }
-    }
-
     protected async fetchHome() {
         const html = await this.getPage(HOME_URL);
 
-        process.stdout.write(html);
+        const localDate = new Date;
+
+        const serverTs = Number(m(html, /server_now_ts = ([0-9]+)/i));
+        if (isNaN(serverTs) || !serverTs) throw 'serverTs not found';
+        const serverDate = new Date(serverTs * 1000);
+        const timeDeltaMs = localDate.getTime() - serverDate.getTime();
+
+        const memberInfo = JSON.parse(m(html, /memberInfo = (\{.*?\});/i));
+        if (!memberInfo.Name) throw 'memberInfo not found';
+
+        const heroInfo = JSON.parse(m(html, /Hero\.infos = (\{.*?\});/i));
+        if (!heroInfo.id) throw 'heroInfo not found';
+
+        const heroEnergies = JSON.parse(m(html, /Hero\.energies = (\{.*?\});/i));
+        if (!heroEnergies.quest) throw 'heroEnergies not found';
+
+        const girlsM = html.matchAll(/(girlsDataList\[.*?([0-9]+).*?\] = (\{.*?\}));/g);
+        if (!girlsM) throw 'girls not found';
+        const girls: json = {};
+        for (const [,, girlId, girlData] of girlsM) {
+            girls[girlId] = JSON.parse(girlData);
+        }
+
+        this.state = {
+            ...this.state,
+            serverDate,
+            timeDeltaMs,
+            memberInfo,
+            heroInfo,
+            heroEnergies,
+            girls,
+        }
+    }
+
+    protected async collectGirlsSalaries() {
+        const { girls } = this.state;
+
+        let collected = 0;
+
+        for (const girlId in girls) {
+            const girlData = girls[girlId];
+            const payIn = Number(girlData.pay_in) || 0;
+            const canBeCollectedNow = payIn <= 0;
+
+            if (canBeCollectedNow) {
+                collected += await this._collectGirlSalary(girlId);
+            } else {
+                this.setNextCycleDelayMs(payIn * 1000);
+            }
+        }
+
+        if (collected) {
+            await this.updateMoneyState(collected);
+        }
+    }
+
+    protected async updateMoneyState(delta: number) {
+        this.cache.moneyCollected = (this.cache.moneyCollected || 0) + delta;
+
+        if (this.state.heroInfo?.soft_currency) {
+            this.state.heroInfo.soft_currency += delta;
+        }
+
+        await this.saveCache();
+    }
+
+    protected async _collectGirlSalary(girlId: string): Promise<number> {
+        const json = await this.postAjax({
+            'class': 'Girl',
+            'id_girl': girlId,
+            'action': 'get_salary',
+        });
+
+        const collected = Number(json.money) || 0;
+        const delayMs = (Number(json.time) || 0) * 1000;
+
+        if (!json.success || !delayMs || !collected) {
+            throw `collectGirlSalary failed: ${JSON.stringify(json)}`;
+        }
+
+        this.setNextCycleDelayMs(delayMs);
+
+        return collected;
+    }
+
+    public async start() {
+        await this.loadCache();
+        await this.cookieJar.load();
+        await this.verifyAge();
+
+        while (true) {
+            this.resetNextCycleDelayMs();
+
+            await this.fetchHome();
+            await this.collectGirlsSalaries();
+
+            await sleep(this.state.nextCycleDelayMs || MIN_CYCLE_DELAY_MS);
+        }
+    }
+
+    protected setNextCycleDelayMs(milliseconds: number) {
+        if (!milliseconds) return;
+
+        this.state.nextCycleDelayMs = this.state.nextCycleDelayMs ?
+            Math.min(milliseconds, this.state.nextCycleDelayMs) :
+            milliseconds;
+
+        this.state.nextCycleTs = Date.now() + this.state.nextCycleDelayMs;
+    }
+
+    protected resetNextCycleDelayMs() {
+        this.state.nextCycleDelayMs = 0;
+        this.state.nextCycleTs = Date.now();
+    }
+
+    public getMetrics() {
+        const { heroInfo } = this.state;
+
+        const nextCycleTs = this.state.nextCycleTs ?
+            Math.round((this.state.nextCycleTs - Date.now()) / 1000) :
+            NaN;
+
+        const lastQueryTs = this.state.lastQueryTs ?
+            Math.round((Date.now() - this.state.lastQueryTs) / 1000) :
+            NaN;
+
+        return {
+            'Name': heroInfo?.Name,
+            'Level': heroInfo?.level,
+            'Gold': heroInfo?.hard_currency,
+            'Money': heroInfo?.soft_currency,
+            'Money collected': this.cache.moneyCollected,
+            'Queries': this.cache.requestsN,
+            'Next cycle': isNaN(nextCycleTs) ? '?' :
+                (nextCycleTs < 1 ? 'now' : `in ${nextCycleTs}s`),
+            'Last query': isNaN(lastQueryTs) ? '?' :
+                (lastQueryTs < 1 ? 'now' : `${lastQueryTs}s ago`),
+        };
+    }
+
+    public getDebug() {
+        return {
+            login: this.config.login,
+            cache: this.config.cache,
+            debug: this.config.debug,
+            ...this.state,
+            ...this.cache,
+        };
     }
 }

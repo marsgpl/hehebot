@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "src",
     "outDir": "build",
-    "target": "esnext",
+    "target": "ES2019",
     "module": "esnext",
     "strict": true,
     "isolatedModules": true,

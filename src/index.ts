@@ -1,3 +1,4 @@
+import os from 'os';
 import Koa from 'koa';
 import render from 'koa-ejs';
 import path from 'path';
@@ -11,7 +12,7 @@ const NODE_ENV = process.env.NODE_ENV;
 const CWD = path.dirname(new URL(import.meta.url).pathname);
 
 function reportError(...errors: any) {
-    console.error('🔸 Error:', ...errors);
+    console.error('🔸 hehebot fail:', ...errors);
 }
 
 function cleanup() {}
@@ -61,11 +62,13 @@ app.use(async (ctx, next) => {
 app.use(async (ctx) => {
     await ctx.render('metrics', {
         metrics: bot.getMetrics(),
+        debug: bot.getDebug(),
     });
 });
 
 app.listen(config.listen.port, config.listen.addr, 0, () => {
     console.log(`env: ${NODE_ENV}`);
+    console.log('OS username:', os.userInfo().username);
     console.log(`listening on ${config.listen.addr}:${config.listen.port}`);
     bot.start();
 });

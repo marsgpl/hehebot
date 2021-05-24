@@ -7,6 +7,8 @@ import getTimestamp from './helpers/getTimestamp.js';
 import createDockerContainer from './helpers/createDockerContainer.js';
 import destroyDockerContainer from './helpers/destroyDockerContainer.js';
 
+const CACHE_FILE_LOCAL = '/home/marsgpl/.hehebot.cache.json';
+const CACHE_FILE_CONTAINER = '/tmp/.hehebot.cache.json';
 const DOCKER_CONTAINER_NAME = 'hehebot';
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';
 const DOCKER_LOGIN_CMD = 'echo OPqsj9d02e8nrJsoidvh44pHBV | docker login --username ewj9f4wsk3j90rghtOJ02fhig --password-stdin docker.marsgpl.com';
@@ -27,9 +29,12 @@ console.log('Uglify code ...');
 
 console.log('Patch config ...');
     const config = JSON.parse(fs.readFileSync('deploy/config.json', { encoding: 'utf8' }));
-    config.build.version = getVersion();
-    config.build.timestamp = getTimestamp();
-    console.log('🔸 build config:', config.build);
+    config.bot.cache = CACHE_FILE_CONTAINER;
+    config.build = {
+        version: getVersion(),
+        timestamp: getTimestamp(),
+    };
+    console.log('🔸 build:', config.build);
     fs.writeFileSync(`build.uglified/config.json`, JSON.stringify(config), { encoding: 'utf8' });
 
 console.log('Docker login ...');
@@ -47,18 +52,22 @@ console.log('Push docker image ...');
 console.log('Pull docker image ...');
     runShellCommandSync(`ssh marsgpl@workers 'docker pull ${DOCKER_IMAGE_NAME}'`);
 
+console.log('Prepare cache ...');
+    runShellCommandSync(`ssh workers 'touch ${CACHE_FILE_LOCAL} && chown root:root ${CACHE_FILE_LOCAL}'`);
+
 console.log('Restart worker ...');
     cmd = [];
     cmd.push(destroyDockerContainer(DOCKER_CONTAINER_NAME));
     cmd.push(createDockerContainer(DOCKER_CONTAINER_NAME, DOCKER_IMAGE_NAME, [
         '--detach',
-        '--restart always',
+        '--restart no',
         '--read-only',
         '--network host',
         `--hostname hehebot`,
         '--stop-signal SIGUSR1',
+        `--volume ${CACHE_FILE_LOCAL}:${CACHE_FILE_CONTAINER}:Z`,
     ]));
-    runShellCommandSync(`ssh marsgpl@workers '${cmd.join(' && ')}'`);
+    runShellCommandSync(`ssh workers '${cmd.join(' && ')}'`);
 
 console.log('Cleanup docker ...');
     runShellCommandSync(`ssh marsgpl@workers '${DOCKER_REMOVE_DANGLING_IMAGES_CMD}'`);

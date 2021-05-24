@@ -23,6 +23,7 @@ export interface BrowserProps {
     userAgent?: string;
     cookieJar?: CookieJar;
     debug?: boolean;
+    onRequest?: () => Promise<void>;
 }
 
 export class Browser {
@@ -66,7 +67,7 @@ export class Browser {
                     if (this.props.debug) {
                         console.log('🔵', result.statusCode, result.statusMessage);
                         console.log('🔵', result.headers);
-                        console.log('🔵', result.body.substr(0, 128)
+                        console.log('🔵', result.body.replace(/\n/g, ' ').substr(0, 128)
                             + (result.body.length > 128 ? '...' : ''));
                     }
 
@@ -127,7 +128,7 @@ export class Browser {
                 console.log('🟠', options.method, url.toString());
                 console.log('🟠', requestOptions.headers);
                 if (options.method === 'POST' && options.body) {
-                    console.log('🟠', options.body);
+                    console.log('🟠', options.body.replace(/\n/g, ' '));
                 }
             }
 
@@ -143,6 +144,10 @@ export class Browser {
             }
 
             request.end();
+
+            if (this.props.onRequest) {
+                this.props.onRequest();
+            }
         });
     }
 }
