@@ -7,7 +7,13 @@
     %>
         <tr>
             <td class="key"><%= key %></td>
-            <td><%= (typeof value !== 'string' ? JSON.stringify(value) : value) %></td>
+            <td>
+                <% if (key === 'Next cycle') { %>
+                    <span class="next-cycle"><%= value %></span>
+                <% } else { %>
+                    <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
+                <% } %>
+            </td>
         </tr>
     <% } %>
 </table>
@@ -54,3 +60,27 @@
         width: 140px;
     }
 </style>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const node = document.querySelector('.next-cycle');
+        if (!node) return;
+        let seconds = parseInt(node.innerText.trim()) || 0;
+        const btn = '<button onclick="location.reload()">reload</button>';
+        if (seconds < 1) {
+            node.innerHTML = btn;
+        } else {
+            const end = Date.now() + seconds * 1000;
+            const itv = setInterval(() => {
+                const now = Date.now();
+                const seconds = Math.round((end - now) / 1000);
+                if (seconds < 1) {
+                    clearInterval(itv);
+                    node.innerHTML = btn;
+                } else {
+                    node.innerText = seconds + 's';
+                }
+            }, 1000);
+        }
+    });
+</script>

@@ -176,7 +176,7 @@ export class HeheBot {
         const json = await this.postAjax({
             'class': 'Hero',
             'action': 'save_screen_ratio',
-            'ratio': String(Math.random()),
+            'ratio': String(1.6 + Math.random() / 10),
         });
 
         if (!json.success) {
@@ -407,15 +407,18 @@ export class HeheBot {
     }
 
     public getMetrics() {
-        const { heroInfo } = this.state;
+        const { heroInfo, girls } = this.state;
 
-        const nextCycleTs = this.state.nextCycleTs ?
-            Math.round((this.state.nextCycleTs - Date.now()) / 1000) :
-            NaN;
+        const nextCycleTs = !this.state.nextCycleTs ? 0 :
+            Math.max(0, Math.round((this.state.nextCycleTs - Date.now()) / 1000));
 
-        const lastQueryTs = this.state.lastQueryTs ?
-            Math.round((Date.now() - this.state.lastQueryTs) / 1000) :
-            NaN;
+        let moneyEstimate = 0;
+        if (girls) {
+            for (const girlId in girls) {
+                const girlData = girls[girlId];
+                moneyEstimate += (Number(girlData.salary) / Number(girlData.pay_time)) || 0;
+            }
+        }
 
         return {
             'Name': heroInfo?.Name,
@@ -423,11 +426,8 @@ export class HeheBot {
             'Gold': heroInfo?.hard_currency,
             'Money': heroInfo?.soft_currency,
             'Money collected': this.cache.moneyCollected,
-            'Queries': this.cache.requestsN,
-            'Next cycle': isNaN(nextCycleTs) ? '?' :
-                (nextCycleTs < 1 ? 'now' : `in ${nextCycleTs}s`),
-            'Last query': isNaN(lastQueryTs) ? '?' :
-                (lastQueryTs < 1 ? 'now' : `${lastQueryTs}s ago`),
+            'Salary': Math.round(moneyEstimate * 3600) + '/h',
+            'Next cycle': nextCycleTs + 's',
         };
     }
 
