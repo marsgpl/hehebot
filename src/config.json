@@ -2,7 +2,8 @@
     "bot": {
         "login": "pkairevent@gmail.com",
         "password": "SDJAOSdjn2f09385bgw0e9n0f1",
-        "cache": ".hhbot.cache"
+        "cache": ".hhbot.cache.json",
+        "debug": true
     },
     "listen": {
         "addr": "127.0.0.1",

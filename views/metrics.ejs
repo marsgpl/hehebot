@@ -1,0 +1,36 @@
+<table border>
+    <tr>
+        <th class="key">key</th>
+        <th>value</th>
+    </tr>
+    <% for (let key in metrics) { %>
+        <tr>
+            <td><%= key %></td>
+            <td><%= JSON.stringify(metrics[key]) %></td>
+        </tr>
+    <% } %>
+</table>
+
+<style>
+    body {
+        font-family: Arial;
+        font-size: 16px;
+        margin: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+    }
+    th {
+        user-select: none;
+    }
+    th, td {
+        padding: 15px;
+        word-break: break-word;
+        text-align: left;
+    }
+    .key {
+        width: 140px;
+    }
+</style>

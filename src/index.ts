@@ -3,7 +3,7 @@ import render from 'koa-ejs';
 import path from 'path';
 import { URL } from 'url';
 
-import HeheBot from './HeheBot.js';
+import { HeheBot } from './HeheBot.js';
 
 import config from './config.json';
 
@@ -14,8 +14,7 @@ function reportError(...errors: any) {
     console.error('🔸 Error:', ...errors);
 }
 
-function cleanup() {
-}
+function cleanup() {}
 
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     reportError('unhandledRejection', reason);
@@ -60,10 +59,13 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async (ctx) => {
-    await ctx.render('stat', bot.stat());
+    await ctx.render('metrics', {
+        metrics: bot.getMetrics(),
+    });
 });
 
 app.listen(config.listen.port, config.listen.addr, 0, () => {
     console.log(`env: ${NODE_ENV}`);
     console.log(`listening on ${config.listen.addr}:${config.listen.port}`);
+    bot.start();
 });

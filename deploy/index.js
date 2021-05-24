@@ -30,7 +30,7 @@ console.log('Patch config ...');
     config.build.version = getVersion();
     config.build.timestamp = getTimestamp();
     console.log('🔸 build config:', config.build);
-    fs.writeFileSync(`build.uglified/config.json`, JSON.stringify(config));
+    fs.writeFileSync(`build.uglified/config.json`, JSON.stringify(config), { encoding: 'utf8' });
 
 console.log('Docker login ...');
     runShellCommandSync(DOCKER_LOGIN_CMD);
