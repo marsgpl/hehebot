@@ -5,22 +5,31 @@ import sleep from '../helpers/sleep.js';
 import formatMoney from '../helpers/formatMoney.js';
 import { Browser, FormData, stringifyFormData } from './Browser.js';
 import { CookieJar, CookieJarCookies } from './CookieJar.js';
-import taskFetchHome from '../tasks/taskFetchHome.js';
+
 import taskCollectSalaries from '../tasks/taskCollectSalaries.js';
+import taskFightTroll from '../tasks/taskFightTroll.js';
 import taskActivities from '../tasks/taskActivities.js';
+import taskFetchHome from '../tasks/taskFetchHome.js';
+import taskStory from '../tasks/taskStory.js';
 
 export type JsonObject = {[key: string]: any};
 export type HtmlString = string;
 
 export const TASK_NOTHING = 'nothing';
-export const TASK_FETCH_HOME = 'FetchHome';
 export const TASK_COLLECT_SALARIES = 'CollectSalary';
+export const TASK_FIGHT_TROLL = 'FightTroll';
+export const TASK_FETCH_HOME = 'FetchHome';
 export const TASK_ACTIVITIES = 'Activities';
+export const TASK_STORY = 'Story';
 
-type TaskName = typeof TASK_FETCH_HOME |
-    typeof TASK_COLLECT_SALARIES |
-    typeof TASK_ACTIVITIES;
 type Task = [TaskName, string, number];
+
+type TaskName =
+    typeof TASK_COLLECT_SALARIES |
+    typeof TASK_FIGHT_TROLL |
+    typeof TASK_FETCH_HOME |
+    typeof TASK_ACTIVITIES |
+    typeof TASK_STORY;
 
 const AGE_VERIFICATION_COOKIE = 'age_verification';
 
@@ -59,6 +68,8 @@ export interface HeheBotCache {
     missionsStarted?: number;
     missionsCompleted?: number;
     missionsFinalGifts?: number;
+    storyStepsDone?: number;
+    trollFights?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -84,6 +95,7 @@ export interface HeheBotState {
     missions?: JsonObject;
     serverDate?: Date;
     timeDeltaMs?: number;
+    storyBlocked?: JsonObject;
 }
 
 export class HeheBot {
@@ -126,10 +138,9 @@ export class HeheBot {
             },
             onNetworkError: async (error, retryIn) => {
                 this.lastSoftError = fail(
-                    new Date,
                     'onNetworkError',
-                    `retrying in ${Math.round(retryIn / 1000)}s`,
-                    error);
+                    error,
+                    `retrying in ${Math.round(retryIn / 1000)}s`);
             },
         });
     }
@@ -172,9 +183,11 @@ export class HeheBot {
 
     protected async runTask(name: TaskName) {
         switch (name) {
-            case TASK_FETCH_HOME: return taskFetchHome(this);
             case TASK_COLLECT_SALARIES: return taskCollectSalaries(this);
+            case TASK_FIGHT_TROLL: return taskFightTroll(this);
+            case TASK_FETCH_HOME: return taskFetchHome(this);
             case TASK_ACTIVITIES: return taskActivities(this);
+            case TASK_STORY: return taskStory(this);
             default: throw `Unknown task: ${name}`;
         }
     }
@@ -236,7 +249,7 @@ export class HeheBot {
             }
         } catch (error) {
             // we can continue without cache
-            this.lastSoftError = fail(new Date, 'loadCache', error);
+            this.lastSoftError = fail('loadCache', error);
             this.cache = {};
         }
 
@@ -285,13 +298,21 @@ export class HeheBot {
     }
 
     public exportMetrics(): HeheBotMetrics {
-        return {
+        const metrics: HeheBotMetrics = {
             'Name': this.state.heroInfo?.Name,
             'Salary': this.getSalaryEstimate(),
             'Salary collected': formatMoney(this.cache.salaryCollected || 0),
             'Missions done': this.cache.missionsCompleted || 0,
             'Missions gifts': this.cache.missionsFinalGifts || 0,
+            'Story steps': this.cache.storyStepsDone || 0,
+            'Troll fights': this.cache.trollFights || 0,
         };
+
+        if (this.state.storyBlocked) {
+            metrics['Story blocked'] = this.state.storyBlocked;
+        }
+
+        return metrics;
     }
 
     public exportDebugInfo(): HeheBotMetrics {
@@ -403,7 +424,7 @@ export class HeheBot {
                 this.lastSoftError = fail(
                     'fetchHtml',
                     url,
-                    {...response, body: response.body.length},
+                    response,
                     `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
 
                 await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
@@ -442,7 +463,7 @@ export class HeheBot {
                 this.lastSoftError = fail(
                     'fetchAjax',
                     query,
-                    {...response, body: response.body.length},
+                    response,
                     `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
 
                 await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
@@ -482,7 +503,7 @@ export class HeheBot {
                 this.lastSoftError = fail(
                     'fetchKinkoidAjax',
                     query,
-                    {...response, body: response.body.length},
+                    response,
                     `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
 
                 await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);

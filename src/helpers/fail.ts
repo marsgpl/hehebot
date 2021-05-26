@@ -1,5 +1,7 @@
 export default function fail(...errors: any[]): string {
-    const result: string[] = [];
+    const result: string[] = [
+        (new Date).toString(),
+    ];
 
     errors.forEach(error => {
         if (typeof error === 'string') {

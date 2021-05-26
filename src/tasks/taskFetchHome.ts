@@ -1,4 +1,4 @@
-import { HeheBot, JsonObject, TASK_COLLECT_SALARIES, TASK_ACTIVITIES } from '../class/HeheBot.js';
+import { HeheBot, JsonObject, TASK_COLLECT_SALARIES, TASK_ACTIVITIES, TASK_STORY, TASK_FIGHT_TROLL } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 import { m, mj } from '../helpers/m.js';
 
@@ -45,4 +45,6 @@ export default async function taskFetchHome(bot: HeheBot) {
 
     bot.pushTask(TASK_COLLECT_SALARIES, 'cycle');
     bot.pushTask(TASK_ACTIVITIES, 'cycle');
+    bot.pushTask(TASK_FIGHT_TROLL, 'cycle');
+    bot.pushTask(TASK_STORY, 'cycle');
 }

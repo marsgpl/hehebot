@@ -1,6 +1,8 @@
 import { HeheBot, TASK_FETCH_HOME } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 
+// {"time":120,"money":100,"success":true}
+
 async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number, number]> {
     const json = await bot.fetchAjax({
         'class': 'Girl',
