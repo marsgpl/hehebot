@@ -37,6 +37,8 @@ export default async function taskStory(bot: HeheBot) {
             if (json.error?.match(/have the wanted item/i)) {
                 bot.state.storyBlocked = json;
                 return;
+            } else if (json.error?.match(/have enough energy/i)) {
+                break;
             } else {
                 throw fail('taskStory', json);
             }
@@ -57,5 +59,9 @@ export default async function taskStory(bot: HeheBot) {
         if (!currentQuestId) {
             throw fail('taskStory', 'currentQuestId', json);
         }
+    }
+
+    if (fullRechargeIn) {
+        bot.pushTaskIn(TASK_FETCH_HOME, 'story', fullRechargeIn);
     }
 }
