@@ -29,7 +29,7 @@ console.log('Uglify code ...');
 
 console.log('Patch config ...');
     const config = JSON.parse(fs.readFileSync('deploy/config.json', { encoding: 'utf8' }));
-    config.bot.cache = CACHE_FILE_CONTAINER;
+    config.bot.cacheFile = CACHE_FILE_CONTAINER;
     config.build = {
         version: getVersion(),
         timestamp: getTimestamp(),

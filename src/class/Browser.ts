@@ -23,7 +23,7 @@ export interface BrowserProps {
     userAgent?: string;
     cookieJar?: CookieJar;
     debug?: boolean;
-    onRequest?: () => Promise<void>;
+    onRequestSuccess?: (response: BrowserResponse) => Promise<void>;
 }
 
 export class Browser {
@@ -47,40 +47,49 @@ export class Browser {
                 return reject(`url protocol '${url.protocol}' is not supported`);
             }
 
-            const onResponse = (response: http.IncomingMessage) => {
-                response.setEncoding('utf8');
+            const onResponse = (httpResponse: http.IncomingMessage) => {
+                httpResponse.setEncoding('utf8');
 
                 const body: string[] = [];
 
-                response.on('data', (chunk) => {
+                httpResponse.on('data', (chunk) => {
                     body.push(chunk);
                 });
 
-                response.on('end', () => {
-                    const result: BrowserResponse = {
-                        statusCode: response.statusCode,
-                        statusMessage: response.statusMessage,
-                        headers: response.headers,
+                httpResponse.on('end', () => {
+                    const response: BrowserResponse = {
+                        statusCode: httpResponse.statusCode,
+                        statusMessage: httpResponse.statusMessage,
+                        headers: httpResponse.headers,
                         body: body.join(''),
                     };
 
-                    if (this.props.debug) {
-                        console.log('🔵', result.statusCode, result.statusMessage);
-                        console.log('🔵', result.headers);
-                        console.log('🔵', result.body.replace(/\n/g, ' ').substr(0, 128)
-                            + (result.body.length > 128 ? '...' : ''));
-                    }
+                    const promises: Promise<any>[] = [];
 
-                    const cookies = response.headers['set-cookie'];
+                    const cookies = httpResponse.headers['set-cookie'];
 
                     if (cookies && this.props.cookieJar) {
-                        this.props.cookieJar
-                            .putRawCookiesAndSave(url as URL, new Date, cookies)
-                            .then(() => resolve(result))
-                            .catch(reject);
-                    } else {
-                        resolve(result);
+                        promises.push(this.props.cookieJar
+                            .putRawCookiesAndSave(url as URL, new Date, cookies));
                     }
+
+                    if (this.props.onRequestSuccess) {
+                        promises.push(this.props.onRequestSuccess(response));
+                    }
+
+                    if (this.props.debug) {
+                        console.log('🟨', response.statusCode, response.statusMessage);
+
+                        if (response.body[0] === '{') {
+                            console.log('🟨', response.body);
+                        } else {
+                            console.log('🟨', `body#${response.body.length}`);
+                        }
+                    }
+
+                    Promise.all(promises)
+                        .then(() => resolve(response))
+                        .catch(reject);
                 });
             };
 
@@ -94,7 +103,7 @@ export class Browser {
                 new http.Agent(agentOptions);
 
             const requestOptions: https.RequestOptions = {
-                method: options.method,
+                method: options.method || 'GET',
                 agent,
             };
 
@@ -107,29 +116,27 @@ export class Browser {
             }
 
             if (options.headers) {
-                for (const headerName in options.headers) {
-                    requestOptions.headers[headerName] = options.headers[headerName];
+                requestOptions.headers = {
+                    ...requestOptions.headers,
+                    ...options.headers,
                 }
             }
 
             if (this.props.cookieJar) {
-                const cookiesFromJar = this.props.cookieJar.getCookiesAsHeader(url, new Date);
+                const cookiesFromJar = this.props.cookieJar.getCookiesForHeader(url, new Date);
+
                 if (cookiesFromJar) {
-                    requestOptions.headers['Cookie'] = cookiesFromJar;
+                    const cokiesFromHeaders = requestOptions.headers['Cookie'];
+
+                    requestOptions.headers['Cookie'] = cokiesFromHeaders ?
+                        cookiesFromJar + '; ' + cokiesFromHeaders :
+                        cookiesFromJar;
                 }
             }
 
             if (options.method === 'POST') {
                 requestOptions.headers['Content-Length'] =
                     String(Buffer.byteLength(options.body || '', 'utf8'));
-            }
-
-            if (this.props.debug) {
-                console.log('🟠', options.method, url.toString());
-                console.log('🟠', requestOptions.headers);
-                if (options.method === 'POST' && options.body) {
-                    console.log('🟠', options.body.replace(/\n/g, ' '));
-                }
             }
 
             const request = url.protocol === 'https:' ?
@@ -145,14 +152,18 @@ export class Browser {
 
             request.end();
 
-            if (this.props.onRequest) {
-                this.props.onRequest();
+            if (this.props.debug) {
+                console.log('🟦', options.method, url.toString());
+
+                if (options.method === 'POST') {
+                    console.log('🟦', JSON.stringify(options.body || ''));
+                }
             }
         });
     }
 }
 
-export function compileFormData(data: FormData): string {
+export function stringifyFormData(data: FormData): string {
     const result: string[] = [];
 
     Object.keys(data).forEach(key => {

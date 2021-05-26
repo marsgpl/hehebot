@@ -1,4 +1,4 @@
-<table border class="Metrics">
+<table border class="DataTable">
     <tr>
         <th colspan="2">Metrics</th>
     </tr>
@@ -6,19 +6,15 @@
         const value = metrics[key];
     %>
         <tr>
-            <td class="key"><%= key %></td>
+            <td class="Key"><%= key %></td>
             <td>
-                <% if (key === 'Next cycle') { %>
-                    <span class="next-cycle"><%= value %></span>
-                <% } else { %>
-                    <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
-                <% } %>
+                <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
             </td>
         </tr>
     <% } %>
 </table>
 
-<table border class="Debug">
+<table border class="DataTable">
     <tr>
         <th colspan="2">Debug</th>
     </tr>
@@ -26,61 +22,90 @@
         const value = debug[key];
     %>
         <tr>
-            <td class="key"><%= key %></td>
-            <td><%= (typeof value !== 'string' ? JSON.stringify(value) : value) %></td>
+            <td class="Key"><%= key %></td>
+            <td>
+                <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
+            </td>
         </tr>
     <% } %>
 </table>
 
+<div class="NextTask" data-countdown="<%= nextTask.countdown %>">
+    <%= nextTask.name %> in <span><%= nextTask.countdown %></span>s (<%= nextTask.reason %>)
+</div>
+
+<button class="RefreshButton" onclick="location.reload()">refresh</button>
+
 <style>
     body {
-        font-family: Arial;
-        font-size: 16px;
         margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+            Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 16px;
     }
-    table.Metrics,
-    table.Debug {
+    .DataTable {
         width: 100%;
         border-collapse: collapse;
         border: 1px solid #ddd;
     }
-    table.Debug {
+    .DataTable + .DataTable {
         margin-top: 50px;
     }
-    th {
+    .DataTable th {
         user-select: none;
         background: #f4f4f4;
     }
-    th, td {
+    .DataTable th, td {
         padding: 15px;
         word-break: break-word;
         text-align: left;
     }
-    .key {
+    .DataTable .Key {
         width: 140px;
+    }
+    .RefreshButton {
+        display: none;
+        position: fixed;
+        top: 14px;
+        right: 14px;
+    }
+    .NextTask {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 16px;
+        color: #666;
+        font-size: 14px;
     }
 </style>
 
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
-        const node = document.querySelector('.next-cycle');
-        if (!node) return;
-        let seconds = parseInt(node.innerText.trim()) || 0;
-        const btn = '<button onclick="location.reload()">reload</button>';
-        if (seconds < 1) {
-            node.innerHTML = btn;
-        } else {
-            const end = Date.now() + seconds * 1000;
-            const itv = setInterval(() => {
-                const now = Date.now();
-                const seconds = Math.round((end - now) / 1000);
-                if (seconds < 1) {
-                    clearInterval(itv);
-                    node.innerHTML = btn;
-                } else {
-                    node.innerText = seconds + 's';
-                }
-            }, 1000);
+        const RefreshButton = document.querySelector('.RefreshButton');
+        const NextTask = document.querySelector('.NextTask');
+        const NextTaskCountdown = NextTask.querySelector('span');
+        const countdown = Number(NextTask.dataset.countdown);
+        const nextTaskTs = Date.now() + countdown * 1000;
+
+        const updateNextTask = () => {
+            const nowTs = Date.now();
+            const secondsLeft = Math.round((nextTaskTs - nowTs) / 1000);
+
+            if (secondsLeft < 1) {
+                NextTask.style.display = 'none';
+                RefreshButton.style.display = 'block';
+                clearInterval(updateNextTaskInterval);
+            } else {
+                NextTask.style.display = 'block';
+                RefreshButton.style.display = 'none';
+                NextTaskCountdown.innerText = secondsLeft;
+            }
         }
+
+        const updateNextTaskInterval = setInterval(updateNextTask, 1000);
+        updateNextTask();
     });
 </script>

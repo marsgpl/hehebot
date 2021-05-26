@@ -16,8 +16,8 @@ export type CookieJarCookies = {
 }
 
 export interface CookieJarProps {
-    load?: () => Promise<CookieJarCookies>;
-    save?: (cookies: CookieJarCookies) => Promise<boolean>;
+    loadCookies?: () => Promise<CookieJarCookies>;
+    saveCookies?: (cookies: CookieJarCookies) => Promise<void>;
 }
 
 export class CookieJar {
@@ -25,10 +25,12 @@ export class CookieJar {
 
     constructor(protected props: CookieJarProps) {}
 
-    public async load() {
-        if (this.props.load) {
-            this.cookies = await this.props.load();
-            this.removeExpiredCookies();
+    public async load(now: Date) {
+        if (this.props.loadCookies) {
+            this.cookies = await this.props.loadCookies();
+            this.removeExpiredCookies(now);
+        } else {
+            this.cookies = {};
         }
     }
 
@@ -37,8 +39,52 @@ export class CookieJar {
         return Boolean(this.cookies[key]);
     }
 
-    protected removeExpiredCookies() {
-        const now = new Date;
+    public getCookiesForHeader(url: URL, now: Date): string {
+        const result: string[] = [];
+        const hostRegexp = new RegExp(`^(.+\\.)?${url.hostname.replace(/^\.+/, '')}$`, 'i');
+
+        Object.keys(this.cookies).forEach(key => {
+            const cookie = this.cookies[key];
+
+            if (!hostRegexp.exec(cookie.hostname)) {
+                return;
+            }
+
+            if (url.pathname.indexOf(cookie.path) !== 0) {
+                return;
+            }
+
+            if (cookie.expires) {
+                const expires = new Date(cookie.expires);
+                if (now > expires) return;
+            }
+
+            result.push(cookie.name + '=' + cookie.value);
+        });
+
+        return result.join('; ');
+    }
+
+    public async putRawCookiesAndSave(url: URL, now: Date, rawCookies: string[]) {
+        let added = 0;
+
+        rawCookies.forEach(rawCookie => {
+            const cookie = this.parseRawCookie(url, now, rawCookie);
+            if (!cookie) return;
+            this.cookies[cookie.key] = cookie;
+            added++;
+        });
+
+        if (added > 0 && this.props.saveCookies) {
+            await this.props.saveCookies(this.cookies);
+        }
+    }
+
+    protected getCookieKey(hostName: string, cookieName: string): string {
+        return `${hostName}:${cookieName}`;
+    }
+
+    protected removeExpiredCookies(now: Date) {
         const keysToRemove: string[] = [];
 
         Object.keys(this.cookies).forEach(key => {
@@ -55,23 +101,7 @@ export class CookieJar {
         });
     }
 
-    public async putRawCookiesAndSave(url: URL, date: Date, rawCookies: string[]) {
-        let added = 0;
-
-        rawCookies.forEach(rawCookie => {
-            const cookie = this.parseRawCookie(url, date, rawCookie);
-            if (!cookie) return;
-
-            this.cookies[cookie.key] = cookie;
-            added++;
-        });
-
-        if (added > 0 && this.props.save) {
-            await this.props.save(this.cookies);
-        }
-    }
-
-    protected parseRawCookie(url: URL, date: Date, rawCookie: string): CookieJarCookie | null {
+    protected parseRawCookie(url: URL, now: Date, rawCookie: string): CookieJarCookie | null {
         const pairs = rawCookie.split('; ');
 
         const cookie: CookieJarCookie = {
@@ -98,11 +128,13 @@ export class CookieJar {
                 if (key === 'path') {
                     cookie.path = value;
                 } else if (key === 'domain') {
-                    cookie.hostname = value;
+                    if (url.hostname.indexOf(value) >= 0) {
+                        cookie.hostname = value;
+                    }
                 } else if (key === 'expires') {
                     cookie.expires = Date.parse(value);
                 } else if (key === 'Max-Age' && !cookie.expires) {
-                    cookie.expires = date.getTime() + (Number(value) || 0 * 1000);
+                    cookie.expires = now.getTime() + ((Number(value) || 0) * 1000);
                 }
             }
         });
@@ -114,38 +146,5 @@ export class CookieJar {
         cookie.key = this.getCookieKey(cookie.hostname, cookie.name);
 
         return cookie;
-    }
-
-    protected getCookieKey(hostName: string, cookieName: string): string {
-        return `${hostName}:${cookieName}`;
-    }
-
-    public getCookiesAsHeader(url: URL, date: Date): string {
-        const result: string[] = [];
-
-        const regexp = new RegExp(`^(.+\\.)?${url.hostname.replace(/^\.+/, '')}$`, 'i');
-
-        Object.keys(this.cookies).forEach(key => {
-            const cookie = this.cookies[key];
-
-            if (!regexp.exec(cookie.hostname)) {
-                return;
-            }
-
-            if (url.pathname.indexOf(cookie.path) !== 0) {
-                return;
-            }
-
-            if (cookie.expires) {
-                const expires = new Date(cookie.expires);
-                if (date > expires) {
-                    return;
-                }
-            }
-
-            result.push(cookie.name + '=' + cookie.value);
-        });
-
-        return result.join('; ');
     }
 }

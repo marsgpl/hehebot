@@ -2,7 +2,7 @@
     "bot": {
         "login": "rainboweyelasers@gmail.com",
         "password": "ds08n4SDVHI08r5SDH9g058bs",
-        "debug": true
+        "debug": false
     },
     "listen": {
         "addr": "10.0.0.4",

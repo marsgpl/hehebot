@@ -4,18 +4,22 @@ import render from 'koa-ejs';
 import path from 'path';
 import { URL } from 'url';
 
-import { HeheBot } from './HeheBot.js';
+import { HeheBot } from './class/HeheBot.js';
+import fail from './helpers/fail.js';
 
 import config from './config.json';
 
 const NODE_ENV = process.env.NODE_ENV;
 const CWD = path.dirname(new URL(import.meta.url).pathname);
 
+const app = new Koa;
+const bot = new HeheBot(config.bot);
+
 function reportError(...errors: any) {
-    console.error('🔸 hehebot fail:', ...errors);
+    console.error('🔸 Fatal error:', fail(...errors));
 }
 
-function cleanup() {}
+async function cleanup() {}
 
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     reportError('unhandledRejection', reason);
@@ -34,10 +38,6 @@ process.on('SIGUSR1', () => {
     cleanup();
     process.exit(0);
 });
-
-const app = new Koa;
-
-const bot = new HeheBot(config.bot);
 
 render(app, {
     root: path.join(CWD, '..', 'views'),
@@ -60,15 +60,21 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async (ctx) => {
+    const now = new Date;
+
     await ctx.render('metrics', {
-        metrics: bot.getMetrics(),
-        debug: bot.getDebug(),
+        nextTask: bot.getNextTaskInfo(now),
+        metrics: bot.exportMetrics(),
+        debug: bot.exportDebugInfo(),
     });
 });
 
+/**
+ * 🟥🟧🟨🟩🟦🟪⬛️⬜️🟫
+ */
 app.listen(config.listen.port, config.listen.addr, 0, () => {
-    console.log(`env: ${NODE_ENV}`);
-    console.log('OS username:', os.userInfo().username);
-    console.log(`listening on ${config.listen.addr}:${config.listen.port}`);
+    console.log(`Mode: ${NODE_ENV}`);
+    console.log('OS user:', os.userInfo().username);
+    console.log(`Listening on ${config.listen.addr}:${config.listen.port}`);
     bot.start();
 });
