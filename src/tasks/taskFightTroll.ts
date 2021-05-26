@@ -46,7 +46,7 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
         ...trollParams,
     });
 
-    if (json.error?.includes('fight energy')) {
+    if (json.error?.match(/fight energy/i)) {
         return false;
     }
 
@@ -67,7 +67,7 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
 
     // check if we gained some quest items in loot
     const rewards = JSON.stringify(json.end?.rewards?.data?.rewards);
-    if (rewards.includes('quest')) {
+    if (rewards?.match(/quest/i)) {
         bot.state.storyBlocked = undefined;
     }
 

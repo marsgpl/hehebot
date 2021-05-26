@@ -11,6 +11,7 @@ import taskFightTroll from '../tasks/taskFightTroll.js';
 import taskActivities from '../tasks/taskActivities.js';
 import taskFetchHome from '../tasks/taskFetchHome.js';
 import taskStory from '../tasks/taskStory.js';
+import taskSeasonFight from '../tasks/taskSeasonFight.js';
 
 export type JsonObject = {[key: string]: any};
 export type HtmlString = string;
@@ -21,6 +22,7 @@ export const TASK_FIGHT_TROLL = 'FightTroll';
 export const TASK_FETCH_HOME = 'FetchHome';
 export const TASK_ACTIVITIES = 'Activities';
 export const TASK_STORY = 'Story';
+export const TASK_SEASON_FIGHT = 'SeasonFight';
 
 type Task = [TaskName, string, number];
 
@@ -29,6 +31,7 @@ type TaskName =
     typeof TASK_FIGHT_TROLL |
     typeof TASK_FETCH_HOME |
     typeof TASK_ACTIVITIES |
+    typeof TASK_SEASON_FIGHT |
     typeof TASK_STORY;
 
 const AGE_VERIFICATION_COOKIE = 'age_verification';
@@ -70,6 +73,8 @@ export interface HeheBotCache {
     missionsFinalGifts?: number;
     storyStepsDone?: number;
     trollFights?: number;
+    seasonFightWins?: number;
+    seasonFightLoses?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -93,9 +98,11 @@ export interface HeheBotState {
     notificationData?: JsonObject;
     missions_datas?: JsonObject;
     missions?: JsonObject;
+    season_season_id?: number;
     serverDate?: Date;
     timeDeltaMs?: number;
     storyBlocked?: JsonObject;
+    seasonError?: any;
 }
 
 export class HeheBot {
@@ -187,6 +194,7 @@ export class HeheBot {
             case TASK_FIGHT_TROLL: return taskFightTroll(this);
             case TASK_FETCH_HOME: return taskFetchHome(this);
             case TASK_ACTIVITIES: return taskActivities(this);
+            case TASK_SEASON_FIGHT: return taskSeasonFight(this);
             case TASK_STORY: return taskStory(this);
             default: throw `Unknown task: ${name}`;
         }
@@ -244,7 +252,11 @@ export class HeheBot {
             this.cache = content ? JSON.parse(content) : {};
 
             if (this.cache.login !== this.config.login) {
-                // we drop whole cache if login changes
+                console.log(
+                    '🔸 Dropping cache: login mismatch',
+                    'old:', this.cache.login,
+                    'new:', this.config.login);
+
                 this.cache = {};
             }
         } catch (error) {
@@ -306,10 +318,15 @@ export class HeheBot {
             'Missions gifts': this.cache.missionsFinalGifts || 0,
             'Story steps': this.cache.storyStepsDone || 0,
             'Troll fights': this.cache.trollFights || 0,
+            'Season fights': `win: ${this.cache.seasonFightWins || 0} lose: ${this.cache.seasonFightLoses || 0}`,
         };
 
         if (this.state.storyBlocked) {
             metrics['Story blocked'] = this.state.storyBlocked;
+        }
+
+        if (this.state.seasonError) {
+            metrics['Season error'] = this.state.seasonError;
         }
 
         return metrics;
