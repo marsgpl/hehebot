@@ -65,6 +65,12 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
     bot.cache.trollFights = (bot.cache.trollFights || 0) + 1;
     await bot.saveCache();
 
+    // check if we gained some quest items in loot
+    const rewards = JSON.stringify(json.end?.rewards?.data?.rewards);
+    if (rewards.includes('quest')) {
+        bot.state.storyBlocked = undefined;
+    }
+
     return fullRechargeIn;
 }
 
@@ -79,7 +85,11 @@ export default async function taskFightTroll(bot: HeheBot) {
     }
 
     if (fullRechargeIn) {
-        return bot.pushTaskIn(TASK_FETCH_HOME, 'troll', fullRechargeIn);
+        if (bot.state.storyBlocked && energyNow) {
+            // allow troll fight as soon as possible because story is blocked!
+        } else {
+            return bot.pushTaskIn(TASK_FETCH_HOME, 'troll', fullRechargeIn)
+        }
     }
 
     const trollInfo = await fetchTrollInfo(bot, worldId);

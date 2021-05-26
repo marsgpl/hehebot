@@ -269,7 +269,7 @@ export class HeheBot {
             return {
                 name,
                 reason,
-                countdown: ((whenTs - now.getTime()) / 1000),
+                countdown: this.currentTask ? 0 : ((whenTs - now.getTime()) / 1000),
             };
         } else {
             return {
