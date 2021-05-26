@@ -2,7 +2,12 @@ import http from 'http';
 import https from 'https';
 import { URL } from 'url';
 
+import fail from '../helpers/fail.js';
+import sleep from '../helpers/sleep.js';
 import { CookieJar } from './CookieJar.js';
+
+const COMMUNICATION_ERROR_RETRY_TIMEOUT = 3000;
+const COMMUNICATION_ERROR_MARKER = 'Browser.request communication error';
 
 export type FormData = {[key: string]: string};
 
@@ -24,6 +29,7 @@ export interface BrowserProps {
     cookieJar?: CookieJar;
     debug?: boolean;
     onRequestSuccess?: (response: BrowserResponse) => Promise<void>;
+    onNetworkError?: (error: any, retryIn: number) => Promise<void>;
 }
 
 export class Browser {
@@ -39,7 +45,25 @@ export class Browser {
         return this.request(url, options);
     }
 
-    protected request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+    protected async request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+        while (true) {
+            try {
+                return await this._request(url, options);
+            } catch (error) {
+                if (typeof error === 'string' && error.includes(COMMUNICATION_ERROR_MARKER)) {
+                    if (this.props.onNetworkError) {
+                        this.props.onNetworkError(error, COMMUNICATION_ERROR_RETRY_TIMEOUT);
+                    }
+
+                    await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
+                } else {
+                    throw error;
+                }
+            }
+        }
+    }
+
+    protected _request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
         return new Promise((resolve, reject) => {
             url = typeof url === 'string' ? new URL(url) : url;
 
@@ -143,8 +167,11 @@ export class Browser {
                 https.request(url, requestOptions, onResponse) :
                 http.request(url, requestOptions, onResponse);
 
-            request.once('error', reject);
-            request.once('timeout', () => reject('timeout'));
+            request.once('timeout', () =>
+                reject(fail(COMMUNICATION_ERROR_MARKER, 'timeout')));
+
+            request.once('error', (error) =>
+                reject(fail(COMMUNICATION_ERROR_MARKER, error)));
 
             if (options.method === 'POST' && options.body) {
                 request.write(options.body);

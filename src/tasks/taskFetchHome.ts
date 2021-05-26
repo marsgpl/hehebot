@@ -3,7 +3,7 @@ import fail from '../helpers/fail.js';
 import { m, mj } from '../helpers/m.js';
 
 export default async function taskFetchHome(bot: HeheBot) {
-    const html = await bot.requestHtml('/home.html');
+    const html = await bot.fetchHtml('/home.html');
 
     const girls: JsonObject = {};
     try {

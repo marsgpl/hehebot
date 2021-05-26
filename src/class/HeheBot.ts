@@ -26,6 +26,7 @@ const AGE_VERIFICATION_COOKIE = 'age_verification';
 
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
 export const SLEEP_AFTER_EVERY_REQUEST_MS = 2000;
+const COMMUNICATION_ERROR_RETRY_TIMEOUT = 3000;
 
 const HEHE_HOST = 'www.hentaiheroes.com';
 const HEHE_BASE_URL = `https://${HEHE_HOST}`;
@@ -122,6 +123,13 @@ export class HeheBot {
                 this.cache.lastRequestTs = Date.now();
                 await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
                 await this.saveCache();
+            },
+            onNetworkError: async (error, retryIn) => {
+                this.lastSoftError = fail(
+                    new Date,
+                    'onNetworkError',
+                    `retrying in ${Math.round(retryIn / 1000)}s`,
+                    error);
             },
         });
     }
@@ -228,7 +236,7 @@ export class HeheBot {
             }
         } catch (error) {
             // we can continue without cache
-            this.lastSoftError = fail('loadCache', error);
+            this.lastSoftError = fail(new Date, 'loadCache', error);
             this.cache = {};
         }
 
@@ -298,10 +306,10 @@ export class HeheBot {
         };
     }
 
-    public async requestHtml(path: string): Promise<HtmlString> {
+    public async fetchHtml(path: string): Promise<HtmlString> {
         let html;
 
-        html = await this.fetchHtml(path);
+        html = await this._fetchHtml(path);
 
         if (!isGuest(html)) {
             return html;
@@ -311,10 +319,10 @@ export class HeheBot {
         await this.saveScreenRatio();
         await this.auth();
 
-        html = await this.fetchHtml(path);
+        html = await this._fetchHtml(path);
 
         if (isGuest(html)) {
-            throw fail('requestHtml', 'auth complete but isGuest=true');
+            throw fail('fetchHtml', 'auth complete but isGuest=true');
         }
 
         return html;
@@ -365,95 +373,125 @@ export class HeheBot {
         }
     }
 
-    protected async fetchKinkoidAjax(url: string, query: JsonObject): Promise<JsonObject> {
-        const response = await this.browser.post(url, {
-            body: JSON.stringify(query),
-            headers: {
-                'Accept': '*/*',
-                // 'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Content-Length': '168',
-                'Content-Type': 'text/plain;charset=UTF-8',
-                'dnt': '1',
-                'Origin': 'https://eggs-ext.kinkoid.com',
-                'Pragma': 'no-cache',
-                'Protocol': 'https',
-                'Referer': 'https://eggs-ext.kinkoid.com/',
-                'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-fetch-dest': 'empty',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-site': 'same-site',
-            },
-        });
-
-        if (response.statusCode !== 200) {
-            throw fail('fetchKinkoidAjax', url, query, response);
-        }
-
-        return JSON.parse(response.body);
-    }
-
-    protected async fetchHtml(path: string): Promise<HtmlString> {
+    protected async _fetchHtml(path: string): Promise<HtmlString> {
         const url = HEHE_BASE_URL + path;
 
-        const response = await this.browser.get(url, {
-            headers: {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                // 'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Cache-Control': 'no-cache',
-                'dnt': '1',
-                'Pragma': 'no-cache',
-                'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
-                'sec-ch-ua-mobile': '?0',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
-                'Sec-Fetch-User': '?1',
-                'upgrade-insecure-requests': '1',
-            },
-        });
+        while (true) {
+            const response = await this.browser.get(url, {
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                    // 'Accept-Encoding': 'gzip, deflate, br',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Cache-Control': 'no-cache',
+                    'dnt': '1',
+                    'Pragma': 'no-cache',
+                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+                    'sec-ch-ua-mobile': '?0',
+                    'Sec-Fetch-Dest': 'document',
+                    'Sec-Fetch-Mode': 'navigate',
+                    'Sec-Fetch-Site': 'none',
+                    'Sec-Fetch-User': '?1',
+                    'upgrade-insecure-requests': '1',
+                },
+            });
 
-        if (response.statusCode !== 200) {
-            throw fail('fetchHtml', url, response);
+            const html = response.body;
+
+            if (response.statusCode === 200 && html.match(/<body id="hh_hentai"/i)) {
+                return html;
+            } else {
+                this.lastSoftError = fail(
+                    'fetchHtml',
+                    url,
+                    {...response, body: response.body.length},
+                    `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
+
+                await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
+            }
         }
+    }
 
-        return response.body;
+    public async fetchAjax(query: FormData, referer?: string, ajaxUrl?: string): Promise<JsonObject> {
+        while (true) {
+            const response = await this.browser.post(ajaxUrl || HEHE_AJAX_URL, {
+                body: stringifyFormData(query),
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    // 'Accept-Encoding': 'gzip, deflate, br',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Cache-Control': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'dnt': '1',
+                    'Origin': HEHE_BASE_URL,
+                    'Pragma': 'no-cache',
+                    'Referer': referer || HEHE_HOME_URL,
+                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+                    'sec-ch-ua-mobile': '?0',
+                    'sec-fetch-dest': 'empty',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-site': 'same-origin',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const json = response.body.trim();
+
+            if (response.statusCode === 200 && json[0] === '{') {
+                return JSON.parse(json);
+            } else {
+                this.lastSoftError = fail(
+                    'fetchAjax',
+                    query,
+                    {...response, body: response.body.length},
+                    `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
+
+                await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
+            }
+        }
+    }
+
+    protected async fetchKinkoidAjax(url: string, query: JsonObject): Promise<JsonObject> {
+        while (true) {
+            const response = await this.browser.post(url, {
+                body: JSON.stringify(query),
+                headers: {
+                    'Accept': '*/*',
+                    // 'Accept-Encoding': 'gzip, deflate, br',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Cache-Control': 'no-cache',
+                    'Content-Length': '168',
+                    'Content-Type': 'text/plain;charset=UTF-8',
+                    'dnt': '1',
+                    'Origin': 'https://eggs-ext.kinkoid.com',
+                    'Pragma': 'no-cache',
+                    'Protocol': 'https',
+                    'Referer': 'https://eggs-ext.kinkoid.com/',
+                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+                    'sec-ch-ua-mobile': '?0',
+                    'sec-fetch-dest': 'empty',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-site': 'same-site',
+                },
+            });
+
+            const json = response.body.trim();
+
+            if (response.statusCode === 200 && json[0] === '{') {
+                return JSON.parse(json);
+            } else {
+                this.lastSoftError = fail(
+                    'fetchKinkoidAjax',
+                    query,
+                    {...response, body: response.body.length},
+                    `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
+
+                await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
+            }
+        }
     }
 
     protected fetchPhoenixAjax(query: FormData, referer?: string): Promise<JsonObject> {
         return this.fetchAjax(query, referer, HEHE_PHOENIX_AJAX_URL);
-    }
-
-    public async fetchAjax(query: FormData, referer?: string, ajaxUrl?: string): Promise<JsonObject> {
-        const response = await this.browser.post(ajaxUrl || HEHE_AJAX_URL, {
-            body: stringifyFormData(query),
-            headers: {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                // 'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'dnt': '1',
-                'Origin': HEHE_BASE_URL,
-                'Pragma': 'no-cache',
-                'Referer': referer || HEHE_HOME_URL,
-                'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-fetch-dest': 'empty',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-site': 'same-origin',
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        });
-
-        if (response.statusCode !== 200) {
-            throw fail('fetchAjax', ajaxUrl || HEHE_AJAX_URL, query, response);
-        }
-
-        return JSON.parse(response.body);
     }
 
     protected async saveScreenRatio() {
@@ -495,145 +533,3 @@ function isGuest(html: HtmlString): boolean {
         html.match('phoenix_member_login') &&
         html.match('phoenix_member_register'));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const WORLD_URL = `${BASE_URL}/world/`; // + worldId
-// const TROLL_URL = `${BASE_URL}/battle.html?id_troll=`; // + trollId
-// const ACTIVITIES_URL = `${BASE_URL}/activities.html`;
-
-
-
-
-
-
-//     protected async fetchWorld(worldId: number) {
-//         const html = await this.getPage(WORLD_URL + worldId);
-
-//         const trollInfo = mj(html, /trollInfo = (\{.*?\});/i);
-
-//         if (!trollInfo?.id_troll) {
-//             // troll not found
-//             return;
-//         }
-
-//         this.state.trollInfo = trollInfo;
-//     }
-
-//     protected async fetchTroll(trollId: number) {
-//         const html = await this.getPage(TROLL_URL + trollId);
-
-//         const hh_battle_players = mj(
-//             html.replace(/[\n\t]/g, ' '),
-//             /hh_battle_players = (\[.*?\]);/im);
-
-//         if (!hh_battle_players?.[0] || !hh_battle_players?.[1]) {
-//             throw 'hh_battle_players not found';
-//         }
-
-//         this.state.hh_battle_players = {
-//             member: hh_battle_players[0],
-//             troll: hh_battle_players[1],
-//         };
-//     }
-
-
-//     protected async fightWithTroll() {
-//         const worldId = Number(this.state.heroInfo?.questing?.id_world);
-//         if (!worldId) throw 'worldId not found';
-
-//         const fightEnergyCurrent = Number(this.state.heroEnergies?.fight?.amount);
-//         const fightEnergyMax = Number(this.state.heroEnergies?.fight?.max_amount);
-//         if (!fightEnergyMax || isNaN(fightEnergyCurrent)) throw 'fightEnergy not found';
-
-//         // we fight with troll only if energy > 50%
-//         if (fightEnergyCurrent < fightEnergyMax / 2) return;
-
-//         await this.fetchWorld(worldId);
-
-//         const trollId = Number(this.state.trollInfo?.id_troll);
-
-//         if (!trollId) {
-//             return;
-//         }
-
-//         await this.fetchTroll(trollId);
-
-//         const trollInfo = this.state.hh_battle_players?.troll;
-//         if (!trollInfo) throw 'trollInfo not found';
-
-//         while (true) {
-//             const success = await this._attackTroll(trollInfo);
-//             if (!success) break;
-//         }
-//     }
-
-//     protected async _attackTroll(trollInfo: json): Promise<boolean> {
-//         const trollParams: json = {};
-
-//         Object.keys(trollInfo).forEach(key => {
-//             trollParams[`who[${key}]`] = String(trollInfo[key]);
-//         });
-
-//         const json = await this.postAjax({
-//             class: 'Battle',
-//             action: 'fight',
-//             battles_amount: '0',
-//             ...trollParams,
-//         });
-
-//         if (json.error && json.error === 'Not enough fight energy.') {
-//             return false;
-//         }
-
-//         if (!json.success) {
-//             throw `_attackTroll failed: ${JSON.stringify(json)}`;
-//         }
-
-//         if (json.end?.battle_won) {
-//             const energyDelta = Number(json.end?.updated_infos?.energy_fight);
-//             if (!energyDelta) throw '_attackTroll: energy was not spent';
-
-//             this.cache.trollFights = (this.cache.trollFights || 0) + 1;
-
-//             if (this.state.heroEnergies?.fight?.amount) {
-//                 this.state.heroEnergies.fight.amount--;
-//             }
-
-//             await this.saveCache();
-
-//             return true;
-//         } else {
-//             throw '_attackTroll: we lost the battle';
-//         }
-//     }
-
-//     protected async completeDailyTasks() {
-//         const { activities } = this.state.notificationData || {};
-//         if (!activities) throw 'activities not found';
-
-//         if (!activities.includes('reward') && !activities.includes('action')) {
-//             // no rewards, no actions available
-//             return;
-//         }
-
-//         const html = await this.getPage(ACTIVITIES_URL);
-
-//         // missions
-
-//         // look for collect button
-//         // look for accept button
-//         const accept =
-//     }

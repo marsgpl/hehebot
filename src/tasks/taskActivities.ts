@@ -70,7 +70,7 @@ export default async function taskActivities(bot: HeheBot) {
         }
     }
 
-    const html = await bot.requestHtml('/activities.html');
+    const html = await bot.fetchHtml('/activities.html');
 
     const missions: JsonObject[] = [];
     try {
