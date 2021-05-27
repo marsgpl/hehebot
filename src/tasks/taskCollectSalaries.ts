@@ -43,7 +43,7 @@ export default async function taskCollectSalaries(bot: HeheBot) {
     }
 
     if (collectedOverall > 0) {
-        await bot.incCache({salaryCollected: collectedOverall});
+        await bot.incCache({ salaryCollected: collectedOverall });
     }
 
     if (!closestPayIn) {

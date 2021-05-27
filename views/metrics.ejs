@@ -31,7 +31,7 @@
 </table>
 
 <div class="NextTask" data-countdown="<%= nextTask.countdown %>">
-    <%= nextTask.name %> in <span><%= nextTask.countdown %></span>s (from: <%= nextTask.reason %>)
+    <%= nextTask.name %> in <span><%= nextTask.countdown %></span>s (<%= nextTask.reason %>)
 </div>
 
 <button class="RefreshButton" onclick="location.reload()">refresh</button>

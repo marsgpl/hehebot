@@ -19,7 +19,7 @@ import taskTowerFight from '../tasks/taskTowerFight.js';
 import taskClaimDailyReward from '../tasks/taskClaimDailyReward.js';
 import taskSeasonClaimReward from '../tasks/taskSeasonClaimReward.js';
 import taskOpenDailyFreePachinko from '../tasks/taskOpenDailyFreePachinko.js';
-import taskSlumberPartyClaimReward from '../tasks/taskSlumberPartyClaimReward.js';
+import taskPathEventClaimReward from '../tasks/taskPathEventClaimReward.js';
 import taskTowerClaimLeagueReward from '../tasks/taskTowerClaimLeagueReward.js';
 
 export type JsonObject = {[key: string]: any};
@@ -38,7 +38,7 @@ export const TASK_CLAIM_DAILY_REWARD = 'DailyReward';
 export const TASK_SEASON_CLAIM_REWARD = 'SeasonClaim';
 export const TASK_TOWER_FIGHT = 'TowerFight';
 export const TASK_OPEN_DAILY_FREE_PACHINKO = 'DailyPachinko';
-export const TASK_SLUMBER_PARTY_CLAIM_REWARD = 'PartyClaim';
+export const TASK_PATH_EVENT_CLAIM_REWARD = 'PartyClaim';
 export const TASK_TOWER_CLAIM_LEAGUE_REWARD = 'TowerClaim';
 export const TASK_NOTHING = 'nothing';
 
@@ -57,7 +57,7 @@ type TaskName =
     typeof TASK_SEASON_CLAIM_REWARD |
     typeof TASK_TOWER_FIGHT |
     typeof TASK_OPEN_DAILY_FREE_PACHINKO |
-    typeof TASK_SLUMBER_PARTY_CLAIM_REWARD |
+    typeof TASK_PATH_EVENT_CLAIM_REWARD |
     typeof TASK_TOWER_CLAIM_LEAGUE_REWARD |
     typeof TASK_STORY;
 
@@ -106,6 +106,10 @@ export interface HeheBotCache {
     dailyRewardLootClaims?: number;
     freeDailyPachinkoOpened?: number;
     dailyRewardLastClaimAttemptMs?: number;
+    seasonFreeRewardsClaimed?: number;
+    seasonPassRewardsClaimed?: number;
+    pathEventFreeRewardsClaimed?: number;
+    pathEventPremiumRewardsClaimed?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -129,11 +133,14 @@ export interface HeheBotState {
     notificationData?: JsonObject;
     missions_datas?: JsonObject;
     missions?: JsonObject;
-    season_season_id?: number;
+    seasonId?: number;
+    seasonMojo?: number;
+    seasonHasPass?: boolean;
+    seasonRewards?: JsonObject;
+    seasonError?: any;
     serverDate?: Date;
     timeDeltaMs?: number;
     storyBlocked?: JsonObject;
-    seasonError?: any;
 }
 
 export class HeheBot {
@@ -170,7 +177,7 @@ export class HeheBot {
             debug: this.config.debug,
             onRequestSuccess: async () => {
                 this.cache.lastRequestTs = Date.now(); // saved by next incCache
-                await this.incCache({requests: 1});
+                await this.incCache({ requests: 1 });
                 await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
             },
             onNetworkError: async (error, retryIn) => {
@@ -233,7 +240,7 @@ export class HeheBot {
             case TASK_SEASON_CLAIM_REWARD: return taskSeasonClaimReward(this);
             case TASK_TOWER_FIGHT: return taskTowerFight(this);
             case TASK_OPEN_DAILY_FREE_PACHINKO: return taskOpenDailyFreePachinko(this);
-            case TASK_SLUMBER_PARTY_CLAIM_REWARD: return taskSlumberPartyClaimReward(this);
+            case TASK_PATH_EVENT_CLAIM_REWARD: return taskPathEventClaimReward(this);
             case TASK_TOWER_CLAIM_LEAGUE_REWARD: return taskTowerClaimLeagueReward(this);
             default: throw `Unknown task: ${name}`;
         }
@@ -364,26 +371,50 @@ export class HeheBot {
     }
 
     public exportMetrics(): HeheBotMetrics {
-        const metrics: HeheBotMetrics = {
-            'Name': this.state.heroInfo?.Name,
-            'Salary': this.getSalaryEstimate(),
-            'Salary collected': formatMoney(this.cache.salaryCollected || 0),
-            'Missions done': this.cache.missionsCompleted || 0,
-            'Missions gifts': this.cache.missionsFinalGifts || 0,
-            'Story steps': this.cache.storyStepsDone || 0,
-            'Troll fights': this.cache.trollFights || 0,
-            'Season fights': `win: ${this.cache.seasonFightWins || 0} lose: ${this.cache.seasonFightLoses || 0}`,
-            'Contest rewards': this.cache.contestRewardsClaimed || 0,
-            'Daily rewards': this.cache.dailyRewardLootClaims || 0,
-            'Daily pachinko': this.cache.freeDailyPachinkoOpened || 0,
-        };
+        const { cache, state } = this;
 
-        if (this.state.storyBlocked) {
-            metrics['Story blocked'] = this.state.storyBlocked;
+        const pack = (data: JsonObject) => {
+            const result: string[] = [];
+            Object.keys(data).forEach(key => result.push(`${key}: ${data[key] || 0}`));
+            return result.join(', ');
         }
 
-        if (this.state.seasonError) {
-            metrics['Season error'] = this.state.seasonError;
+        const metrics: HeheBotMetrics = {
+            'Player': !state.heroInfo?.Name ? '' :
+                `${state.heroInfo?.Name} (${state.heroEnergies?.hero_level})`,
+            'Salary': this.getSalaryEstimate(),
+            'Salary collected': formatMoney(cache.salaryCollected || 0),
+            'Missions': pack({
+                done: cache.missionsCompleted,
+                gifts: cache.missionsFinalGifts,
+            }),
+            'Story steps': cache.storyStepsDone || 0,
+            'Troll fights': cache.trollFights || 0,
+            'Season fights': pack({
+                win: cache.seasonFightWins,
+                lose: cache.seasonFightLoses,
+            }),
+            'Contest rewards': cache.contestRewardsClaimed || 0,
+            'Daily rewards': pack({
+                daily: cache.dailyRewardLootClaims,
+                pachinko: cache.freeDailyPachinkoOpened,
+            }),
+            'Season rewards': pack({
+                free: cache.seasonFreeRewardsClaimed,
+                pass: cache.seasonPassRewardsClaimed,
+            }),
+            'Path rewards': pack({
+                free: cache.pathEventFreeRewardsClaimed,
+                premium: cache.pathEventPremiumRewardsClaimed,
+            }),
+        };
+
+        if (state.storyBlocked) {
+            metrics['Story blocked'] = state.storyBlocked;
+        }
+
+        if (state.seasonError) {
+            metrics['Season error'] = state.seasonError;
         }
 
         return metrics;
@@ -490,7 +521,7 @@ export class HeheBot {
                 },
             });
 
-            const html = response.body.replace(/[\r\n\s]+/g, ' ').trim();
+            const html = response.body.replace(/[\r\n\s\t]+/g, ' ').trim();
 
             if (response.statusCode === 200 && html.match(/<body id="hh_hentai"/i)) {
                 return html;

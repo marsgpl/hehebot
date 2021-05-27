@@ -1,0 +1,695 @@
+{
+    "id_path_event": "13",
+    "name": "Slumber Party",
+    "event_start": "2021-05-24 13:00:00",
+    "event_end": "2021-05-30 13:00:00",
+    "disabled_animations": null,
+    "objectives": [
+        {
+        "num_step": "1",
+        "objective_name": "complete_dm",
+        "objective_text": "Finish Daily Missions",
+        "id_objective": "18",
+        "objective_target": "12",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_m1\"></span> <p>1</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_m1\"></span> <p>1</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "12"
+    }, {
+        "num_step": "2",
+        "objective_name": "defeat_pvp_arena_leagues",
+        "objective_text": "Defeat players in PvP (Seasons & Leagues)",
+        "id_objective": "13",
+        "objective_target": "18",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_g10\"></span> <p>1</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_g10\"></span> <p>2</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "18"
+    }, {
+        "num_step": "3",
+        "objective_name": "sell_item",
+        "objective_text": "Sell items",
+        "id_objective": "14",
+        "objective_target": "40",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_fight",
+                "value": "<p>+10</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_fight",
+                "value": "<p>+10</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "40"
+    }, {
+        "num_step": "4",
+        "objective_name": "defeat_troll",
+        "objective_text": "Defeat Villains",
+        "id_objective": "6",
+        "objective_target": "35",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "soft_currency",
+                "value": "<p>4.22M</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "soft_currency",
+                "value": "<p>6.33M</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "35"
+    }, {
+        "num_step": "5",
+        "objective_name": "spend_sc",
+        "objective_text": "Spend money",
+        "id_objective": "15",
+        "objective_target": 5075000,
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "ticket",
+                "value": "<p>6</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "ticket",
+                "value": "<p>10</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": 5075000
+    }, {
+        "num_step": "6",
+        "objective_name": "challenge_champion",
+        "objective_text": "Do Champion Performances \r\n(no matter win/lose)",
+        "id_objective": "16",
+        "objective_target": "25",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_quest",
+                "value": "<p>+20</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_quest",
+                "value": "<p>+30</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "25"
+    }, {
+        "num_step": "7",
+        "objective_name": "spend_nrj",
+        "objective_text": "Spend energy",
+        "id_objective": "1",
+        "objective_target": "120",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_g10\"></span> <p>1</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_g10\"></span> <p>2</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "120"
+    }, {
+        "num_step": "8",
+        "objective_name": "sell_item",
+        "objective_text": "Sell items",
+        "id_objective": "14",
+        "objective_target": "80",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "ticket",
+                "value": "<p>6</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "ticket",
+                "value": "<p>10</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "80"
+    }, {
+        "num_step": "9",
+        "objective_name": "challenge_champion",
+        "objective_text": "Do Champion Performances \r\n(no matter win/lose)",
+        "id_objective": "16",
+        "objective_target": "30",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_kiss",
+                "value": "<p>+4</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_kiss",
+                "value": "<p>+6</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "30"
+    }, {
+        "num_step": "10",
+        "objective_name": "defeat_pvp_arena_leagues",
+        "objective_text": "Defeat players in PvP (Seasons & Leagues)",
+        "id_objective": "13",
+        "objective_target": "30",
+        "free_reward": {
+            "loot": true,
+            "surplus_item": "<div class=\"slot epic\" rarity=\"epic\" id_item=\"15\" subtype=\"0\" id_m_i=\"Array\" data-d=\"{&quot;id_item&quot;:&quot;15&quot;,&quot;type&quot;:&quot;gift&quot;,&quot;subtype&quot;:&quot;0&quot;,&quot;identifier&quot;:&quot;K1&quot;,&quot;rarity&quot;:&quot;epic&quot;,&quot;value&quot;:&quot;130&quot;,&quot;carac1&quot;:0,&quot;carac2&quot;:0,&quot;carac3&quot;:0,&quot;endurance&quot;:0,&quot;chance&quot;:0,&quot;ego&quot;:0,&quot;damage&quot;:0,&quot;duration&quot;:0,&quot;level_mini&quot;:&quot;1&quot;,&quot;name&quot;:&quot;Flowers&quot;,&quot;Name&quot;:&quot;Flowers&quot;,&quot;ico&quot;:&quot;https:\\/\\/hh2.hh-content.com\\/pictures\\/items\\/K1.png&quot;,&quot;price_sell&quot;:9035,&quot;count&quot;:1,&quot;id_m_i&quot;:[]}\">\n\n\t\n\t<div id=\"item_15\" class=\"stack_num\" style=\"display:none\"><span>1</span></div>\n\t\n\t\t<img src=\"https://hh2.hh-content.com/pictures/items/K1.png\" />\n\t<i><i>i</i></i>\n\t\n\t</div>",
+            "girls": [{
+                "id_girl": 711671135,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/711671135/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/711671135/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/711671135/avb0.png",
+                "name": "Sexpot Solange",
+                "girl_class": "2",
+                "caracs": {
+                    "carac1": 2,
+                    "carac2": 5.5,
+                    "carac3": 2.4
+                },
+                "previous_value": 100,
+                "value": 200
+            }],
+            "shards": [{
+                "id_girl": 711671135,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/711671135/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/711671135/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/711671135/avb0.png",
+                "name": "Sexpot Solange",
+                "girl_class": "2",
+                "caracs": {
+                    "carac1": 2,
+                    "carac2": 5.5,
+                    "carac3": 2.4
+                },
+                "previous_value": 100,
+                "value": 200
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "surplus_item": "<div class=\"slot epic\" rarity=\"epic\" id_item=\"15\" subtype=\"0\" id_m_i=\"Array\" data-d=\"{&quot;id_item&quot;:&quot;15&quot;,&quot;type&quot;:&quot;gift&quot;,&quot;subtype&quot;:&quot;0&quot;,&quot;identifier&quot;:&quot;K1&quot;,&quot;rarity&quot;:&quot;epic&quot;,&quot;value&quot;:&quot;130&quot;,&quot;carac1&quot;:0,&quot;carac2&quot;:0,&quot;carac3&quot;:0,&quot;endurance&quot;:0,&quot;chance&quot;:0,&quot;ego&quot;:0,&quot;damage&quot;:0,&quot;duration&quot;:0,&quot;level_mini&quot;:&quot;1&quot;,&quot;name&quot;:&quot;Flowers&quot;,&quot;Name&quot;:&quot;Flowers&quot;,&quot;ico&quot;:&quot;https:\\/\\/hh2.hh-content.com\\/pictures\\/items\\/K1.png&quot;,&quot;price_sell&quot;:9035,&quot;count&quot;:1,&quot;id_m_i&quot;:[]}\">\n\n\t\n\t<div id=\"item_15\" class=\"stack_num\" style=\"display:none\"><span>1</span></div>\n\t\n\t\t<img src=\"https://hh2.hh-content.com/pictures/items/K1.png\" />\n\t<i><i>i</i></i>\n\t\n\t</div>",
+            "girls": [{
+                "id_girl": 985611878,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/985611878/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/985611878/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/985611878/avb0.png",
+                "name": "Rebel Erika",
+                "girl_class": "1",
+                "caracs": {
+                    "carac1": 5.5,
+                    "carac2": 2.1,
+                    "carac3": 2.4
+                },
+                "previous_value": 0,
+                "value": 100
+            }],
+            "shards": [{
+                "id_girl": 985611878,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/985611878/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/985611878/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/985611878/avb0.png",
+                "name": "Rebel Erika",
+                "girl_class": "1",
+                "caracs": {
+                    "carac1": 5.5,
+                    "carac2": 2.1,
+                    "carac3": 2.4
+                },
+                "previous_value": 0,
+                "value": 100
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "30"
+    }, {
+        "num_step": "11",
+        "objective_name": "spend_sc",
+        "objective_text": "Spend money",
+        "id_objective": "15",
+        "objective_target": 14210000,
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_fight",
+                "value": "<p>+10</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_fight",
+                "value": "<p>+20</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": 14210000
+    }, {
+        "num_step": "12",
+        "objective_name": "defeat_troll",
+        "objective_text": "Defeat Villains",
+        "id_objective": "6",
+        "objective_target": "80",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_e1\"></span> <p>3</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_e1\"></span> <p>5</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": true,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "80"
+    }, {
+        "num_step": "13",
+        "objective_name": "defeat_pvp_arena_leagues",
+        "objective_text": "Defeat players in PvP (Seasons & Leagues)",
+        "id_objective": "13",
+        "objective_target": "35",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_quest",
+                "value": "<p>+30</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_quest",
+                "value": "<p>+50</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false,
+        "objective_progress": "35"
+    }, {
+        "num_step": "14",
+        "objective_name": "spend_nrj",
+        "objective_text": "Spend energy",
+        "id_objective": "1",
+        "objective_target": "240",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "ticket",
+                "value": "<p>15</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "ticket",
+                "value": "<p>22</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": true,
+        "objective_progress": "47"
+    }, {
+        "num_step": "15",
+        "objective_name": "challenge_champion",
+        "objective_text": "Do Champion Performances \r\n(no matter win/lose)",
+        "id_objective": "16",
+        "objective_target": "60",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_kiss",
+                "value": "<p>+5</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_kiss",
+                "value": "<p>+8</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false
+    }, {
+        "num_step": "16",
+        "objective_name": "defeat_pvp_arena_leagues",
+        "objective_text": "Defeat players in PvP (Seasons & Leagues)",
+        "id_objective": "13",
+        "objective_target": "42",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_g10\"></span> <p>2</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_g10\"></span> <p>3</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false
+    }, {
+        "num_step": "17",
+        "objective_name": "spend_sc",
+        "objective_text": "Spend money",
+        "id_objective": "15",
+        "objective_target": 30450000,
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_fight",
+                "value": "<p>+15</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "energy_fight",
+                "value": "<p>+22</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false
+    }, {
+        "num_step": "18",
+        "objective_name": "defeat_troll",
+        "objective_text": "Defeat Villains",
+        "id_objective": "6",
+        "objective_target": "120",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_m6\"></span> <p>1</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_m6\"></span> <p>2</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false
+    }, {
+        "num_step": "19",
+        "objective_name": "score_contest_points",
+        "objective_text": "Score points in contests",
+        "id_objective": "12",
+        "objective_target": "20000",
+        "free_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_e1\"></span> <p>4</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "rewards": [{
+                "type": "orbs",
+                "value": "<span class=\"orb_icon o_e1\"></span> <p>6</p>",
+                "currency": true,
+                "slot_class": true
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false
+    }, {
+        "num_step": "20",
+        "objective_name": "defeat_pvp_arena_leagues",
+        "objective_text": "Defeat players in PvP (Seasons & Leagues)",
+        "id_objective": "13",
+        "objective_target": "50",
+        "free_reward": {
+            "loot": true,
+            "surplus_item": "<div class=\"slot epic\" rarity=\"epic\" id_item=\"15\" subtype=\"0\" id_m_i=\"Array\" data-d=\"{&quot;id_item&quot;:&quot;15&quot;,&quot;type&quot;:&quot;gift&quot;,&quot;subtype&quot;:&quot;0&quot;,&quot;identifier&quot;:&quot;K1&quot;,&quot;rarity&quot;:&quot;epic&quot;,&quot;value&quot;:&quot;130&quot;,&quot;carac1&quot;:0,&quot;carac2&quot;:0,&quot;carac3&quot;:0,&quot;endurance&quot;:0,&quot;chance&quot;:0,&quot;ego&quot;:0,&quot;damage&quot;:0,&quot;duration&quot;:0,&quot;level_mini&quot;:&quot;1&quot;,&quot;name&quot;:&quot;Flowers&quot;,&quot;Name&quot;:&quot;Flowers&quot;,&quot;ico&quot;:&quot;https:\\/\\/hh2.hh-content.com\\/pictures\\/items\\/K1.png&quot;,&quot;price_sell&quot;:9035,&quot;count&quot;:1,&quot;id_m_i&quot;:[]}\">\n\n\t\n\t<div id=\"item_15\" class=\"stack_num\" style=\"display:none\"><span>1</span></div>\n\t\n\t\t<img src=\"https://hh2.hh-content.com/pictures/items/K1.png\" />\n\t<i><i>i</i></i>\n\t\n\t</div>",
+            "girls": [{
+                "id_girl": 182688232,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/182688232/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/182688232/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/182688232/avb0.png",
+                "name": "Cutiepie Cori",
+                "girl_class": "2",
+                "caracs": {
+                    "carac1": 2.3,
+                    "carac2": 5.4,
+                    "carac3": 2.2
+                },
+                "previous_value": 0,
+                "value": 100
+            }],
+            "shards": [{
+                "id_girl": 182688232,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/182688232/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/182688232/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/182688232/avb0.png",
+                "name": "Cutiepie Cori",
+                "girl_class": "2",
+                "caracs": {
+                    "carac1": 2.3,
+                    "carac2": 5.4,
+                    "carac3": 2.2
+                },
+                "previous_value": 0,
+                "value": 100
+            }]
+        },
+        "locked_reward": {
+            "loot": true,
+            "surplus_item": "<div class=\"slot epic\" rarity=\"epic\" id_item=\"15\" subtype=\"0\" id_m_i=\"Array\" data-d=\"{&quot;id_item&quot;:&quot;15&quot;,&quot;type&quot;:&quot;gift&quot;,&quot;subtype&quot;:&quot;0&quot;,&quot;identifier&quot;:&quot;K1&quot;,&quot;rarity&quot;:&quot;epic&quot;,&quot;value&quot;:&quot;130&quot;,&quot;carac1&quot;:0,&quot;carac2&quot;:0,&quot;carac3&quot;:0,&quot;endurance&quot;:0,&quot;chance&quot;:0,&quot;ego&quot;:0,&quot;damage&quot;:0,&quot;duration&quot;:0,&quot;level_mini&quot;:&quot;1&quot;,&quot;name&quot;:&quot;Flowers&quot;,&quot;Name&quot;:&quot;Flowers&quot;,&quot;ico&quot;:&quot;https:\\/\\/hh2.hh-content.com\\/pictures\\/items\\/K1.png&quot;,&quot;price_sell&quot;:9035,&quot;count&quot;:1,&quot;id_m_i&quot;:[]}\">\n\n\t\n\t<div id=\"item_15\" class=\"stack_num\" style=\"display:none\"><span>1</span></div>\n\t\n\t\t<img src=\"https://hh2.hh-content.com/pictures/items/K1.png\" />\n\t<i><i>i</i></i>\n\t\n\t</div>",
+            "girls": [{
+                "id_girl": 614309504,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/614309504/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/614309504/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/614309504/avb0.png",
+                "name": "Tomboy Darla",
+                "girl_class": "3",
+                "caracs": {
+                    "carac1": 1.9,
+                    "carac2": 2.6,
+                    "carac3": 5.5
+                },
+                "previous_value": 0,
+                "value": 100
+            }],
+            "shards": [{
+                "id_girl": 614309504,
+                "type": "girl_shards",
+                "slot_class": false,
+                "rarity": "legendary",
+                "ico": "https://hh2.hh-content.com/pictures/girls/614309504/ico0.png",
+                "avatar": "https://hh2.hh-content.com/pictures/girls/614309504/ava0.png",
+                "black_avatar": "https://hh2.hh-content.com/pictures/girls/614309504/avb0.png",
+                "name": "Tomboy Darla",
+                "girl_class": "3",
+                "caracs": {
+                    "carac1": 1.9,
+                    "carac2": 2.6,
+                    "carac3": 5.5
+                },
+                "previous_value": 0,
+                "value": 100
+            }]
+        },
+        "free_reward_picked": false,
+        "locked_reward_picked": false,
+        "is_current_objective": false
+    }],
+    "unlocked": 0,
+    "current_step": "14",
+    "event_duration_seconds": 518400,
+    "seconds_until_event_end": 221494,
+    "event_images": {
+        "free": ["https://hh2.hh-content.com/pictures/girls/711671135/ava0.png", "https://hh2.hh-content.com/pictures/girls/182688232/ava0.png"],
+        "locked": ["https://hh2.hh-content.com/pictures/girls/985611878/ava0.png", "https://hh2.hh-content.com/pictures/girls/614309504/ava0.png"]
+    }
+}

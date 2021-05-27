@@ -25,7 +25,7 @@ async function claimMissionReward(bot: HeheBot, mission: JsonObject) {
         throw fail('claimMissionReward', mission, json);
     }
 
-    await bot.incCache({missionsCompleted: 1});
+    await bot.incCache({ missionsCompleted: 1 });
 }
 
 async function startMission(bot: HeheBot, mission: JsonObject) {
@@ -40,7 +40,7 @@ async function startMission(bot: HeheBot, mission: JsonObject) {
         throw fail('claimMissionReward', mission, json);
     }
 
-    await bot.incCache({missionsStarted: 1});
+    await bot.incCache({ missionsStarted: 1 });
 }
 
 async function claimMissionsFinalGift(bot: HeheBot) {
@@ -53,7 +53,7 @@ async function claimMissionsFinalGift(bot: HeheBot) {
         throw fail('claimMissionGift', json);
     }
 
-    await bot.incCache({missionsFinalGifts: 1});
+    await bot.incCache({ missionsFinalGifts: 1 });
 }
 
 async function claimContestReward(bot: HeheBot, contestId: string) {
@@ -68,7 +68,7 @@ async function claimContestReward(bot: HeheBot, contestId: string) {
         throw fail('claimContestReward', json);
     }
 
-    await bot.incCache({contestRewardsClaimed: 1});
+    await bot.incCache({ contestRewardsClaimed: 1 });
 }
 
 export default async function taskActivities(bot: HeheBot) {

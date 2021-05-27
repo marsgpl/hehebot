@@ -1,6 +1,6 @@
 import fail from '../helpers/fail.js';
 import { m } from '../helpers/m.js';
-import { HeheBot, TASK_FETCH_HOME } from '../class/HeheBot.js';
+import { HeheBot } from '../class/HeheBot.js';
 
 const TASK_NOTE = 'daily';
 
@@ -38,5 +38,5 @@ export default async function taskOpenDailyFreePachinko(bot: HeheBot) {
         throw fail('taskOpenDailyFreePachinko', json);
     }
 
-    await bot.incCache({freeDailyPachinkoOpened: 1});
+    await bot.incCache({ freeDailyPachinkoOpened: 1 });
 }

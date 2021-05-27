@@ -50,7 +50,7 @@ export default async function taskStory(bot: HeheBot) {
             }
         }
 
-        await bot.incCache({storyStepsDone: 1});
+        await bot.incCache({ storyStepsDone: 1 });
 
         const isEnded = json.next_step?.ended;
 

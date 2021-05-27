@@ -5,7 +5,7 @@
 ## Daily
 
 - ✅ claim daily reward
-- ❌ open daily free pachinko
+- ✅ open daily free pachinko
 
 ## Clubs
 
@@ -15,7 +15,7 @@
 ## Season
 
 - ✅ fight
-- ❌ claim reward
+- ✅ claim reward
 - end of season - will there be a claimable reward?
 
 ## Tower of Fame
@@ -28,6 +28,7 @@
 
 - ✅ progress story
 - ✅ fight troll
+- check troll power change on lvl 230 on potato
 
 ## Champions
 
@@ -41,16 +42,18 @@
 
 - ✅ mission start
 - ✅ mission claim reward
+- ✅ mission claim final gift
 - ✅ contest claim reward
 - ❌ POP start
 - ❌ POP claim reward
+- check final gift claiming tomorrow
 
 ## Harem
 
 - ✅ collect salary
 - ❌ collect all salaries if monthly card
 
-## Slumber party
+## Path event (Slumber Party)
 
-- ❌ claim reward
-- end of party - will there be a claimable reward?
+- ✅ claim reward
+- end of event - will there be a claimable reward?

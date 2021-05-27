@@ -64,7 +64,7 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
 
     const fullRechargeIn = Number(json.end?.updated_infos?.energy_fight_recharge_time) || 0;
 
-    await bot.incCache({trollFights: 1});
+    await bot.incCache({ trollFights: 1 });
 
     // check if we gained some quest items in loot
     const rewards = JSON.stringify(json.end?.rewards?.data?.rewards);

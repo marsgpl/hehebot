@@ -153,7 +153,7 @@ async function fightOpponent(bot: HeheBot, opponent: JsonObject): Promise<HeheSe
 }
 
 export default async function taskSeasonFight(bot: HeheBot) {
-    const seasonId = bot.state.season_season_id;
+    const { seasonId } = bot.state;
 
     const energyNow = Number(bot.state.heroEnergies?.kiss?.amount);
     const energyMax = Number(bot.state.heroEnergies?.kiss?.max_amount);
@@ -205,9 +205,9 @@ export default async function taskSeasonFight(bot: HeheBot) {
             }
 
             if (result.win) {
-                await bot.incCache({seasonFightWins: 1});
+                await bot.incCache({ seasonFightWins: 1 });
             } else {
-                await bot.incCache({seasonFightLoses: 1});
+                await bot.incCache({ seasonFightLoses: 1 });
 
                 losses++;
 

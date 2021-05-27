@@ -27,7 +27,7 @@ export default async function taskClaimDailyReward(bot: HeheBot) {
     bot.cache.dailyRewardLastClaimAttemptMs = nowMs;
 
     if (json.data?.loot) {
-        await bot.incCache({dailyRewardLootClaims: 1});
+        await bot.incCache({ dailyRewardLootClaims: 1 });
     } else {
         await bot.saveCache();
     }

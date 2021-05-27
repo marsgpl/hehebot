@@ -1,6 +1,8 @@
 import {
     HeheBot,
     JsonObject,
+    HtmlString,
+    HeheBotState,
     TASK_STORY,
     TASK_ACTIVITIES,
     TASK_MARKET_BUY,
@@ -13,13 +15,59 @@ import {
     TASK_SEASON_CLAIM_REWARD,
     TASK_TOWER_FIGHT,
     TASK_CHAMPIONS_FIGHT,
-    TASK_SLUMBER_PARTY_CLAIM_REWARD,
+    TASK_PATH_EVENT_CLAIM_REWARD,
     TASK_TOWER_CLAIM_LEAGUE_REWARD,
 } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 import { m, mj } from '../helpers/m.js';
 
 const TASK_NOTE = 'cycle';
+
+function parseSeasonRewards(html: HtmlString, state: HeheBotState): JsonObject[] {
+    const { seasonId, seasonMojo } = state;
+
+    const seasonRewards: JsonObject[] = [];
+
+    if (!seasonId) {
+        return seasonRewards;
+    }
+
+    const tierM = html.matchAll(/tier\['(.*?)'\] = '(.*?)';/gi);
+
+    let tier: JsonObject = {};
+
+    for (const [, key, value] of tierM) {
+        if (key === 'id_season' && tier.id_season) {
+            seasonRewards.push(tier);
+            tier = {};
+        }
+
+        tier[key] = Number(value);
+    }
+
+    if (tier.id_season) {
+        seasonRewards.push(tier);
+    }
+
+    if (!seasonRewards.length) {
+        throw fail('parseSeasonRewards', 'empty');
+    }
+
+    seasonRewards.forEach(tier => {
+        if (
+            tier.tier === undefined ||
+            tier.mojo_required === undefined ||
+            tier.free_reward_picked === undefined ||
+            tier.pass_reward_picked === undefined
+        ) {
+            throw fail('parseSeasonRewards', 'bad tier', tier);
+        }
+
+        tier.rewardClaimable = tier.mojo_required <= seasonMojo!;
+    });
+
+    return seasonRewards;
+}
 
 export default async function taskFetchHome(bot: HeheBot) {
     const html = await bot.fetchHtml('/home.html');
@@ -51,7 +99,9 @@ export default async function taskFetchHome(bot: HeheBot) {
     const serverTs = Number(m(html, /server_now_ts = ([0-9]+)/i));
     if (isNaN(serverTs) || !serverTs) throw fail('taskFetchHome', 'serverTs');
 
-    const season_season_id = Number(m(html, /season_season_id = .?([0-9]+).?/i));
+    const seasonId = Number(m(html, /season_season_id = '([0-9]+)'/i));
+    const seasonMojo = Number(m(html, /season_mojo_s = '([0-9]+)'/i)) || 0;
+    const seasonHasPass = Boolean(Number(m(html, /season_has_pass = '([0-9]+)'/i)));
 
     bot.setStateMultiple({
         girls,
@@ -60,15 +110,19 @@ export default async function taskFetchHome(bot: HeheBot) {
         heroEnergies,
         notificationData,
         missions_datas,
-        season_season_id,
+        seasonId,
+        seasonMojo,
+        seasonHasPass,
         serverDate: new Date(serverTs * 1000),
         timeDeltaMs: !bot.cache.lastRequestTs ? 0 : bot.cache.lastRequestTs - serverTs * 1000,
     });
 
+    bot.state.seasonRewards = parseSeasonRewards(html, bot.state);
+
     bot.pushTask(TASK_CLAIM_DAILY_REWARD, TASK_NOTE);
     bot.pushTask(TASK_OPEN_DAILY_FREE_PACHINKO, TASK_NOTE);
     bot.pushTask(TASK_TOWER_CLAIM_LEAGUE_REWARD, TASK_NOTE);
-    bot.pushTask(TASK_SLUMBER_PARTY_CLAIM_REWARD, TASK_NOTE);
+    bot.pushTask(TASK_PATH_EVENT_CLAIM_REWARD, TASK_NOTE);
     bot.pushTask(TASK_SEASON_CLAIM_REWARD, TASK_NOTE);
     bot.pushTask(TASK_ACTIVITIES, TASK_NOTE);
     bot.pushTask(TASK_CLUB_FIGHT, TASK_NOTE);
