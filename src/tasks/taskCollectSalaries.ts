@@ -1,6 +1,8 @@
 import { HeheBot, TASK_FETCH_HOME } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 
+const TASK_NOTE = 'salary';
+
 // {"time":120,"money":100,"success":true}
 
 async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number, number]> {
@@ -41,13 +43,12 @@ export default async function taskCollectSalaries(bot: HeheBot) {
     }
 
     if (collectedOverall > 0) {
-        bot.cache.salaryCollected = (bot.cache.salaryCollected || 0) + collectedOverall;
-        await bot.saveCache();
+        await bot.incCache({salaryCollected: collectedOverall});
     }
 
     if (!closestPayIn) {
         throw fail('taskCollectSalaries', 'closestPayIn', closestPayIn);
     }
 
-    bot.pushTaskIn(TASK_FETCH_HOME, 'salary', closestPayIn);
+    bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, closestPayIn);
 }

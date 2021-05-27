@@ -6,32 +6,59 @@ import formatMoney from '../helpers/formatMoney.js';
 import { Browser, FormData, stringifyFormData } from './Browser.js';
 import { CookieJar, CookieJarCookies } from './CookieJar.js';
 
-import taskCollectSalaries from '../tasks/taskCollectSalaries.js';
+import taskStory from '../tasks/taskStory.js';
+import taskClubFight from '../tasks/taskClubFight.js';
+import taskMarketBuy from '../tasks/taskMarketBuy.js';
+import taskFetchHome from '../tasks/taskFetchHome.js';
 import taskFightTroll from '../tasks/taskFightTroll.js';
 import taskActivities from '../tasks/taskActivities.js';
-import taskFetchHome from '../tasks/taskFetchHome.js';
-import taskStory from '../tasks/taskStory.js';
 import taskSeasonFight from '../tasks/taskSeasonFight.js';
+import taskChampionsFight from '../tasks/taskChampionsFight.js';
+import taskCollectSalaries from '../tasks/taskCollectSalaries.js';
+import taskTowerFight from '../tasks/taskTowerFight.js';
+import taskClaimDailyReward from '../tasks/taskClaimDailyReward.js';
+import taskSeasonClaimReward from '../tasks/taskSeasonClaimReward.js';
+import taskOpenDailyFreePachinko from '../tasks/taskOpenDailyFreePachinko.js';
+import taskSlumberPartyClaimReward from '../tasks/taskSlumberPartyClaimReward.js';
+import taskTowerClaimLeagueReward from '../tasks/taskTowerClaimLeagueReward.js';
 
 export type JsonObject = {[key: string]: any};
 export type HtmlString = string;
 
-export const TASK_NOTHING = 'nothing';
-export const TASK_COLLECT_SALARIES = 'CollectSalary';
-export const TASK_FIGHT_TROLL = 'FightTroll';
+export const TASK_STORY = 'Story';
+export const TASK_CLUB_FIGHT = 'ClubFight';
 export const TASK_FETCH_HOME = 'FetchHome';
 export const TASK_ACTIVITIES = 'Activities';
-export const TASK_STORY = 'Story';
+export const TASK_MARKET_BUY = 'MarketBuy';
+export const TASK_FIGHT_TROLL = 'FightTroll';
 export const TASK_SEASON_FIGHT = 'SeasonFight';
+export const TASK_CHAMPIONS_FIGHT = 'ChampionFight';
+export const TASK_COLLECT_SALARIES = 'CollectSalary';
+export const TASK_CLAIM_DAILY_REWARD = 'DailyReward';
+export const TASK_SEASON_CLAIM_REWARD = 'SeasonClaim';
+export const TASK_TOWER_FIGHT = 'TowerFight';
+export const TASK_OPEN_DAILY_FREE_PACHINKO = 'DailyPachinko';
+export const TASK_SLUMBER_PARTY_CLAIM_REWARD = 'PartyClaim';
+export const TASK_TOWER_CLAIM_LEAGUE_REWARD = 'TowerClaim';
+export const TASK_NOTHING = 'nothing';
 
 type Task = [TaskName, string, number];
 
 type TaskName =
-    typeof TASK_COLLECT_SALARIES |
-    typeof TASK_FIGHT_TROLL |
     typeof TASK_FETCH_HOME |
     typeof TASK_ACTIVITIES |
+    typeof TASK_CLUB_FIGHT |
+    typeof TASK_MARKET_BUY |
+    typeof TASK_FIGHT_TROLL |
     typeof TASK_SEASON_FIGHT |
+    typeof TASK_CHAMPIONS_FIGHT |
+    typeof TASK_COLLECT_SALARIES |
+    typeof TASK_CLAIM_DAILY_REWARD |
+    typeof TASK_SEASON_CLAIM_REWARD |
+    typeof TASK_TOWER_FIGHT |
+    typeof TASK_OPEN_DAILY_FREE_PACHINKO |
+    typeof TASK_SLUMBER_PARTY_CLAIM_REWARD |
+    typeof TASK_TOWER_CLAIM_LEAGUE_REWARD |
     typeof TASK_STORY;
 
 const AGE_VERIFICATION_COOKIE = 'age_verification';
@@ -75,6 +102,10 @@ export interface HeheBotCache {
     trollFights?: number;
     seasonFightWins?: number;
     seasonFightLoses?: number;
+    contestRewardsClaimed?: number;
+    dailyRewardLootClaims?: number;
+    freeDailyPachinkoOpened?: number;
+    dailyRewardLastClaimAttemptMs?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -138,10 +169,9 @@ export class HeheBot {
             cookieJar: this.cookieJar,
             debug: this.config.debug,
             onRequestSuccess: async () => {
-                this.cache.requests = (this.cache.requests || 0) + 1;
-                this.cache.lastRequestTs = Date.now();
+                this.cache.lastRequestTs = Date.now(); // saved by next incCache
+                await this.incCache({requests: 1});
                 await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
-                await this.saveCache();
             },
             onNetworkError: async (error, retryIn) => {
                 this.lastSoftError = fail(
@@ -152,7 +182,7 @@ export class HeheBot {
         });
     }
 
-    public setState(fields: Partial<HeheBotState>) {
+    public setStateMultiple(fields: Partial<HeheBotState>) {
         this.state = {
             ...this.state,
             ...fields,
@@ -190,12 +220,21 @@ export class HeheBot {
 
     protected async runTask(name: TaskName) {
         switch (name) {
-            case TASK_COLLECT_SALARIES: return taskCollectSalaries(this);
-            case TASK_FIGHT_TROLL: return taskFightTroll(this);
+            case TASK_STORY: return taskStory(this);
             case TASK_FETCH_HOME: return taskFetchHome(this);
             case TASK_ACTIVITIES: return taskActivities(this);
+            case TASK_CLUB_FIGHT: return taskClubFight(this);
+            case TASK_MARKET_BUY: return taskMarketBuy(this);
+            case TASK_FIGHT_TROLL: return taskFightTroll(this);
             case TASK_SEASON_FIGHT: return taskSeasonFight(this);
-            case TASK_STORY: return taskStory(this);
+            case TASK_CHAMPIONS_FIGHT: return taskChampionsFight(this);
+            case TASK_COLLECT_SALARIES: return taskCollectSalaries(this);
+            case TASK_CLAIM_DAILY_REWARD: return taskClaimDailyReward(this);
+            case TASK_SEASON_CLAIM_REWARD: return taskSeasonClaimReward(this);
+            case TASK_TOWER_FIGHT: return taskTowerFight(this);
+            case TASK_OPEN_DAILY_FREE_PACHINKO: return taskOpenDailyFreePachinko(this);
+            case TASK_SLUMBER_PARTY_CLAIM_REWARD: return taskSlumberPartyClaimReward(this);
+            case TASK_TOWER_CLAIM_LEAGUE_REWARD: return taskTowerClaimLeagueReward(this);
             default: throw `Unknown task: ${name}`;
         }
     }
@@ -274,6 +313,21 @@ export class HeheBot {
         await fs.writeFile(this.config.cacheFile, JSON.stringify(this.cache), { encoding: 'utf8' });
     }
 
+    public async incCache(fieldsToInc: Partial<HeheBotCache>): Promise<void> {
+        const cache: any = this.cache;
+        const fields: any = fieldsToInc;
+
+        if (!Object.keys(fields).length) {
+            return;
+        }
+
+        for (const field in fields) {
+            cache[field] = (cache[field] || 0) + fields[field];
+        }
+
+        await this.saveCache();
+    }
+
     public getNextTaskInfo(now: Date): HeheBotNextTaskInfo {
         const [name, reason, whenTs] = this.tasks[0] || [];
 
@@ -319,6 +373,9 @@ export class HeheBot {
             'Story steps': this.cache.storyStepsDone || 0,
             'Troll fights': this.cache.trollFights || 0,
             'Season fights': `win: ${this.cache.seasonFightWins || 0} lose: ${this.cache.seasonFightLoses || 0}`,
+            'Contest rewards': this.cache.contestRewardsClaimed || 0,
+            'Daily rewards': this.cache.dailyRewardLootClaims || 0,
+            'Daily pachinko': this.cache.freeDailyPachinkoOpened || 0,
         };
 
         if (this.state.storyBlocked) {
@@ -433,7 +490,7 @@ export class HeheBot {
                 },
             });
 
-            const html = response.body;
+            const html = response.body.replace(/[\r\n\s]+/g, ' ').trim();
 
             if (response.statusCode === 200 && html.match(/<body id="hh_hentai"/i)) {
                 return html;

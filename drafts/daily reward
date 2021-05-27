@@ -1,0 +1,12 @@
+try every 2 hours
+
+-- params
+
+class: RewardNotification
+action: show_pending
+
+-- response
+
+{"heroChangesUpdate":[],"data":{"loot":true,"rewards":[{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_e10\u0022\u003E\u003C\/span\u003E \u003Cp\u003E1\u003C\/p\u003E","currency":true,"slot_class":true}]},"lose":false,"title":"Daily reward!","success":true}
+
+{"heroChangesUpdate":{"hard_currency":"1350","energy_kiss":3},"data":{"loot":true,"rewards":[{"type":"hard_currency","value":"\u003Cp\u003E60\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"energy_kiss","value":"\u003Cp\u003E+2\u003C\/p\u003E","currency":true,"slot_class":true}]},"lose":false,"title":"Monthly Card daily reward!","success":true}

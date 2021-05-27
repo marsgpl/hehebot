@@ -1,0 +1,17 @@
+(at market)
+
+class: Hero
+carac: 1
+action: update_stats
+nb: 30
+
+---
+
+nb - multiplier
+carac - 1,2,3
+
+---
+
+{"carac3":1,"soft_currency":21901,"endurance":8278,"chance":1684,"statsPrices":{"prices":{"x1":9,"x10":180,"x30":1140,"x60":4080},"base_stat":154,"max":814},"success":true}
+
+{"carac2":31,"soft_currency":19621,"endurance":8428,"chance":1699,"statsPrices":{"prices":{"x1":69,"x10":780,"x30":2940,"x60":7680},"base_stat":110,"max":770},"success":true}

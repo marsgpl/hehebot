@@ -3,6 +3,8 @@ import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 import { mj } from '../helpers/m.js';
 
+const TASK_NOTE = 'troll';
+
 // trollInfo = {"id_troll":"1","id_world":"2"};
 
 async function fetchTrollInfo(bot: HeheBot, worldId: number): Promise<JsonObject | null> {
@@ -62,8 +64,7 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
 
     const fullRechargeIn = Number(json.end?.updated_infos?.energy_fight_recharge_time) || 0;
 
-    bot.cache.trollFights = (bot.cache.trollFights || 0) + 1;
-    await bot.saveCache();
+    await bot.incCache({trollFights: 1});
 
     // check if we gained some quest items in loot
     const rewards = JSON.stringify(json.end?.rewards?.data?.rewards);
@@ -80,7 +81,7 @@ export default async function taskFightTroll(bot: HeheBot) {
     const energyMax = Number(bot.state.heroEnergies?.fight?.max_amount);
     let fullRechargeIn = Number(bot.state.heroEnergies?.fight?.recharge_time);
 
-    if (!worldId || !energyMax || (energyNow < energyMax && !fullRechargeIn)) {
+    if (!worldId || !energyMax) {
         throw fail('taskFightTroll', 'incomplete data', bot.state);
     }
 
@@ -88,8 +89,12 @@ export default async function taskFightTroll(bot: HeheBot) {
         if (bot.state.storyBlocked && energyNow) {
             // allow troll fight as soon as possible because story is blocked!
         } else {
-            return bot.pushTaskIn(TASK_FETCH_HOME, 'troll', fullRechargeIn)
+            return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);
         }
+    }
+
+    if (!energyNow) {
+        throw fail('taskFightTroll', 'energyNow=0 and fullRechargeIn=0', bot.state);
     }
 
     const trollInfo = await fetchTrollInfo(bot, worldId);
@@ -117,6 +122,6 @@ export default async function taskFightTroll(bot: HeheBot) {
     }
 
     if (fullRechargeIn) {
-        bot.pushTaskIn(TASK_FETCH_HOME, 'troll', fullRechargeIn);
+        bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);
     }
 }

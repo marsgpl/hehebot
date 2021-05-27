@@ -1,0 +1,13 @@
+class: Item
+action: buy
+id_item: 19
+type: gift
+who: 1
+
+---
+
+class: Item
+action: buy
+id_item: 16
+type: potion
+who: 1

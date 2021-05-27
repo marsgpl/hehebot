@@ -1,6 +1,8 @@
 import fail from '../helpers/fail.js';
 import { HeheBot, TASK_FETCH_HOME } from '../class/HeheBot.js';
 
+const TASK_NOTE = 'story';
+
 // {"next_step":{"ended":1,"win":[["quest","4","1"]],"num_step":0},"changes":{"energy_quest_recharge_time":0},"success":true}
 
 // {"next_step":{"ended":1,"win":{"girls":[{"id_girl":"7","name":"Red Battler","ico":"https:\/\/hh2.hh-content.com\/pictures\/girls\/7\/ico0.png","avatar":"https:\/\/hh2.hh-content.com\/pictures\/girls\/7\/ava0.png","black_avatar":"https:\/\/hh2.hh-content.com\/pictures\/girls\/7\/avb0.png","rarity":"starting","type":"girl_shards","previous_value":0,"value":100}],"shards":[{"id_girl":"7","name":"Red Battler","ico":"https:\/\/hh2.hh-content.com\/pictures\/girls\/7\/ico0.png","rarity":"starting","type":"girl_shards","previous_value":0,"value":100}]},"num_step":0},"changes":{"energy_quest_recharge_time":448},"success":true}
@@ -18,12 +20,16 @@ export default async function taskStory(bot: HeheBot) {
     let currentQuestId = String(bot.state.heroInfo?.questing?.id_quest);
     let fullRechargeIn = Number(bot.state.heroEnergies?.quest?.recharge_time);
 
-    if (!energyMax || !currentQuestId || (energyNow < energyMax && !fullRechargeIn)) {
+    if (!energyMax || !currentQuestId) {
         throw fail('taskStory', 'incomplete data', bot.state);
     }
 
     if (fullRechargeIn) {
-        return bot.pushTaskIn(TASK_FETCH_HOME, 'story', fullRechargeIn);
+        return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);
+    }
+
+    if (!energyNow) {
+        throw fail('taskStory', 'energyNow=0 and fullRechargeIn=0', bot.state);
     }
 
     while (true) {
@@ -44,8 +50,7 @@ export default async function taskStory(bot: HeheBot) {
             }
         }
 
-        bot.cache.storyStepsDone = (bot.cache.storyStepsDone || 0) + 1;
-        await bot.saveCache();
+        await bot.incCache({storyStepsDone: 1});
 
         const isEnded = json.next_step?.ended;
 
@@ -53,7 +58,7 @@ export default async function taskStory(bot: HeheBot) {
         fullRechargeIn = Number(json.changes?.energy_quest_recharge_time);
 
         if (isEnded) {
-            return bot.pushTaskIn(TASK_FETCH_HOME, 'story', fullRechargeIn || 0);
+            return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn || 0);
         }
 
         if (!currentQuestId) {
@@ -62,6 +67,6 @@ export default async function taskStory(bot: HeheBot) {
     }
 
     if (fullRechargeIn) {
-        bot.pushTaskIn(TASK_FETCH_HOME, 'story', fullRechargeIn);
+        bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);
     }
 }

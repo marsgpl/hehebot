@@ -1,0 +1,8 @@
+class: Season
+namespace: h\Season
+action: claim
+key: free_1
+
+---
+
+{"rewards":{"data":{"loot":true,"rewards":[{"type":"energy_kiss","value":"\u003Cp\u003E+2\u003C\/p\u003E","currency":true,"slot_class":true}]},"title":"You won!","heroChangesUpdate":{"energy_kiss":5,"energy_kiss_recharge_time":15753,"ts_kiss":1622116350}},"result":"won","success":true}

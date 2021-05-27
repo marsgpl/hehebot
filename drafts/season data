@@ -1,0 +1,691 @@
+
+//---------------SEASONS_FE-----------------------
+//------variables for season button/progress here--------
+	var season_season_id = null;
+	var season_mojo_s = null;
+	var season_tier = null;
+	var season_has_pass = null;
+
+	//--------------------------TIERS-----------------------
+	var season_tiers = [];
+
+
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '1';
+																tier['mojo_required'] = '1000';
+																tier['mojo_next_tier'] = '1220';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '1';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '2';
+																tier['mojo_required'] = '1220';
+																tier['mojo_next_tier'] = '1440';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '3';
+																tier['mojo_required'] = '1440';
+																tier['mojo_next_tier'] = '1660';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '4';
+																tier['mojo_required'] = '1660';
+																tier['mojo_next_tier'] = '1880';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '5';
+																tier['mojo_required'] = '1880';
+																tier['mojo_next_tier'] = '2100';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '6';
+																tier['mojo_required'] = '2100';
+																tier['mojo_next_tier'] = '2320';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '7';
+																tier['mojo_required'] = '2320';
+																tier['mojo_next_tier'] = '2540';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '8';
+																tier['mojo_required'] = '2540';
+																tier['mojo_next_tier'] = '2760';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '9';
+																tier['mojo_required'] = '2760';
+																tier['mojo_next_tier'] = '2980';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '10';
+																tier['mojo_required'] = '2980';
+																tier['mojo_next_tier'] = '3200';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '11';
+																tier['mojo_required'] = '3200';
+																tier['mojo_next_tier'] = '3420';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '12';
+																tier['mojo_required'] = '3420';
+																tier['mojo_next_tier'] = '3640';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '13';
+																tier['mojo_required'] = '3640';
+																tier['mojo_next_tier'] = '3860';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '14';
+																tier['mojo_required'] = '3860';
+																tier['mojo_next_tier'] = '4080';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '15';
+																tier['mojo_required'] = '4080';
+																tier['mojo_next_tier'] = '4300';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '16';
+																tier['mojo_required'] = '4300';
+																tier['mojo_next_tier'] = '4520';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '17';
+																tier['mojo_required'] = '4520';
+																tier['mojo_next_tier'] = '4740';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '18';
+																tier['mojo_required'] = '4740';
+																tier['mojo_next_tier'] = '4960';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '19';
+																tier['mojo_required'] = '4960';
+																tier['mojo_next_tier'] = '5180';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '20';
+																tier['mojo_required'] = '5180';
+																tier['mojo_next_tier'] = '5400';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '21';
+																tier['mojo_required'] = '5400';
+																tier['mojo_next_tier'] = '5620';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '22';
+																tier['mojo_required'] = '5620';
+																tier['mojo_next_tier'] = '5840';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '23';
+																tier['mojo_required'] = '5840';
+																tier['mojo_next_tier'] = '6060';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '24';
+																tier['mojo_required'] = '6060';
+																tier['mojo_next_tier'] = '6280';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '25';
+																tier['mojo_required'] = '6280';
+																tier['mojo_next_tier'] = '6500';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '26';
+																tier['mojo_required'] = '6500';
+																tier['mojo_next_tier'] = '6720';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '27';
+																tier['mojo_required'] = '6720';
+																tier['mojo_next_tier'] = '6940';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '28';
+																tier['mojo_required'] = '6940';
+																tier['mojo_next_tier'] = '7160';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '29';
+																tier['mojo_required'] = '7160';
+																tier['mojo_next_tier'] = '7380';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '30';
+																tier['mojo_required'] = '7380';
+																tier['mojo_next_tier'] = '7600';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '31';
+																tier['mojo_required'] = '7600';
+																tier['mojo_next_tier'] = '7820';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '32';
+																tier['mojo_required'] = '7820';
+																tier['mojo_next_tier'] = '8040';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '33';
+																tier['mojo_required'] = '8040';
+																tier['mojo_next_tier'] = '8260';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '34';
+																tier['mojo_required'] = '8260';
+																tier['mojo_next_tier'] = '8480';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '35';
+																tier['mojo_required'] = '8480';
+																tier['mojo_next_tier'] = '8700';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '36';
+																tier['mojo_required'] = '8700';
+																tier['mojo_next_tier'] = '8920';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '37';
+																tier['mojo_required'] = '8920';
+																tier['mojo_next_tier'] = '9140';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '38';
+																tier['mojo_required'] = '9140';
+																tier['mojo_next_tier'] = '9360';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '39';
+																tier['mojo_required'] = '9360';
+																tier['mojo_next_tier'] = '9580';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '40';
+																tier['mojo_required'] = '9580';
+																tier['mojo_next_tier'] = '9800';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '41';
+																tier['mojo_required'] = '9800';
+																tier['mojo_next_tier'] = '10020';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '42';
+																tier['mojo_required'] = '10020';
+																tier['mojo_next_tier'] = '10240';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '43';
+																tier['mojo_required'] = '10240';
+																tier['mojo_next_tier'] = '10460';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '44';
+																tier['mojo_required'] = '10460';
+																tier['mojo_next_tier'] = '10680';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '45';
+																tier['mojo_required'] = '10680';
+																tier['mojo_next_tier'] = '10900';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '46';
+																tier['mojo_required'] = '10900';
+																tier['mojo_next_tier'] = '11120';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '47';
+																tier['mojo_required'] = '11120';
+																tier['mojo_next_tier'] = '11340';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '48';
+																tier['mojo_required'] = '11340';
+																tier['mojo_next_tier'] = '11560';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '49';
+																tier['mojo_required'] = '11560';
+																tier['mojo_next_tier'] = '11780';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '50';
+																tier['mojo_required'] = '11780';
+																tier['mojo_next_tier'] = '12000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '51';
+																tier['mojo_required'] = '12000';
+																tier['mojo_next_tier'] = '14000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '52';
+																tier['mojo_required'] = '14000';
+																tier['mojo_next_tier'] = '16000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '53';
+																tier['mojo_required'] = '16000';
+																tier['mojo_next_tier'] = '18000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '54';
+																tier['mojo_required'] = '18000';
+																tier['mojo_next_tier'] = '20000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '55';
+																tier['mojo_required'] = '20000';
+																tier['mojo_next_tier'] = '22000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '56';
+																tier['mojo_required'] = '22000';
+																tier['mojo_next_tier'] = '24000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '57';
+																tier['mojo_required'] = '24000';
+																tier['mojo_next_tier'] = '26000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '58';
+																tier['mojo_required'] = '26000';
+																tier['mojo_next_tier'] = '28000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '59';
+																tier['mojo_required'] = '28000';
+																tier['mojo_next_tier'] = '30000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '60';
+																tier['mojo_required'] = '30000';
+																tier['mojo_next_tier'] = '32000';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+					var tier = {};
+												tier['id_season'] = '7';
+																tier['tier'] = '61';
+																tier['mojo_required'] = '32000';
+																tier['mojo_next_tier'] = '';
+																tier['mojo_current'] = '1141';
+																tier['is_current'] = '';
+																tier['free_reward_picked'] = '';
+																tier['pass_reward_picked'] = '';
+
+			season_tiers.push(tier);
+
+
+		//session progression object
+
+		season_season_id = '7';
+		season_mojo_s = '1141';
+		season_tier = '1';
+		season_has_pass = '0';

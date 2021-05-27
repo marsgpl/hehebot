@@ -3,6 +3,8 @@ import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 import { mj } from '../helpers/m.js';
 import fail from '../helpers/fail.js';
 
+const TASK_NOTE = 'season';
+
 interface HeheSeasonFightResult {
     error?: any;
     win?: boolean;
@@ -152,8 +154,10 @@ async function fightOpponent(bot: HeheBot, opponent: JsonObject): Promise<HeheSe
 
 export default async function taskSeasonFight(bot: HeheBot) {
     const seasonId = bot.state.season_season_id;
+
     const energyNow = Number(bot.state.heroEnergies?.kiss?.amount);
     const energyMax = Number(bot.state.heroEnergies?.kiss?.max_amount);
+
     let fullRechargeIn = Number(bot.state.heroEnergies?.kiss?.recharge_time);
 
     if (!seasonId) {
@@ -161,12 +165,16 @@ export default async function taskSeasonFight(bot: HeheBot) {
         return;
     }
 
-    if (!energyMax || (energyNow < energyMax && !fullRechargeIn)) {
+    if (!energyMax) {
         throw fail('taskSeasonFight', 'incomplete data', bot.state);
     }
 
     if (fullRechargeIn) {
-        return bot.pushTaskIn(TASK_FETCH_HOME, 'season fight', fullRechargeIn);
+        return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);
+    }
+
+    if (!energyNow) {
+        throw fail('taskSeasonFight', 'energyNow=0 and fullRechargeIn=0', bot.state);
     }
 
     let losses = 0;
@@ -197,13 +205,11 @@ export default async function taskSeasonFight(bot: HeheBot) {
             }
 
             if (result.win) {
-                bot.cache.seasonFightWins = (bot.cache.seasonFightWins || 0) + 1;
-                await bot.saveCache();
+                await bot.incCache({seasonFightWins: 1});
             } else {
-                losses++;
+                await bot.incCache({seasonFightLoses: 1});
 
-                bot.cache.seasonFightLoses = (bot.cache.seasonFightLoses || 0) + 1;
-                await bot.saveCache();
+                losses++;
 
                 if (losses >= 5) {
                     bot.state.seasonError = 'bot loses too much, season fights stopped';
@@ -214,6 +220,6 @@ export default async function taskSeasonFight(bot: HeheBot) {
     }
 
     if (fullRechargeIn) {
-        bot.pushTaskIn(TASK_FETCH_HOME, 'story', fullRechargeIn);
+        bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);
     }
 }

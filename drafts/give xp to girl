@@ -1,0 +1,10 @@
+class: Item
+action: give_xp
+id_m_i: 1576279763
+id_item: 53
+type: potion
+who: 293001799
+
+---
+
+{"can_pex":true,"xp":220,"level_up":true,"level":13,"girl":{"level":"5","class":"1","Affection":{"cur":1810,"min":1800,"max":6300,"level":1,"left":4490,"ratio":0,"maxed":false},"can_upgrade":true,"Name":"Harper","Xp":{"cur":220,"min":206,"max":224,"level":13,"left":4,"ratio":0.78,"maxed":false}},"success":true}
