@@ -6,7 +6,7 @@ import fail from '../helpers/fail.js';
 import sleep from '../helpers/sleep.js';
 import { CookieJar } from './CookieJar.js';
 
-const COMMUNICATION_ERROR_RETRY_TIMEOUT = 3000;
+const COMMUNICATION_ERROR_RETRY_TIMEOUT = 60000;
 const COMMUNICATION_ERROR_MARKER = 'Browser.request communication error';
 
 export type FormData = {[key: string]: string};
