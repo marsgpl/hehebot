@@ -13,7 +13,11 @@ const NODE_ENV = process.env.NODE_ENV;
 const CWD = path.dirname(new URL(import.meta.url).pathname);
 
 const app = new Koa;
-const bot = new HeheBot(config.bot);
+const bots: HeheBot[] = [];
+
+config.bots.forEach(botConfig => {
+    bots.push(new HeheBot(botConfig));
+});
 
 function reportError(...errors: any) {
     console.error('🔸 Fatal error:', fail(...errors));
@@ -63,9 +67,7 @@ app.use(async (ctx) => {
     const now = new Date;
 
     await ctx.render('metrics', {
-        nextTask: bot.getNextTaskInfo(now),
-        metrics: bot.exportMetrics(),
-        debug: bot.exportDebugInfo(),
+        bots: bots.map(bot => bot.exportMetrics(now)),
     });
 });
 
@@ -76,5 +78,5 @@ app.listen(config.listen.port, config.listen.addr, 0, () => {
     console.log(`Mode: ${NODE_ENV}`);
     console.log('OS user:', os.userInfo().username);
     console.log(`Listening on ${config.listen.addr}:${config.listen.port}`);
-    bot.start();
+    bots.forEach(bot => bot.start());
 });

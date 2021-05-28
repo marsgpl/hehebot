@@ -1,16 +1,12 @@
 {
-    "bot": {
-        "login": "pkairevent@gmail.com",
-        "password": "SDJAOSdjn2f09385bgw0e9n0f1",
-        "cacheFile": ".hehebot.cache.json",
-        "debug": true
-    },
-    "--bot": {
-        "login": "rainboweyelasers@gmail.com",
-        "password": "ds08n4SDVHI08r5SDH9g058bs",
-        "cacheFile": ".hehebot2.cache.json",
-        "debug": true
-    },
+    "bots": [
+        {
+            "login": "pkairevent@gmail.com",
+            "password": "SDJAOSdjn2f09385bgw0e9n0f1",
+            "cacheFile": ".hehebot.cache.apex.json",
+            "debug": true
+        }
+    ],
     "listen": {
         "addr": "127.0.0.1",
         "port": 58000

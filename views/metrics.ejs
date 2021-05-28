@@ -1,40 +1,43 @@
+<% bots.forEach(metrics => { %>
 <table border class="DataTable">
-    <tr>
-        <th colspan="2">Metrics</th>
-    </tr>
-    <% for (const key in metrics) {
-        const value = metrics[key];
-    %>
+    <thead>
         <tr>
-            <td class="Key"><%= key %></td>
-            <td>
-                <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
-            </td>
+            <th colspan="2" data-pid="<%= metrics['Player ID'] %>">
+                <span class="marker" data-visible="▼" data-hidden="▶">▼</span>
+                <%= metrics['Player'] %>
+                <span class="task"><%= metrics['Task'] %></span>
+            </th>
         </tr>
-    <% } %>
+    </thead>
+
+    <tbody id="pid-<%= metrics['Player ID'] %>">
+        <% for (const key in metrics) {
+            if (
+                key === 'Player' ||
+                key === 'Player ID' ||
+                key === 'Task'
+            ) continue;
+            const value = metrics[key];
+        %>
+            <tr>
+                <td class="Key"><%= key %></td>
+                <td>
+                    <% if (key === 'Debug') { %>
+                        <div class="hidden-handle">
+                            <span class="hidden-handle_text">show</span>
+                            <span class="hidden-handle_content">
+                        <% } %>
+                            <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
+                        <% if (key === 'Debug') { %>
+                            </span>
+                        </div>
+                    <% } %>
+                </td>
+            </tr>
+        <% } %>
+    </tbody>
 </table>
-
-<table border class="DataTable">
-    <tr>
-        <th colspan="2">Debug</th>
-    </tr>
-    <% for (const key in debug) {
-        const value = debug[key];
-    %>
-        <tr>
-            <td class="Key"><%= key %></td>
-            <td>
-                <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
-            </td>
-        </tr>
-    <% } %>
-</table>
-
-<div class="NextTask" data-countdown="<%= nextTask.countdown %>">
-    <%= nextTask.name %> in <span><%= nextTask.countdown %></span>s (<%= nextTask.reason %>)
-</div>
-
-<button class="RefreshButton" onclick="location.reload()">refresh</button>
+<% }); %>
 
 <style>
     body {
@@ -51,61 +54,75 @@
         border: 1px solid #ddd;
     }
     .DataTable + .DataTable {
-        margin-top: 50px;
+        margin-top: -1px;
     }
     .DataTable th {
         user-select: none;
         background: #f4f4f4;
+        cursor: pointer;
+        line-height: 20px;
     }
     .DataTable th, td {
         padding: 15px;
         word-break: break-word;
         text-align: left;
+        vertical-align: top;
     }
     .DataTable .Key {
         width: 140px;
     }
-    .RefreshButton {
-        display: none;
-        position: fixed;
-        top: 14px;
-        right: 14px;
+    .hidden-handle_text {
+        display: inline-block;
+        cursor: pointer;
+        padding: 15px;
+        margin: -15px;
+        user-select: none;
     }
-    .NextTask {
+    .hidden-handle_content {
         display: none;
-        position: fixed;
-        top: 0;
-        right: 0;
-        padding: 16px;
+    }
+    .marker {
+        width: 20px;
+        display: inline-block;
+    }
+    .task {
+        display: inline-block;
+        margin-left: 20px;
         color: #666;
-        font-size: 14px;
+        font-weight: normal;
     }
 </style>
 
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
-        const RefreshButton = document.querySelector('.RefreshButton');
-        const NextTask = document.querySelector('.NextTask');
-        const NextTaskCountdown = NextTask.querySelector('span');
-        const countdown = Number(NextTask.dataset.countdown);
-        const nextTaskTs = Date.now() + countdown * 1000;
+        const showHandles = document.querySelectorAll('.hidden-handle');
 
-        const updateNextTask = () => {
-            const nowTs = Date.now();
-            const secondsLeft = Math.round((nextTaskTs - nowTs) / 1000);
+        showHandles.forEach(handle => {
+            const text = handle.querySelector('.hidden-handle_text');
+            const content = handle.querySelector('.hidden-handle_content');
 
-            if (secondsLeft < 1) {
-                NextTask.style.display = 'none';
-                RefreshButton.style.display = 'block';
-                clearInterval(updateNextTaskInterval);
-            } else {
-                NextTask.style.display = 'block';
-                RefreshButton.style.display = 'none';
-                NextTaskCountdown.innerText = secondsLeft;
-            }
-        }
+            text.addEventListener('click', () => {
+                text.style.display = 'none';
+                content.style.display = 'block';
+            });
+        });
 
-        const updateNextTaskInterval = setInterval(updateNextTask, 1000);
-        updateNextTask();
+        const ths = document.querySelectorAll('th');
+
+        ths.forEach(th => {
+            const pid = th.dataset.pid;
+            const marker = th.querySelector('.marker');
+            const tbody = document.querySelector('#pid-' + pid);
+            if (!pid || !marker || !tbody) return;
+            th.addEventListener('click', () => {
+                if (tbody.style.display === 'none') {
+                    tbody.style.display = 'table-row-group';
+                    marker.innerText = marker.dataset.visible;
+                } else {
+                    tbody.style.display = 'none';
+                    marker.innerText = marker.dataset.hidden;
+                }
+            });
+        });
     });
 </script>

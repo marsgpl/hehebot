@@ -40,7 +40,7 @@ export const TASK_TOWER_FIGHT = 'TowerFight';
 export const TASK_OPEN_DAILY_FREE_PACHINKO = 'DailyPachinko';
 export const TASK_PATH_EVENT_CLAIM_REWARD = 'PartyClaim';
 export const TASK_TOWER_CLAIM_LEAGUE_REWARD = 'TowerClaim';
-export const TASK_NOTHING = 'nothing';
+export const TASK_IDLE = 'IDLE';
 
 type Task = [TaskName, string, number];
 
@@ -114,10 +114,11 @@ export interface HeheBotCache {
     towerLeagueRewardsClaimed?: number;
     towerWins?: number;
     towerLosses?: number;
+    lastSalaryCollectTs?: number;
 }
 
 export interface HeheBotNextTaskInfo {
-    name: TaskName | typeof TASK_NOTHING;
+    name: TaskName | typeof TASK_IDLE;
     reason: string;
     /**
      * seconds before bot executes next action
@@ -179,6 +180,7 @@ export class HeheBot {
             userAgent: USER_AGENT,
             cookieJar: this.cookieJar,
             debug: this.config.debug,
+            debugPrefix: this.config.login,
             onRequestSuccess: async () => {
                 this.cache.lastRequestTs = Date.now(); // saved by next incCache
                 await this.incCache({ requests: 1 });
@@ -350,8 +352,8 @@ export class HeheBot {
             };
         } else {
             return {
-                name: TASK_NOTHING,
-                reason: 'no',
+                name: TASK_IDLE,
+                reason: '',
                 countdown: 0,
             }
         }
@@ -374,7 +376,7 @@ export class HeheBot {
         }
     }
 
-    public exportMetrics(): HeheBotMetrics {
+    public exportMetrics(now: Date): HeheBotMetrics {
         const { cache, state } = this;
 
         const pack = (data: JsonObject) => {
@@ -383,9 +385,23 @@ export class HeheBot {
             return result.join(', ');
         }
 
+        const currentTask = this.currentTask ? this.currentTask[0] : TASK_IDLE;
+        const nextTask = this.getNextTaskInfo(now);
+
+        let taskName = currentTask;
+
+        if (nextTask.name !== TASK_IDLE) {
+            if (nextTask.countdown > 0) taskName += ` ${Math.round(nextTask.countdown)}s`;
+            taskName += ` ⭢ ${nextTask.name}`;
+            if (nextTask.reason) taskName += ` (${nextTask.reason})`;
+        }
+
         const metrics: HeheBotMetrics = {
-            'Player': !state.heroInfo?.Name ? '' :
+            'Player': !state.heroInfo?.Name ?
+                'Initializing ...' :
                 `${state.heroInfo?.Name} (${state.heroEnergies?.hero_level})`,
+            'Player ID': state.heroInfo?.id,
+            'Task': taskName,
             'Salary': this.getSalaryEstimate(),
             'Salary collected': formatMoney(cache.salaryCollected || 0),
             'Missions': pack({
@@ -426,13 +442,15 @@ export class HeheBot {
             metrics['Season error'] = state.seasonError;
         }
 
+        metrics['Debug'] = this.exportDebugInfo();
+
         return metrics;
     }
 
     public exportDebugInfo(): HeheBotMetrics {
         return {
             lastSoftError: this.lastSoftError,
-            currentTask: this.currentTask ? this.currentTask[0] : TASK_NOTHING,
+            currentTask: this.currentTask ? this.currentTask[0] : TASK_IDLE,
             tasks: this.tasks,
             ...this.state,
             debug: this.config.debug,

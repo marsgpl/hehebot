@@ -28,6 +28,7 @@ export interface BrowserProps {
     userAgent?: string;
     cookieJar?: CookieJar;
     debug?: boolean;
+    debugPrefix?: string;
     onRequestSuccess?: (response: BrowserResponse) => Promise<void>;
     onNetworkError?: (error: any, retryIn: number) => Promise<void>;
 }
@@ -102,12 +103,12 @@ export class Browser {
                     }
 
                     if (this.props.debug) {
-                        console.log('🟨', response.statusCode, response.statusMessage);
+                        console.log('🟨', this.props.debugPrefix, response.statusCode, response.statusMessage);
 
                         if (response.body[0] === '{') {
-                            console.log('🟨', response.body);
+                            console.log('🟨', this.props.debugPrefix, response.body);
                         } else {
-                            console.log('🟨', `body#${response.body.length}`);
+                            console.log('🟨', this.props.debugPrefix, `body#${response.body.length}`);
                         }
                     }
 
@@ -180,10 +181,10 @@ export class Browser {
             request.end();
 
             if (this.props.debug) {
-                console.log('🟦', options.method, url.toString());
+                console.log('🟦', this.props.debugPrefix, options.method, url.toString());
 
                 if (options.method === 'POST') {
-                    console.log('🟦', JSON.stringify(options.body || ''));
+                    console.log('🟦', this.props.debugPrefix, JSON.stringify(options.body || ''));
                 }
             }
         });

@@ -7,8 +7,8 @@ import getTimestamp from './helpers/getTimestamp.js';
 import createDockerContainer from './helpers/createDockerContainer.js';
 import destroyDockerContainer from './helpers/destroyDockerContainer.js';
 
-const CACHE_FILE_LOCAL = '/home/marsgpl/.hehebot.cache.json';
-const CACHE_FILE_CONTAINER = '/tmp/.hehebot.cache.json';
+const CACHE_FILE_LOCAL = '/home/marsgpl/.hehebot.lava.cache.json';
+const CACHE_FILE_CONTAINER = '/tmp/.hehebot.lava.cache.json';
 const DOCKER_CONTAINER_NAME = 'hehebot';
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';
 const DOCKER_LOGIN_CMD = 'echo OPqsj9d02e8nrJsoidvh44pHBV | docker login --username ewj9f4wsk3j90rghtOJ02fhig --password-stdin docker.marsgpl.com';

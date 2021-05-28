@@ -4,4 +4,4 @@ node_modules
 /build/
 /build.prod/
 /build.uglified/
-.hehebot*.cache.json
+.hehebot.cache.*.json

@@ -3,6 +3,8 @@ import fail from '../helpers/fail.js';
 
 const TASK_NOTE = 'salary';
 
+const COLLECT_MIN_DELAY_MS = 10 * 60 * 1000; // 10 minutes
+
 // {"time":120,"money":100,"success":true}
 
 async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number, number]> {
@@ -26,6 +28,13 @@ export default async function taskCollectSalaries(bot: HeheBot) {
     const girls = bot.state.girls;
     if (!girls) throw fail('taskCollectSalaries', 'no girls');
 
+    if (bot.cache.lastSalaryCollectTs) {
+        const delta = Date.now() - bot.cache.lastSalaryCollectTs;
+        if (delta < COLLECT_MIN_DELAY_MS) {
+            return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, (COLLECT_MIN_DELAY_MS - delta) / 1000);
+        }
+    }
+
     let collectedOverall = 0;
     let closestPayIn = 0;
 
@@ -43,6 +52,7 @@ export default async function taskCollectSalaries(bot: HeheBot) {
     }
 
     if (collectedOverall > 0) {
+        bot.cache.lastSalaryCollectTs = Date.now();
         await bot.incCache({ salaryCollected: collectedOverall });
     }
 
