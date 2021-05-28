@@ -99,13 +99,15 @@
     window.addEventListener('DOMContentLoaded', (event) => {
         const nextUpdate = document.querySelector('.NextUpdate');
         const tables = document.querySelectorAll('.StatTable');
-        let countdown = 0;
+        let countdown = null;
         let lastUpdateDate = Date.now();
         tables.forEach(table => {
-            countdown = Math.min(countdown, Number(table.dataset.countdown) || 0);
+            const currentCountdown = Number(table.dataset.countdown) || 0;
+            countdown = countdown === null ? currentCountdown : Math.min(countdown, currentCountdown);
             const title = table.querySelector('.StatTableTitle');
             const collapseMarker = table.querySelector('.StatTableCollapseMarker');
             title.addEventListener('click', () => {
+                tables.forEach(table => table.classList.add('StatTableCollapsed'));
                 if (table.classList.contains('StatTableCollapsed')) {
                     table.classList.remove('StatTableCollapsed');
                 } else {
@@ -117,12 +119,14 @@
             fetch('?updates')
                 .then(r => r.json())
                 .then(updates => {
-                    countdown = 0;
+                    countdown = null;
                     lastUpdateDate = Date.now();
                     updates.botsMetrics.forEach((metrics, index) => {
-                        countdown = Math.min(countdown, Number(metrics.countdown) || 0);
                         const table = document.querySelector('#StatTable-' + index);
                         if (!table) return;
+                        const currentCountdown = Number(metrics.countdown) || 0;
+                        countdown = countdown === null ? currentCountdown : Math.min(countdown, currentCountdown);
+                        table.dataset.countdown = currentCountdown;
                         const titleText = table.querySelector('.StatTableTitleText');
                         const titleNote = table.querySelector('.StatTableTitleNote');
                         const values = table.querySelectorAll('.StatTableRowValue');
@@ -140,7 +144,8 @@
                         };
                     });
                     if (!countdown) { countdown = 5; }
-                    nextUpdate.innerText = 'update in ' + Math.round(countdown) + 's';
+                    const left = Math.round(countdown);
+                    nextUpdate.innerText = left > 0 ? 'update in ' + left + 's' : 'updating';
                     setTimeout(update, countdown * 1000);
                 });
         };
@@ -151,6 +156,12 @@
             const passed = (Date.now() - lastUpdateDate) / 1000;
             const left = Math.round(countdown - passed);
             nextUpdate.innerText = left > 0 ? 'update in ' + left + 's' : 'updating';
+            tables.forEach(table => {
+                const left = Math.round(table.dataset.countdown - passed);
+                const note = table.querySelector('.StatTableTitleNote');
+                note.innerText = note.innerText.replace(/ [0-9]+s /,
+                    left > 0 ? ' ' + left + 's ' : ' ');
+            });
         }, 1000);
     });
 </script>
