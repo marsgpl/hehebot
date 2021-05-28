@@ -102,12 +102,7 @@
         let countdown = 0;
         let lastUpdateDate = Date.now();
         tables.forEach(table => {
-            const currentCountdown = Number(table.dataset.countdown);
-            if (currentCountdown) {
-                countdown = !countdown ?
-                    currentCountdown :
-                    Math.min(countdown, currentCountdown);
-            }
+            countdown = Math.min(countdown, Number(table.dataset.countdown) || 0);
             const title = table.querySelector('.StatTableTitle');
             const collapseMarker = table.querySelector('.StatTableCollapseMarker');
             title.addEventListener('click', () => {
@@ -125,9 +120,7 @@
                     countdown = 0;
                     lastUpdateDate = Date.now();
                     updates.botsMetrics.forEach((metrics, index) => {
-                        countdown = !countdown ?
-                            metrics.countdown :
-                            Math.min(countdown, metrics.countdown);
+                        countdown = Math.min(countdown, Number(metrics.countdown) || 0);
                         const table = document.querySelector('#StatTable-' + index);
                         if (!table) return;
                         const titleText = table.querySelector('.StatTableTitleText');
