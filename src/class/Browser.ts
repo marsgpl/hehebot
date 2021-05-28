@@ -47,6 +47,8 @@ export class Browser {
     }
 
     protected async request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+        let errors = 0;
+
         while (true) {
             try {
                 return await this._request(url, options);
@@ -54,6 +56,12 @@ export class Browser {
                 if (typeof error === 'string' && error.includes(COMMUNICATION_ERROR_MARKER)) {
                     if (this.props.onNetworkError) {
                         this.props.onNetworkError(error, COMMUNICATION_ERROR_RETRY_TIMEOUT);
+                    }
+
+                    errors++;
+
+                    if (errors >= 4) {
+                        throw fail('Browser.request', 'too many network errors', url, options);
                     }
 
                     await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
