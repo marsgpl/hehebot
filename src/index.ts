@@ -16,7 +16,10 @@ const app = new Koa;
 const bots: HeheBot[] = [];
 
 config.bots.forEach(botConfig => {
-    bots.push(new HeheBot(botConfig));
+    bots.push(new HeheBot({
+        ...botConfig,
+        isProduction: NODE_ENV === 'production',
+    }));
 });
 
 function reportError(...errors: any) {
@@ -65,10 +68,17 @@ app.use(async (ctx, next) => {
 
 app.use(async (ctx) => {
     const now = new Date;
+    const botsMetrics = bots.map(bot => bot.exportMetrics(now));
 
-    await ctx.render('metrics', {
-        bots: bots.map(bot => bot.exportMetrics(now)),
-    });
+    if (ctx.request.url.includes('updates')) {
+        ctx.body = {
+            botsMetrics,
+        };
+    } else {
+        await ctx.render('metrics', {
+            botsMetrics,
+        });
+    }
 });
 
 /**

@@ -1,45 +1,7 @@
-<% bots.forEach(metrics => { %>
-<table border class="DataTable">
-    <thead>
-        <tr>
-            <th colspan="2" data-pid="<%= metrics['Player ID'] %>">
-                <span class="marker" data-visible="▼" data-hidden="▶">▼</span>
-                <%= metrics['Player'] %>
-                <span class="task"><%= metrics['Task'] %></span>
-            </th>
-        </tr>
-    </thead>
-
-    <tbody id="pid-<%= metrics['Player ID'] %>">
-        <% for (const key in metrics) {
-            if (
-                key === 'Player' ||
-                key === 'Player ID' ||
-                key === 'Task'
-            ) continue;
-            const value = metrics[key];
-        %>
-            <tr>
-                <td class="Key"><%= key %></td>
-                <td>
-                    <% if (key === 'Debug') { %>
-                        <div class="hidden-handle">
-                            <span class="hidden-handle_text">show</span>
-                            <span class="hidden-handle_content">
-                        <% } %>
-                            <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
-                        <% if (key === 'Debug') { %>
-                            </span>
-                        </div>
-                    <% } %>
-                </td>
-            </tr>
-        <% } %>
-    </tbody>
-</table>
-<% }); %>
-
 <style>
+    html, body, .StatTable {
+        min-width: 320px;
+    }
     body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
@@ -48,81 +10,157 @@
         -moz-osx-font-smoothing: grayscale;
         font-size: 16px;
     }
-    .DataTable {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-    }
-    .DataTable + .DataTable {
-        margin-top: -1px;
-    }
-    .DataTable th {
+    .StatTableTitle {
+        border-bottom: 1px solid #ddd;
         user-select: none;
         background: #f4f4f4;
         cursor: pointer;
-        line-height: 20px;
     }
-    .DataTable th, td {
-        padding: 15px;
-        word-break: break-word;
-        text-align: left;
-        vertical-align: top;
-    }
-    .DataTable .Key {
-        width: 140px;
-    }
-    .hidden-handle_text {
-        display: inline-block;
-        cursor: pointer;
-        padding: 15px;
-        margin: -15px;
-        user-select: none;
-    }
-    .hidden-handle_content {
-        display: none;
-    }
-    .marker {
+    .StatTableCollapseMarker {
         width: 20px;
         display: inline-block;
+        font-weight: bold;
     }
-    .task {
+    .StatTableCollapseMarker::before {
+        display: block;
+        content: attr(data-expanded);
+    }
+    .StatTableTitleText {
+        font-weight: bold;
+        display: inline-block;
+    }
+    .StatTableTitleNote {
         display: inline-block;
         margin-left: 20px;
         color: #666;
-        font-weight: normal;
+    }
+    .StatTable.StatTableCollapsed .StatTableBody {
+        display: none;
+    }
+    .StatTable.StatTableCollapsed .StatTableCollapseMarker::before {
+        display: block;
+        content: attr(data-collapsed);
+    }
+    .StatTableRow {
+        border-bottom: 1px solid #ddd;
+        display: flex;
+    }
+    .StatTableRowKey {
+        width: 140px;
+        flex-shrink: 0;
+        border-right: 1px solid #ddd;
+    }
+    .StatTableRowValue {
+        word-break: break-word;
+        text-align: left;
+        vertical-align: top;
+        flex-grow: 1;
+    }
+    .StatTable + .StatTable {
+        margin-top: -1px;
+    }
+    .StatTableTitle,
+    .StatTableRowKey,
+    .StatTableRowValue {
+        line-height: 20px;
+        padding: 15px;
+    }
+    .NextUpdate {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        color: #666;
     }
 </style>
 
+<div class="NextUpdate"></div>
+
+<% botsMetrics.forEach((metrics, index) => { %>
+<div class="StatTable StatTableCollapsed" id="StatTable-<%= index %>" data-countdown="<%= metrics.countdown %>">
+    <div class="StatTableTitle">
+        <span class="StatTableCollapseMarker" data-expanded="▼" data-collapsed="▶"></span>
+        <span class="StatTableTitleText"><%= metrics.Title %></span>
+        <span class="StatTableTitleNote"><%= metrics.Task %></span>
+    </div>
+    <div class="StatTableBody">
+        <% for (const key in metrics) {
+            if (key === 'Title' || key === 'Task' || key === 'countdown') continue;
+            const value = metrics[key];
+        %>
+        <div class="StatTableRow">
+            <div class="StatTableRowKey"><%= key %></div>
+            <div class="StatTableRowValue" data-key="<%= key %>">
+                <%= (typeof value !== 'string' ? JSON.stringify(value) : value) %>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</div>
+<% }); %>
+
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
-        const showHandles = document.querySelectorAll('.hidden-handle');
-
-        showHandles.forEach(handle => {
-            const text = handle.querySelector('.hidden-handle_text');
-            const content = handle.querySelector('.hidden-handle_content');
-
-            text.addEventListener('click', () => {
-                text.style.display = 'none';
-                content.style.display = 'block';
-            });
-        });
-
-        const ths = document.querySelectorAll('th');
-
-        ths.forEach(th => {
-            const pid = th.dataset.pid;
-            const marker = th.querySelector('.marker');
-            const tbody = document.querySelector('#pid-' + pid);
-            if (!pid || !marker || !tbody) return;
-            th.addEventListener('click', () => {
-                if (tbody.style.display === 'none') {
-                    tbody.style.display = 'table-row-group';
-                    marker.innerText = marker.dataset.visible;
+        const nextUpdate = document.querySelector('.NextUpdate');
+        const tables = document.querySelectorAll('.StatTable');
+        let countdown = 0;
+        let lastUpdateDate = Date.now();
+        tables.forEach(table => {
+            const currentCountdown = Number(table.dataset.countdown);
+            if (currentCountdown) {
+                countdown = !countdown ?
+                    currentCountdown :
+                    Math.min(countdown, currentCountdown);
+            }
+            const title = table.querySelector('.StatTableTitle');
+            const collapseMarker = table.querySelector('.StatTableCollapseMarker');
+            title.addEventListener('click', () => {
+                if (table.classList.contains('StatTableCollapsed')) {
+                    table.classList.remove('StatTableCollapsed');
                 } else {
-                    tbody.style.display = 'none';
-                    marker.innerText = marker.dataset.hidden;
+                    table.classList.add('StatTableCollapsed');
                 }
             });
         });
+        const update = () => {
+            fetch('?updates')
+                .then(r => r.json())
+                .then(updates => {
+                    countdown = 0;
+                    lastUpdateDate = Date.now();
+                    updates.botsMetrics.forEach((metrics, index) => {
+                        countdown = !countdown ?
+                            metrics.countdown :
+                            Math.min(countdown, metrics.countdown);
+                        const table = document.querySelector('#StatTable-' + index);
+                        if (!table) return;
+                        const titleText = table.querySelector('.StatTableTitleText');
+                        const titleNote = table.querySelector('.StatTableTitleNote');
+                        const values = table.querySelectorAll('.StatTableRowValue');
+                        const valuesMap = {};
+                        values.forEach(value => {
+                            valuesMap[value.dataset.key] = value;
+                        });
+                        titleText.innerText = metrics.Title;
+                        titleNote.innerText = metrics.Task;
+                        for (const key in metrics) {
+                            if (!valuesMap[key]) continue;
+                            const value = metrics[key];
+                            valuesMap[key].innerText =
+                                (typeof value !== 'string' ? JSON.stringify(value) : value);
+                        };
+                    });
+                    if (!countdown) { countdown = 5; }
+                    nextUpdate.innerText = 'update in ' + Math.round(countdown) + 's';
+                    setTimeout(update, countdown * 1000);
+                });
+        };
+        if (!countdown) { countdown = 5; }
+        nextUpdate.innerText = 'update in ' + Math.round(countdown) + 's';
+        setTimeout(update, countdown * 1000);
+        setInterval(() => {
+            const passed = (Date.now() - lastUpdateDate) / 1000;
+            const left = Math.round(countdown - passed);
+            nextUpdate.innerText = left > 0 ? 'update in ' + left + 's' : 'updating';
+        }, 1000);
     });
 </script>

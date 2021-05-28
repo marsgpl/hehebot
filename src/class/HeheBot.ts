@@ -79,6 +79,7 @@ export interface HeheBotConfig {
     cacheFile?: string;
     debug?: boolean;
     dropCookiesOnRestart?: boolean;
+    isProduction?: boolean;
 }
 
 export interface HeheBotCache {
@@ -388,20 +389,19 @@ export class HeheBot {
         const currentTask = this.currentTask ? this.currentTask[0] : TASK_IDLE;
         const nextTask = this.getNextTaskInfo(now);
 
-        let taskName = currentTask;
+        let taskTitle = currentTask;
 
         if (nextTask.name !== TASK_IDLE) {
-            if (nextTask.countdown > 0) taskName += ` ${Math.round(nextTask.countdown)}s`;
-            taskName += ` ⭢ ${nextTask.name}`;
-            if (nextTask.reason) taskName += ` (${nextTask.reason})`;
+            if (nextTask.countdown > 0) taskTitle += ` ${Math.round(nextTask.countdown)}s`;
+            taskTitle += ` ⭢ ${nextTask.name}`;
+            if (nextTask.reason) taskTitle += ` (${nextTask.reason})`;
         }
 
         const metrics: HeheBotMetrics = {
-            'Player': !state.heroInfo?.Name ?
+            'Title': !state.heroInfo?.Name ?
                 'Initializing ...' :
                 `${state.heroInfo?.Name} (${state.heroEnergies?.hero_level})`,
-            'Player ID': state.heroInfo?.id,
-            'Task': taskName,
+            'Task': taskTitle,
             'Salary': this.getSalaryEstimate(),
             'Salary collected': formatMoney(cache.salaryCollected || 0),
             'Missions': pack({
@@ -432,20 +432,14 @@ export class HeheBot {
                 premium: cache.pathEventPremiumRewardsClaimed,
             }),
             'Tower rewards': cache.towerLeagueRewardsClaimed || 0,
+            'Story blocked?': state.storyBlocked || '-',
+            'Season error?': state.seasonError || '-',
+            'Error?': this.lastSoftError || '-',
+            'countdown': nextTask.countdown,
         };
 
-        if (state.storyBlocked) {
-            metrics['Story blocked'] = state.storyBlocked;
-        }
-
-        if (state.seasonError) {
-            metrics['Season error'] = state.seasonError;
-        }
-
-        metrics['Debug'] = this.exportDebugInfo();
-
-        if (this.lastSoftError) {
-            metrics['Error'] = this.lastSoftError;
+        if (!this.config.isProduction) {
+            metrics['Debug'] = this.exportDebugInfo();
         }
 
         return metrics;
@@ -460,7 +454,6 @@ export class HeheBot {
             debug: this.config.debug,
             cacheFile: this.config.cacheFile,
             ...this.cache,
-            cookies: 'not displayed',
         };
     }
 
