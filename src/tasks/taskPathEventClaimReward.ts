@@ -27,7 +27,7 @@ export default async function taskPathEventClaimReward(bot: HeheBot) {
     for (const i in objectives) {
         const objective = objectives[i];
         const step = Number(objective.num_step);
-        const canClaim = step <= currentStep;
+        const canClaim = step < currentStep;
         const isFreeRewardClaimed = objective.free_reward_picked;
         const isPremiumRewardClaimed = objective.locked_reward_picked;
 

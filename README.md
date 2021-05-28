@@ -10,13 +10,13 @@
 ## Clubs
 
 - ❌ fight
-- what happens after chad defeated? reward claim?
+- ❌ what happens after chad defeated? reward claim?
 
 ## Season
 
 - ✅ fight
 - ✅ claim reward
-- end of season - will there be a claimable reward?
+- ❌ end of season - will there be a claimable reward?
 
 ## Tower of Fame
 
@@ -28,7 +28,7 @@
 
 - ✅ progress story
 - ✅ fight troll
-- check troll power change on lvl 230 on potato
+- ❌ check troll power change on lvl 290 on potato
 
 ## Champions
 
@@ -37,7 +37,7 @@
 ## Market
 
 - ❌ buy exp and affection
-- if level up - visit shop again
+- ❌ if level up - visit shop again
 
 ## Activities
 
@@ -47,7 +47,7 @@
 - ✅ contest claim reward
 - ❌ POP start
 - ❌ POP claim reward
-- check final gift claiming tomorrow
+- ❌ check final gift claiming tomorrow
 
 ## Harem
 
@@ -57,4 +57,11 @@
 ## Path event (Slumber Party)
 
 - ✅ claim reward
-- end of event - will there be a claimable reward?
+- ❌ end of event - will there be a claimable reward?
+- ❌ canClaim = step < currentStep
+     check this on last reward
+     I was sure that step <= currentStep
+
+## Misc
+
+- ❌ avoid unnecessary errors (insufficient energy to fight)

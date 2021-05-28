@@ -78,6 +78,7 @@ export interface HeheBotConfig {
     password: string;
     cacheFile?: string;
     debug?: boolean;
+    dropCookiesOnRestart?: boolean;
 }
 
 export interface HeheBotCache {
@@ -158,14 +159,14 @@ export class HeheBot {
     constructor(protected config: HeheBotConfig) {
         this.cookieJar = new CookieJar({
             loadCookies: async () => {
-                if (this.config.debug) {
-                    return this.cache.cookies || {};
-                } else {
-                    // production: reset cookies on every bot restart
-                    // because game itself messes up it's state if it
+                if (this.config.dropCookiesOnRestart) {
+                    // why drop cookies on every bot restart?
+                    // because game messes up it's state if it
                     // accessed from several devices
                     // so we ensure bot stability by reloginning
                     return {};
+                } else {
+                    return this.cache.cookies || {};
                 }
             },
             saveCookies: async (cookies: CookieJarCookies) => {
