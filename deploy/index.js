@@ -7,6 +7,7 @@ import getTimestamp from './helpers/getTimestamp.js';
 import createDockerContainer from './helpers/createDockerContainer.js';
 import destroyDockerContainer from './helpers/destroyDockerContainer.js';
 
+const HOST = 'workers-2';
 const DOCKER_CONTAINER_NAME = 'hehebot';
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';
 const DOCKER_LOGIN_CMD = 'echo OPqsj9d02e8nrJsoidvh44pHBV | docker login --username ewj9f4wsk3j90rghtOJ02fhig --password-stdin docker.marsgpl.com';
@@ -58,12 +59,12 @@ console.log('Push docker image ...');
     runShellCommandSync(`docker push ${DOCKER_IMAGE_NAME}`);
 
 console.log('Pull docker image ...');
-    runShellCommandSync(`ssh marsgpl@workers 'docker pull ${DOCKER_IMAGE_NAME}'`);
+    runShellCommandSync(`ssh marsgpl@${HOST} 'docker pull ${DOCKER_IMAGE_NAME}'`);
 
 console.log('Prepare cache ...');
     cmd = cacheFiles.map(({ dockerPath, osPath }) =>
         `touch ${osPath} && chown root:root ${osPath}`);
-    runShellCommandSync(`ssh workers '${cmd.join(' && ')}'`);
+    runShellCommandSync(`ssh ${HOST} '${cmd.join(' && ')}'`);
 
 console.log('Restart worker ...');
     cmd = [];
@@ -78,7 +79,7 @@ console.log('Restart worker ...');
         ...cacheFiles.map(({ dockerPath, osPath }) =>
             `--volume ${osPath}:${dockerPath}:Z`),
     ]));
-    runShellCommandSync(`ssh workers '${cmd.join(' && ')}'`);
+    runShellCommandSync(`ssh ${HOST} '${cmd.join(' && ')}'`);
 
 console.log('Cleanup docker ...');
-    runShellCommandSync(`ssh marsgpl@workers '${DOCKER_REMOVE_DANGLING_IMAGES_CMD}'`);
+    runShellCommandSync(`ssh marsgpl@${HOST} '${DOCKER_REMOVE_DANGLING_IMAGES_CMD}'`);
