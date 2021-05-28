@@ -98,7 +98,8 @@ async function attackOpponent(bot: HeheBot, opponentData: JsonObject): Promise<f
         throw fail('attackOpponent', opponentData, json);
     }
 
-    const isWin = json.end?.battle_won || json.end?.result === 'win';
+    const isWin = (json.end?.battle_won || json.end?.result === 'win') &&
+        json.end?.rewards?.title.match(/won/i);
 
     if (isWin) {
         await bot.incCache({ towerWins: 1 });

@@ -56,7 +56,8 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
         throw fail('attackTroll', trollData, json);
     }
 
-    const isWin = json.end?.battle_won || json.end?.result === 'win';
+    const isWin = (json.end?.battle_won || json.end?.result === 'win') &&
+        json.end?.rewards?.title.match(/won/i);
 
     if (!isWin) {
         throw fail('attackTroll', 'we lost', json);

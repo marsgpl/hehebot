@@ -444,6 +444,10 @@ export class HeheBot {
 
         metrics['Debug'] = this.exportDebugInfo();
 
+        if (this.lastSoftError) {
+            metrics['Error'] = this.lastSoftError;
+        }
+
         return metrics;
     }
 
@@ -456,6 +460,7 @@ export class HeheBot {
             debug: this.config.debug,
             cacheFile: this.config.cacheFile,
             ...this.cache,
+            cookies: 'not displayed',
         };
     }
 

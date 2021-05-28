@@ -147,7 +147,8 @@ async function fightOpponent(bot: HeheBot, opponent: JsonObject): Promise<HeheSe
     }
 
     return {
-        win: (json.end?.result === 'won' || json.end?.battle_won),
+        win: (json.end?.result === 'won' || json.end?.battle_won) &&
+            json.end?.rewards?.title.match(/won/i),
         fullRechargeIn: json.end?.updated_infos.energy_kiss_recharge_time,
     };
 }

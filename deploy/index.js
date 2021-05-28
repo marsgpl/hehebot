@@ -7,13 +7,13 @@ import getTimestamp from './helpers/getTimestamp.js';
 import createDockerContainer from './helpers/createDockerContainer.js';
 import destroyDockerContainer from './helpers/destroyDockerContainer.js';
 
-const CACHE_FILE_LOCAL = '/home/marsgpl/.hehebot.lava.cache.json';
-const CACHE_FILE_CONTAINER = '/tmp/.hehebot.lava.cache.json';
 const DOCKER_CONTAINER_NAME = 'hehebot';
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';
 const DOCKER_LOGIN_CMD = 'echo OPqsj9d02e8nrJsoidvh44pHBV | docker login --username ewj9f4wsk3j90rghtOJ02fhig --password-stdin docker.marsgpl.com';
 const DOCKER_REMOVE_DANGLING_IMAGES_CMD = 'docker images -q -f dangling=true | xargs docker image rm &>/dev/null || true';
 const CWD = path.dirname(new URL(import.meta.url).pathname);
+
+let cacheFiles = [];
 
 let cmd;
 
@@ -29,12 +29,20 @@ console.log('Uglify code ...');
 
 console.log('Patch config ...');
     const config = JSON.parse(fs.readFileSync('deploy/config.json', { encoding: 'utf8' }));
-    config.bot.cacheFile = CACHE_FILE_CONTAINER;
     config.build = {
         version: getVersion(),
         timestamp: getTimestamp(),
     };
+    cacheFiles = config.bots.map(bot => {
+        const dockerPath = bot.cacheFile;
+        const osPath = dockerPath.replace('/tmp/', '/home/marsgpl/');
+        return {
+            dockerPath,
+            osPath,
+        };
+    });
     console.log('🔸 build:', config.build);
+    console.log('🔸 cacheFiles:', cacheFiles);
     fs.writeFileSync(`build.uglified/config.json`, JSON.stringify(config), { encoding: 'utf8' });
 
 console.log('Docker login ...');
@@ -53,7 +61,9 @@ console.log('Pull docker image ...');
     runShellCommandSync(`ssh marsgpl@workers 'docker pull ${DOCKER_IMAGE_NAME}'`);
 
 console.log('Prepare cache ...');
-    runShellCommandSync(`ssh workers 'touch ${CACHE_FILE_LOCAL} && chown root:root ${CACHE_FILE_LOCAL}'`);
+    cmd = cacheFiles.map(({ dockerPath, osPath }) =>
+        `touch ${osPath} && chown root:root ${osPath}`);
+    runShellCommandSync(`ssh workers '${cmd.join(' && ')}'`);
 
 console.log('Restart worker ...');
     cmd = [];
@@ -65,7 +75,8 @@ console.log('Restart worker ...');
         '--network host',
         `--hostname hehebot`,
         '--stop-signal SIGUSR1',
-        `--volume ${CACHE_FILE_LOCAL}:${CACHE_FILE_CONTAINER}:Z`,
+        ...cacheFiles.map(({ dockerPath, osPath }) =>
+            `--volume ${osPath}:${dockerPath}:Z`),
     ]));
     runShellCommandSync(`ssh workers '${cmd.join(' && ')}'`);
 

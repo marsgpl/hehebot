@@ -1,10 +1,27 @@
 {
-    "bot": {
-        "login": "pleiadesforlife@gmail.com",
-        "password": "2084h98weSDIHPqwe0d923r87g5t",
-        "debug": true,
-        "dropCookiesOnRestart": true
-    },
+    "bots": [
+        {
+            "login": "rainboweyelasers@gmail.com",
+            "password": "ds08n4SDVHI08r5SDH9g058bs",
+            "cacheFile": "/tmp/.hehebot.cache.potato.json",
+            "debug": true,
+            "dropCookiesOnRestart": true
+        },
+        {
+            "login": "pleiadesforlife@gmail.com",
+            "password": "2084h98weSDIHPqwe0d923r87g5t",
+            "cacheFile": "/tmp/.hehebot.cache.lava.json",
+            "debug": true,
+            "dropCookiesOnRestart": true
+        },
+        {
+            "login": "airevent.sirius@gmail.com",
+            "password": "alsnf0283h49gADBFU20489gAWw",
+            "cacheFile": "/tmp/.hehebot.cache.cameraman.json",
+            "debug": true,
+            "dropCookiesOnRestart": true
+        }
+    ],
     "listen": {
         "addr": "10.0.0.4",
         "port": 58000
