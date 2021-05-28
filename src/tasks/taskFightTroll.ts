@@ -23,7 +23,7 @@ async function fetchTrollInfo(bot: HeheBot, worldId: number): Promise<JsonObject
 async function fetchTrollData(bot: HeheBot, trollId: string): Promise<JsonObject | undefined> {
     const html = await bot.fetchHtml(`/battle.html?id_troll=${trollId}`);
 
-    const hh_battle_players = mj(html.replace(/[\n\t]/g, ' '), /hh_battle_players = (\[.*?\]);/im);
+    const hh_battle_players = mj(html, /hh_battle_players = (\[.*?\]);/im);
 
     if (Array.isArray(hh_battle_players)) {
         return hh_battle_players.find(data => data.id_troll);
@@ -35,25 +35,25 @@ async function fetchTrollData(bot: HeheBot, trollId: string): Promise<JsonObject
 // {"success":false,"error":"Not enough fight energy."}
 
 async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false | number> {
-    const trollParams: FormData = {};
+    const fightParams: FormData = {};
 
     Object.keys(trollData).forEach(key => {
-        trollParams[`who[${key}]`] = String(trollData[key]);
+        fightParams[`who[${key}]`] = String(trollData[key]);
     });
 
     const json = await bot.fetchAjax({
-        class: 'Battle',
-        action: 'fight',
-        battles_amount: '0',
-        ...trollParams,
+        'class': 'Battle',
+        'action': 'fight',
+        'battles_amount': '0',
+        ...fightParams,
     });
 
-    if (json.error?.match(/fight energy/i)) {
+    if (json.error?.match(/Not enough/i) || json.error?.match(/fight energy/i)) {
         return false;
     }
 
     if (!json.success) {
-        throw fail('attackTroll', json);
+        throw fail('attackTroll', trollData, json);
     }
 
     const isWin = json.end?.battle_won || json.end?.result === 'win';

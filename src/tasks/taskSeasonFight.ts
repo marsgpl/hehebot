@@ -18,8 +18,8 @@ async function fetchArena(bot: HeheBot): Promise<[JsonObject, JsonObject[]]> {
 
     player.caracs = mj(html, /ca-player-caracs="(.*?)"/i);
 
-    if (!player.caracs) {
-        throw fail('fetchArena', 'playerCaracs not found');
+    if (!player.caracs?.damage) {
+        throw fail('fetchArena', 'playerCaracs not found', player.caracs);
     }
 
     player.avgs = getAvgs(player.caracs);

@@ -10,7 +10,7 @@
 ## Clubs
 
 - ❌ fight
-- what happens after chad defeated?
+- what happens after chad defeated? reward claim?
 
 ## Season
 
@@ -20,9 +20,9 @@
 
 ## Tower of Fame
 
-- ❌ fight
+- ✅ fight
 - ❌ fight all if monthly card
-- ❌ claim league reward
+- ✅ claim league reward
 
 ## Adventure
 
@@ -37,6 +37,7 @@
 ## Market
 
 - ❌ buy exp and affection
+- if level up - visit shop again
 
 ## Activities
 

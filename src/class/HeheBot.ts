@@ -110,6 +110,9 @@ export interface HeheBotCache {
     seasonPassRewardsClaimed?: number;
     pathEventFreeRewardsClaimed?: number;
     pathEventPremiumRewardsClaimed?: number;
+    towerLeagueRewardsClaimed?: number;
+    towerWins?: number;
+    towerLosses?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -394,6 +397,10 @@ export class HeheBot {
                 win: cache.seasonFightWins,
                 lose: cache.seasonFightLoses,
             }),
+            'Tower fights': pack({
+                win: cache.towerWins,
+                lose: cache.towerLosses,
+            }),
             'Contest rewards': cache.contestRewardsClaimed || 0,
             'Daily rewards': pack({
                 daily: cache.dailyRewardLootClaims,
@@ -407,6 +414,7 @@ export class HeheBot {
                 free: cache.pathEventFreeRewardsClaimed,
                 premium: cache.pathEventPremiumRewardsClaimed,
             }),
+            'Tower rewards': cache.towerLeagueRewardsClaimed || 0,
         };
 
         if (state.storyBlocked) {
@@ -636,8 +644,8 @@ export class HeheBot {
         if (this.hasCookie(AGE_VERIFICATION_COOKIE)) return;
 
         const json = await this.fetchAjax({
-            class: 'Hero',
-            action: 'age_verification',
+            'class': 'Hero',
+            'action': 'age_verification',
         });
 
         if (!json.success) {
