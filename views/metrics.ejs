@@ -107,11 +107,11 @@
             const title = table.querySelector('.StatTableTitle');
             const collapseMarker = table.querySelector('.StatTableCollapseMarker');
             title.addEventListener('click', () => {
-                tables.forEach(table => table.classList.add('StatTableCollapsed'));
                 if (table.classList.contains('StatTableCollapsed')) {
+                    tables.forEach(table => table.classList.add('StatTableCollapsed'));
                     table.classList.remove('StatTableCollapsed');
                 } else {
-                    table.classList.add('StatTableCollapsed');
+                    tables.forEach(table => table.classList.add('StatTableCollapsed'));
                 }
             });
         });
