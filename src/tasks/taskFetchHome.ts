@@ -11,7 +11,7 @@ import {
     TASK_COLLECT_SALARIES,
     TASK_CLAIM_DAILY_REWARD,
     TASK_OPEN_DAILY_FREE_PACHINKO,
-    TASK_CLUB_FIGHT,
+    TASK_CLUB_CHAD,
     TASK_SEASON_CLAIM_REWARD,
     TASK_TOWER_FIGHT,
     TASK_CHAMPIONS_FIGHT,
@@ -125,7 +125,7 @@ export default async function taskFetchHome(bot: HeheBot) {
     bot.pushTask(TASK_PATH_EVENT_CLAIM_REWARD, TASK_NOTE);
     bot.pushTask(TASK_SEASON_CLAIM_REWARD, TASK_NOTE);
     bot.pushTask(TASK_ACTIVITIES, TASK_NOTE);
-    bot.pushTask(TASK_CLUB_FIGHT, TASK_NOTE);
+    bot.pushTask(TASK_CLUB_CHAD, TASK_NOTE);
     bot.pushTask(TASK_CHAMPIONS_FIGHT, TASK_NOTE);
     bot.pushTask(TASK_SEASON_FIGHT, TASK_NOTE);
     bot.pushTask(TASK_TOWER_FIGHT, TASK_NOTE);

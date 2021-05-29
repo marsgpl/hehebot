@@ -7,7 +7,7 @@ import { Browser, COMMUNICATION_ERROR_RETRY_TIMEOUT, FormData, stringifyFormData
 import { CookieJar, CookieJarCookies } from './CookieJar.js';
 
 import taskStory from '../tasks/taskStory.js';
-import taskClubFight from '../tasks/taskClubFight.js';
+import taskClubChad from '../tasks/taskClubChad.js';
 import taskMarketBuy from '../tasks/taskMarketBuy.js';
 import taskFetchHome from '../tasks/taskFetchHome.js';
 import taskFightTroll from '../tasks/taskFightTroll.js';
@@ -26,7 +26,7 @@ export type JsonObject = {[key: string]: any};
 export type HtmlString = string;
 
 export const TASK_STORY = 'Story';
-export const TASK_CLUB_FIGHT = 'ClubFight';
+export const TASK_CLUB_CHAD = 'ClubChad';
 export const TASK_FETCH_HOME = 'FetchHome';
 export const TASK_ACTIVITIES = 'Activities';
 export const TASK_MARKET_BUY = 'MarketBuy';
@@ -47,7 +47,7 @@ type Task = [TaskName, string, number];
 type TaskName =
     typeof TASK_FETCH_HOME |
     typeof TASK_ACTIVITIES |
-    typeof TASK_CLUB_FIGHT |
+    typeof TASK_CLUB_CHAD |
     typeof TASK_MARKET_BUY |
     typeof TASK_FIGHT_TROLL |
     typeof TASK_SEASON_FIGHT |
@@ -115,6 +115,7 @@ export interface HeheBotCache {
     towerWins?: number;
     towerLosses?: number;
     lastSalaryCollectTs?: number;
+    chadRewards?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -232,7 +233,7 @@ export class HeheBot {
             case TASK_STORY: return taskStory(this);
             case TASK_FETCH_HOME: return taskFetchHome(this);
             case TASK_ACTIVITIES: return taskActivities(this);
-            case TASK_CLUB_FIGHT: return taskClubFight(this);
+            case TASK_CLUB_CHAD: return taskClubChad(this);
             case TASK_MARKET_BUY: return taskMarketBuy(this);
             case TASK_FIGHT_TROLL: return taskFightTroll(this);
             case TASK_SEASON_FIGHT: return taskSeasonFight(this);
@@ -443,6 +444,9 @@ export class HeheBot {
                     free: cache.pathEventFreeRewardsClaimed,
                     premium: cache.pathEventPremiumRewardsClaimed,
                 }),
+            }),
+            'Club': pack({
+                'chad rewards': cache.chadRewards,
             }),
             'countdown': nextTask.countdown,
         };
