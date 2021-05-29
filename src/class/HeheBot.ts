@@ -162,10 +162,6 @@ export class HeheBot {
         this.cookieJar = new CookieJar({
             loadCookies: async () => {
                 if (this.config.dropCookiesOnRestart) {
-                    // why drop cookies on every bot restart?
-                    // because game messes up it's state if it
-                    // accessed from several devices
-                    // so we ensure bot stability by reloginning
                     return {};
                 } else {
                     return this.cache.cookies || {};
@@ -382,7 +378,8 @@ export class HeheBot {
 
         const pack = (data: JsonObject) => {
             const result: string[] = [];
-            Object.keys(data).forEach(key => result.push(`${key}: ${data[key] || 0}`));
+            Object.keys(data).forEach(key =>
+                key && data[key] && result.push(`${key}: ${data[key]}`));
             return result.join(', ');
         }
 
@@ -402,39 +399,49 @@ export class HeheBot {
                 'Initializing ...' :
                 `${state.heroInfo?.Name} (${state.heroEnergies?.hero_level})`,
             'Task': taskTitle,
-            'Salary': this.getSalaryEstimate(),
-            'Salary collected': formatMoney(cache.salaryCollected || 0),
+            'Salary': pack({
+                estimate: this.getSalaryEstimate(),
+                collected: formatMoney(cache.salaryCollected || 0),
+            }),
             'Missions': pack({
                 done: cache.missionsCompleted,
                 gifts: cache.missionsFinalGifts,
             }),
-            'Story steps': cache.storyStepsDone || 0,
-            'Troll fights': cache.trollFights || 0,
-            'Season fights': pack({
+            'Contest': pack({
+                rewards: cache.contestRewardsClaimed,
+            }),
+            'Troll': pack({
+                fights: cache.trollFights,
+            }),
+            'Story': pack({
+                error: state.storyBlocked,
+                steps: cache.storyStepsDone,
+            }),
+            'Season': pack({
+                error: state.seasonError,
                 win: cache.seasonFightWins,
                 lose: cache.seasonFightLoses,
+                rewards: pack({
+                    free: cache.seasonFreeRewardsClaimed,
+                    pass: cache.seasonPassRewardsClaimed,
+                }),
             }),
-            'Tower fights': pack({
+            'Tower': pack({
                 win: cache.towerWins,
                 lose: cache.towerLosses,
+                rewards: cache.towerLeagueRewardsClaimed,
             }),
-            'Contest rewards': cache.contestRewardsClaimed || 0,
-            'Daily rewards': pack({
-                daily: cache.dailyRewardLootClaims,
+            'Daily': pack({
+                rewards: cache.dailyRewardLootClaims,
                 pachinko: cache.freeDailyPachinkoOpened,
             }),
-            'Season rewards': pack({
-                free: cache.seasonFreeRewardsClaimed,
-                pass: cache.seasonPassRewardsClaimed,
+            'Path event': pack({
+                rewards: pack({
+                    free: cache.pathEventFreeRewardsClaimed,
+                    premium: cache.pathEventPremiumRewardsClaimed,
+                }),
             }),
-            'Path rewards': pack({
-                free: cache.pathEventFreeRewardsClaimed,
-                premium: cache.pathEventPremiumRewardsClaimed,
-            }),
-            'Tower rewards': cache.towerLeagueRewardsClaimed || 0,
-            'Story blocked?': state.storyBlocked || '-',
-            'Season error?': state.seasonError || '-',
-            'Error?': this.lastSoftError || '-',
+            'Error': this.lastSoftError || 'no',
             'countdown': nextTask.countdown,
         };
 
