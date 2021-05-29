@@ -394,6 +394,10 @@ export class HeheBot {
             if (nextTask.reason) taskTitle += ` (${nextTask.reason})`;
         }
 
+        if (this.lastSoftError) {
+            taskTitle += `; Warning: ${this.lastSoftError}`;
+        }
+
         const metrics: HeheBotMetrics = {
             'Title': !state.heroInfo?.Name ?
                 'Initializing ...' :
