@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import fail from '../helpers/fail.js';
 import sleep from '../helpers/sleep.js';
 import formatMoney from '../helpers/formatMoney.js';
-import { Browser, FormData, stringifyFormData } from './Browser.js';
+import { Browser, COMMUNICATION_ERROR_RETRY_TIMEOUT, FormData, stringifyFormData } from './Browser.js';
 import { CookieJar, CookieJarCookies } from './CookieJar.js';
 
 import taskStory from '../tasks/taskStory.js';
@@ -65,7 +65,6 @@ const AGE_VERIFICATION_COOKIE = 'age_verification';
 
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
 export const SLEEP_AFTER_EVERY_REQUEST_MS = 2000;
-const COMMUNICATION_ERROR_RETRY_TIMEOUT = 3000;
 
 const HEHE_HOST = 'www.hentaiheroes.com';
 const HEHE_BASE_URL = `https://${HEHE_HOST}`;
@@ -445,7 +444,6 @@ export class HeheBot {
                     premium: cache.pathEventPremiumRewardsClaimed,
                 }),
             }),
-            'Error': this.lastSoftError || 'no',
             'countdown': nextTask.countdown,
         };
 
