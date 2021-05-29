@@ -4,6 +4,8 @@ export default function fail(...errors: any[]): string {
     ];
 
     errors.forEach(error => {
+        if (!error) return;
+
         if (typeof error === 'string') {
             result.push(error);
         } else if (error instanceof Error) {
@@ -20,6 +22,10 @@ export default function fail(...errors: any[]): string {
             result.push(JSON.stringify(error));
         }
     });
+
+    if (result.length === 1) {
+        return '';
+    }
 
     return result.join('; ');
 }

@@ -38,7 +38,7 @@
 
 - ❌ buy exp and affection
 - ❌ if level up - visit shop again
-- ❌ auto equip better equipment, auto sell garbage
+- ❌ auto equip better equipment, auto sell garbage if events require selling
 
 ## Activities
 
@@ -46,8 +46,8 @@
 - ✅ mission claim reward
 - ✅ mission claim final gift
 - ✅ contest claim reward
-- ❌ POP start
-- ❌ POP claim reward
+- ✅ POP start
+- ✅ POP claim reward
 
 ## Harem
 
@@ -65,3 +65,4 @@
 ## Misc
 
 - ❌ avoid unnecessary errors (insufficient energy to fight)
+- ❌ check event requirements and do pachinko/sell/etc to get first places

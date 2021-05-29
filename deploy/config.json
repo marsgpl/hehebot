@@ -1,6 +1,7 @@
 {
     "bots": [
         {
+            "disabled": false,
             "login": "hh.potato@marsgpl.com",
             "password": "ds08n4SDVHI08r5SDH9g058bs",
             "cacheFile": "/tmp/.hehebot.cache.potato.json",
@@ -8,6 +9,7 @@
             "dropCookiesOnRestart": false
         },
         {
+            "disabled": false,
             "login": "hh.lava@marsgpl.com",
             "password": "2084h98weSDIHPqwe0d923r87g5t",
             "cacheFile": "/tmp/.hehebot.cache.lava.json",
@@ -15,6 +17,7 @@
             "dropCookiesOnRestart": false
         },
         {
+            "disabled": false,
             "login": "hh.cameraman@marsgpl.com",
             "password": "alsnf0283h49gADBFU20489gAWw",
             "cacheFile": "/tmp/.hehebot.cache.cameraman.json",

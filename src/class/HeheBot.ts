@@ -73,6 +73,7 @@ const HEHE_PHOENIX_AJAX_URL = `${HEHE_BASE_URL}/phoenix-ajax.php`;
 export const HEHE_HOME_URL = `${HEHE_BASE_URL}/home.html`;
 
 export interface HeheBotConfig {
+    disabled?: boolean;
     login: string;
     password: string;
     cacheFile?: string;
@@ -116,6 +117,8 @@ export interface HeheBotCache {
     towerLosses?: number;
     lastSalaryCollectTs?: number;
     chadRewards?: number;
+    popRewardsClaimed?: number;
+    popStarted?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -143,10 +146,12 @@ export interface HeheBotState {
     seasonMojo?: number;
     seasonHasPass?: boolean;
     seasonRewards?: JsonObject;
-    seasonError?: any;
     serverDate?: Date;
     timeDeltaMs?: number;
-    storyBlocked?: JsonObject;
+
+    seasonError?: any;
+    storyError?: any;
+    popError?: any;
 }
 
 export class HeheBot {
@@ -185,7 +190,7 @@ export class HeheBot {
             },
             onNetworkError: async (error, retryIn) => {
                 this.lastSoftError = fail(
-                    'onNetworkError',
+                    'Network error',
                     error,
                     `retrying in ${Math.round(retryIn / 1000)}s`);
             },
@@ -310,7 +315,7 @@ export class HeheBot {
             }
         } catch (error) {
             // we can continue without cache
-            this.lastSoftError = fail('loadCache', error);
+            this.lastSoftError = fail('Load cache', error);
             this.cache = {};
         }
 
@@ -394,8 +399,14 @@ export class HeheBot {
             if (nextTask.reason) taskTitle += ` (${nextTask.reason})`;
         }
 
-        if (this.lastSoftError) {
-            taskTitle += `; Warning: ${this.lastSoftError}`;
+        const error = fail(
+            this.lastSoftError,
+            state.popError,
+            state.seasonError,
+            state.storyError);
+
+        if (error) {
+            taskTitle += `; ${error}`;
         }
 
         const metrics: HeheBotMetrics = {
@@ -408,17 +419,23 @@ export class HeheBot {
                 collected: formatMoney(cache.salaryCollected || 0),
             }),
             'Missions': pack({
+                started: cache.missionsStarted,
                 done: cache.missionsCompleted,
                 gifts: cache.missionsFinalGifts,
             }),
             'Contest': pack({
                 rewards: cache.contestRewardsClaimed,
             }),
+            'Pop': pack({
+                error: state.popError,
+                started: cache.popStarted,
+                done: cache.popRewardsClaimed,
+            }),
             'Troll': pack({
                 fights: cache.trollFights,
             }),
             'Story': pack({
-                error: state.storyBlocked,
+                error: state.storyError,
                 steps: cache.storyStepsDone,
             }),
             'Season': pack({
@@ -446,7 +463,7 @@ export class HeheBot {
                 }),
             }),
             'Club': pack({
-                'chad rewards': cache.chadRewards,
+                rewards: cache.chadRewards,
             }),
             'countdown': nextTask.countdown,
         };

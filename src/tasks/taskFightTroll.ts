@@ -70,7 +70,7 @@ async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false |
     // check if we gained some quest items in loot
     const rewards = JSON.stringify(json.end?.rewards?.data?.rewards);
     if (rewards?.match(/quest/i)) {
-        bot.state.storyBlocked = undefined;
+        bot.state.storyError = undefined;
     }
 
     return fullRechargeIn;
@@ -87,7 +87,7 @@ export default async function taskFightTroll(bot: HeheBot) {
     }
 
     if (fullRechargeIn) {
-        if (bot.state.storyBlocked && energyNow) {
+        if (bot.state.storyError && energyNow) {
             // allow troll fight as soon as possible because story is blocked!
         } else {
             return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn);

@@ -16,6 +16,8 @@ const app = new Koa;
 const bots: HeheBot[] = [];
 
 config.bots.forEach(botConfig => {
+    if (botConfig.disabled) return;
+
     bots.push(new HeheBot({
         ...botConfig,
         isProduction: NODE_ENV === 'production',

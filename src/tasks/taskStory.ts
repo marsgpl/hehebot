@@ -12,7 +12,7 @@ const TASK_NOTE = 'story';
 // {"success":false,"error":"You don\u0027t have the wanted item."}
 
 export default async function taskStory(bot: HeheBot) {
-    if (bot.state.storyBlocked) return;
+    if (bot.state.storyError) return;
 
     const energyNow = Number(bot.state.heroEnergies?.quest?.amount);
     const energyMax = Number(bot.state.heroEnergies?.quest?.max_amount);
@@ -41,7 +41,7 @@ export default async function taskStory(bot: HeheBot) {
 
         if (!json.success) {
             if (json.error?.match(/have the wanted item/i)) {
-                bot.state.storyBlocked = json;
+                bot.state.storyError = json;
                 return;
             } else if (json.error?.match(/have enough energy/i)) {
                 break;

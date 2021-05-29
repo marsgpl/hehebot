@@ -1,5 +1,6 @@
 import lowest from '../helpers/lowest.js';
 import fail from '../helpers/fail.js';
+import { mj } from '../helpers/m.js';
 import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 
 const TASK_NOTE = 'activities';
@@ -71,7 +72,7 @@ async function claimContestReward(bot: HeheBot, contestId: string) {
     await bot.incCache({ contestRewardsClaimed: 1 });
 }
 
-export default async function taskActivities(bot: HeheBot) {
+export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
     const canCollectPrize =
         bot.state.notificationData?.activities?.includes('reward') ||
         bot.state.missions_datas?.reward;
@@ -79,7 +80,7 @@ export default async function taskActivities(bot: HeheBot) {
     const canStartMission =
         bot.state.notificationData?.activities?.includes('action');
 
-    if (!canCollectPrize && !canStartMission) {
+    if (!canCollectPrize && !canStartMission && !isForced) {
         const stateChangeIn = lowest(
             Number(bot.state.missions_datas?.remaining_time),
             Number(bot.state.missions_datas?.pop_remaining_time));
@@ -92,6 +93,8 @@ export default async function taskActivities(bot: HeheBot) {
     }
 
     const html = await bot.fetchHtml('/activities.html');
+
+    // missions
 
     const missions: JsonObject[] = [];
     try {
@@ -160,4 +163,144 @@ export default async function taskActivities(bot: HeheBot) {
     for (const [, contestId] of finishedContestsM) {
         await claimContestReward(bot, contestId);
     }
+
+    // pop
+
+    const pops = mj(html, /pop_data\s*=\s*(\{.*?\});/);
+    let popClaims = 0;
+    const assignedGirls: JsonObject = {};
+
+    if (!pops) {
+        bot.state.popError = 'pop_data not found';
+    } else {
+        for (const popKey in pops) {
+            const popData = pops[popKey];
+            const popId = String(popData.id_places_of_power);
+
+            if (popData.locked) continue;
+
+            if (!popId) {
+                throw fail('pop activities', 'popId=0', popData);
+            }
+
+            const isStartable = popData.status === 'can_start';
+            const isFinished = popData.status === 'pending_reward';
+            const inProgress = popData.status === 'in_progress';
+
+            // "time_to_finish":"25200"
+            // "remaining_time":"25170"
+
+            if (!isStartable && !isFinished && !inProgress) {
+                throw fail('activities pop', 'pop_data format fail', popKey, popData);
+            }
+
+            if (isFinished) {
+                await claimPopReward(bot, popId, popData);
+                popClaims++;
+            } else if (isStartable) {
+                await startPop(bot, popId, popData, assignedGirls);
+                bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, Number(popData.time_to_finish) || 0);
+            } else { // inProgress
+                bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, Number(popData.remaining_time) || 0);
+            }
+        }
+    }
+
+    if (popClaims > 0) {
+        await taskActivities(bot, true);
+    }
+}
+
+// {"rewards":{"data":{"loot":true,"rewards":[{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_g10\u0022\u003E\u003C\/span\u003E \u003Cp\u003E3\u003C\/p\u003E","currency":true,"slot_class":true}]},"title":"Rewards","heroChangesUpdate":[]},"result":"won","pop_unavailable":false,"success":true}
+
+async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject): Promise<void> {
+    const params = {
+        'namespace': 'h\\PlacesOfPower',
+        'class': 'PlaceOfPower',
+        'action': 'claim',
+        'id_place_of_power': popId,
+    };
+
+    let json = await bot.fetchAjax(params);
+
+    if (!json.success) {
+        params.class = 'TempPlaceOfPower';
+        json = await bot.fetchAjax(params);
+    }
+
+    if (!json.success) {
+        throw fail('claimPopReward', `popId=${popId}`, json, popData);
+    }
+
+    await bot.incCache({ popRewardsClaimed: 1 });
+}
+
+async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assignedGirls: JsonObject): Promise<void> {
+    const needPower = Number(popData.max_team_power) || 0;
+    let currentPower = 0;
+    const girlsIds: number[] = [];
+
+    if (!needPower) {
+        throw fail('startPop', 'needPower=0', popData);
+    }
+
+    popData.girls.forEach((girl: JsonObject) => {
+        if (currentPower >= needPower) return;
+
+        const girlId = Number(girl.id_girl);
+
+        const girlMaxPower = Math.max(
+            Number(girl.carac_1),
+            Number(girl.carac_2),
+            Number(girl.carac_3),
+        );
+
+        if (!girlId || !girlMaxPower) {
+            throw fail('startPop', 'assign girls', 'bad girl data', girl, popData);
+        }
+
+        if (Number(girl.assigned) === 1) return;
+        if (assignedGirls[girlId]) return;
+
+        girlsIds.push(girlId);
+
+        currentPower += girlMaxPower;
+    });
+
+    if (needPower / 10 > currentPower) {
+        bot.state.popError = `not enough power for pop id=${popId}`;
+        return;
+    }
+
+    const params = {
+        'namespace': 'h\\PlacesOfPower',
+        'class': 'PlaceOfPower',
+        'action': 'start',
+        'id_place_of_power': popId,
+        ...girlsIds.reduce((acc: JsonObject, girlId) => {
+            acc['selected_girls[]'] = String(girlId);
+            return acc;
+        }, {}),
+    };
+
+    let json = await bot.fetchAjax(params);
+
+    if (!json.success) {
+        params.class = 'TempPlaceOfPower';
+        json = await bot.fetchAjax(params);
+    }
+
+    if (!json.success) {
+        throw fail('startPop', json, popData);
+    }
+
+    assignedGirls = {
+        ...assignedGirls,
+        ...girlsIds.reduce((acc: JsonObject, girlId) => {
+            acc[girlId] = true;
+            return acc;
+        }, {}),
+    };
+
+    await bot.incCache({ popStarted: 1 });
 }
