@@ -399,14 +399,15 @@ export class HeheBot {
             if (nextTask.reason) taskTitle += ` (${nextTask.reason})`;
         }
 
-        const error = fail(
-            this.lastSoftError,
-            state.popError,
-            state.seasonError,
-            state.storyError);
+        const errors: string[] = [];
 
-        if (error) {
-            taskTitle += `; ${error}`;
+        if (this.lastSoftError) errors.push(JSON.stringify(this.lastSoftError));
+        if (state.popError) errors.push(state.popError);
+        if (state.seasonError) errors.push(state.seasonError);
+        if (state.storyError) errors.push(state.storyError);
+
+        if (errors.length) {
+            taskTitle += ' - ' + errors.join('; ');
         }
 
         const metrics: HeheBotMetrics = {

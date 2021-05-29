@@ -163,6 +163,9 @@ export default async function taskSeasonFight(bot: HeheBot) {
 
     if (!seasonId) {
         bot.state.seasonError = 'seasonId not found';
+    }
+
+    if (bot.state.seasonError) {
         return;
     }
 

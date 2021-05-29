@@ -245,8 +245,6 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
     }
 
     popData.girls.forEach((girl: JsonObject) => {
-        if (currentPower >= needPower) return;
-
         const girlId = String(Number(girl.id_girl) || '');
 
         const girlMaxPower = Math.max(
@@ -259,8 +257,9 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
             throw fail('startPop', 'assign girls', 'bad girl data', girl, popData);
         }
 
-        if (Number(girl.assigned) === 1) return;
+        if (currentPower >= needPower) return;
         if (assignedGirls[girlId]) return;
+        if (Number(girl.assigned) === 1) return;
 
         girlsIds.push(girlId);
 
@@ -291,6 +290,10 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
         throw fail('startPop', json, popData);
     }
 
+    // TODO remove after check
+    let assignedGirlsCountBefore = Object.keys(assignedGirls).length;
+    // TODO end
+
     assignedGirls = {
         ...assignedGirls,
         ...girlsIds.reduce((acc: JsonObject, girlId) => {
@@ -298,6 +301,13 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
             return acc;
         }, {}),
     };
+
+    // TODO remove after check
+    let assignedGirlsCountAfter = Object.keys(assignedGirls).length;
+    if (assignedGirlsCountBefore + girlsIds.length !== assignedGirlsCountAfter) {
+        throw fail('assignedGirlsCountAfter');
+    }
+    // TODO end
 
     await bot.incCache({ popStarted: 1 });
 }

@@ -9,7 +9,7 @@
 
 ## Clubs
 
-- ❌ fight Chad
+- ❌ fight Chad (every 8 hours if tickets > 1000)
 - ✅ claim Chad reward
 
 ## Season
@@ -64,5 +64,7 @@
 
 ## Misc
 
-- ❌ avoid unnecessary errors (insufficient energy to fight)
+- ❌ TODO remove after check (taskActivities - check in 2-3 days when pop reassign)
+- ❌ (!json.success || json.error) must be fatal
 - ❌ check event requirements and do pachinko/sell/etc to get first places
+- ❌ pop assign: adjust exact task power, do not exceed (useful for new accs)
