@@ -9,36 +9,52 @@
 
 ## Clubs
 
-- ❌ fight Chad (every 8 hours if tickets > 1000)
+- 🟧 fight Chad (every 8 hours and if tickets > 1000)
 - ✅ claim Chad reward
 
 ## Season
 
 - ✅ fight
 - ✅ claim reward
-- ❌ end of season - will there be a claimable reward? check in 2 days
+- 🟧 end of season - will there be a claimable reward? ~ 1 day
 
 ## Tower of Fame
 
 - ✅ fight
-- ❌ fight all if monthly card
+- 🟧 fight all if monthly card
 - ✅ claim league reward
 
 ## Adventure
 
 - ✅ progress story
 - ✅ fight troll
-- ❌ check troll power change on lvl 290 on potato
+- 🟧 check troll power change on lvl 290 on potato ~ 4 days
+     class: Battle
+     action: fight
+     who[id_troll]: 9
+     who[orgasm]: 49742
+     who[ego]: 53102.7
+     who[x]: 0
+     who[curr_ego]: 53102.7
+     who[nb_org]: 0
+     who[figure]: 7
+     who[id_world]: 10
+     battles_amount: 0
 
 ## Champions
 
-- ❌ fight
+- ❌ fight (if tickets > 100, priority to unclaimed girls)
 
 ## Market
 
-- ❌ buy exp and affection
+- ❌ buy exp
+- ❌ buy affection
+- ❌ equip better equipment
+- ❌ auto sell bad equipment if event require selling (contest/event path/season)
+- ❌ upgrade characteristics if event require spending money
 - ❌ if level up - visit shop again
-- ❌ auto equip better equipment, auto sell garbage if events require selling
+- ❌ apply exp to girls
+- ❌ apply affection to girls
 
 ## Activities
 
@@ -46,25 +62,27 @@
 - ✅ mission claim reward
 - ✅ mission claim final gift
 - ✅ contest claim reward
-- ✅ POP start
-- ✅ POP claim reward
+- ✅ pop start
+- ✅ pop claim reward
 
 ## Harem
 
 - ✅ collect salary
-- ❌ collect all salaries if monthly card
+- 🟧 collect all salaries if monthly card
 
 ## Path event (Slumber Party)
 
 - ✅ claim reward
-- ❌ end of event - will there be a claimable reward?
-- ❌ canClaim = step < currentStep
+- 🟧 end of event - will there be a claimable reward? ~ 1 day
+- 🟧 canClaim = step < currentStep
      check this on last reward
      I was sure that step <= currentStep
+     ~ 1 day
 
 ## Misc
 
-- ❌ TODO remove after check (taskActivities - check in 2-3 days when pop reassign)
-- ❌ (!json.success || json.error) must be fatal
+- 🟧 TODO remove after check (taskActivities) ~ 2-3 days
+- 🟧 (!json.success || json.error) must be fatal
+     reduce failed queries for insufficient fight energy etc
 - ❌ check event requirements and do pachinko/sell/etc to get first places
-- ❌ pop assign: adjust exact task power, do not exceed (useful for new accs)
+- 🟧 pop assign: adjust exact task power, do not exceed (useful for new accs)

@@ -173,6 +173,8 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
     if (!pops) {
         bot.state.popError = 'pop_data not found';
     } else {
+        bot.state.popError = undefined;
+
         for (const popKey in pops) {
             const popData = pops[popKey];
             const popId = String(popData.id_places_of_power);
@@ -269,6 +271,8 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
     if (needPower / 10 > currentPower) {
         bot.state.popError = `not enough power for pop id=${popId}`;
         return;
+    } else {
+        bot.state.popError = undefined;
     }
 
     const params = {

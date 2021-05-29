@@ -163,9 +163,6 @@ export default async function taskSeasonFight(bot: HeheBot) {
 
     if (!seasonId) {
         bot.state.seasonError = 'seasonId not found';
-    }
-
-    if (bot.state.seasonError) {
         return;
     }
 
@@ -188,7 +185,7 @@ export default async function taskSeasonFight(bot: HeheBot) {
 
         const opponent = selectOpponent(player, opponents);
 
-        if (!opponent) {
+        if (!opponent?.id_member) {
             throw fail('taskSeasonFight', 'unable to select opponent', player, opponents);
         }
 
@@ -216,7 +213,7 @@ export default async function taskSeasonFight(bot: HeheBot) {
                 losses++;
 
                 if (losses >= 5) {
-                    bot.state.seasonError = 'bot loses too much, season fights stopped';
+                    bot.state.seasonError = 'bot loses too much';
                     break;
                 }
             }

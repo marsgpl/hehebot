@@ -17,8 +17,13 @@ async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number,
     const collected = Number(json.money) || 0;
     const nextPayIn = Number(json.time) || 0;
 
-    if (!json.success || !collected || !nextPayIn) {
-        throw fail('collectGirlSalary', `girlId=${girlId}`, json);
+    // if (!json.success || !collected || !nextPayIn) {
+    //     throw fail('collectGirlSalary', `girlId=${girlId}`, json);
+    // }
+
+    if (!json.success) {
+        // why - still no idea
+        return [0, COLLECT_MIN_DELAY_MS];
     }
 
     return [collected, nextPayIn];

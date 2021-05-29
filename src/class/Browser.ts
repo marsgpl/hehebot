@@ -203,8 +203,8 @@ export function stringifyFormData(data: FormData): string {
     const result: string[] = [];
 
     Object.keys(data).forEach(key => {
-        key = encodeURIComponent(key);
         const value = data[key];
+        key = encodeURIComponent(key);
         if (Array.isArray(value)) {
             value.forEach(entry => {
                 result.push(`${key}=${encodeURIComponent(entry)}`);
