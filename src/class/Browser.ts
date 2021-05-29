@@ -9,7 +9,7 @@ import { CookieJar } from './CookieJar.js';
 export const COMMUNICATION_ERROR_RETRY_TIMEOUT = 1000 * 60 * 30; // 30m
 const COMMUNICATION_ERROR_MARKER = 'Browser.request communication error';
 
-export type FormData = {[key: string]: string};
+export type FormData = {[key: string]: string | string[]};
 
 export interface BrowserRequestOptions {
     method?: 'GET' | 'POST';
@@ -203,7 +203,15 @@ export function stringifyFormData(data: FormData): string {
     const result: string[] = [];
 
     Object.keys(data).forEach(key => {
-        result.push(`${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`);
+        key = encodeURIComponent(key);
+        const value = data[key];
+        if (Array.isArray(value)) {
+            value.forEach(entry => {
+                result.push(`${key}=${encodeURIComponent(entry)}`);
+            });
+        } else {
+            result.push(`${key}=${encodeURIComponent(value)}`);
+        }
     });
 
     return result.join('&');

@@ -168,7 +168,7 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
 
     const pops = mj(html, /pop_data\s*=\s*(\{.*?\});/);
     let popClaims = 0;
-    const assignedGirls: JsonObject = {};
+    const assignedGirls: {[key: string]: true} = {};
 
     if (!pops) {
         bot.state.popError = 'pop_data not found';
@@ -238,7 +238,7 @@ async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject):
 async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assignedGirls: JsonObject): Promise<void> {
     const needPower = Number(popData.max_team_power) || 0;
     let currentPower = 0;
-    const girlsIds: number[] = [];
+    const girlsIds: string[] = [];
 
     if (!needPower) {
         throw fail('startPop', 'needPower=0', popData);
@@ -247,7 +247,7 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
     popData.girls.forEach((girl: JsonObject) => {
         if (currentPower >= needPower) return;
 
-        const girlId = Number(girl.id_girl);
+        const girlId = String(Number(girl.id_girl) || '');
 
         const girlMaxPower = Math.max(
             Number(girl.carac_1),
@@ -277,10 +277,7 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
         'class': 'PlaceOfPower',
         'action': 'start',
         'id_place_of_power': popId,
-        ...girlsIds.reduce((acc: JsonObject, girlId) => {
-            acc['selected_girls[]'] = String(girlId);
-            return acc;
-        }, {}),
+        'selected_girls[]': girlsIds,
     };
 
     let json = await bot.fetchAjax(params);
