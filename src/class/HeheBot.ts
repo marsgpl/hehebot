@@ -8,7 +8,7 @@ import { CookieJar, CookieJarCookies } from './CookieJar.js';
 
 import taskStory from '../tasks/taskStory.js';
 import taskClubChad from '../tasks/taskClubChad.js';
-import taskMarketBuy from '../tasks/taskMarketBuy.js';
+import taskMarket from '../tasks/taskMarket.js';
 import taskFetchHome from '../tasks/taskFetchHome.js';
 import taskFightTroll from '../tasks/taskFightTroll.js';
 import taskActivities from '../tasks/taskActivities.js';
@@ -29,7 +29,7 @@ export const TASK_STORY = 'Story';
 export const TASK_CLUB_CHAD = 'ClubChad';
 export const TASK_FETCH_HOME = 'FetchHome';
 export const TASK_ACTIVITIES = 'Activities';
-export const TASK_MARKET_BUY = 'MarketBuy';
+export const TASK_MARKET = 'Market';
 export const TASK_FIGHT_TROLL = 'FightTroll';
 export const TASK_SEASON_FIGHT = 'SeasonFight';
 export const TASK_CHAMPIONS_FIGHT = 'ChampionFight';
@@ -48,7 +48,7 @@ type TaskName =
     typeof TASK_FETCH_HOME |
     typeof TASK_ACTIVITIES |
     typeof TASK_CLUB_CHAD |
-    typeof TASK_MARKET_BUY |
+    typeof TASK_MARKET |
     typeof TASK_FIGHT_TROLL |
     typeof TASK_SEASON_FIGHT |
     typeof TASK_CHAMPIONS_FIGHT |
@@ -119,6 +119,7 @@ export interface HeheBotCache {
     chadRewards?: number;
     popRewardsClaimed?: number;
     popStarted?: number;
+    sessionLosses?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -239,7 +240,7 @@ export class HeheBot {
             case TASK_FETCH_HOME: return taskFetchHome(this);
             case TASK_ACTIVITIES: return taskActivities(this);
             case TASK_CLUB_CHAD: return taskClubChad(this);
-            case TASK_MARKET_BUY: return taskMarketBuy(this);
+            case TASK_MARKET: return taskMarket(this);
             case TASK_FIGHT_TROLL: return taskFightTroll(this);
             case TASK_SEASON_FIGHT: return taskSeasonFight(this);
             case TASK_CHAMPIONS_FIGHT: return taskChampionsFight(this);
@@ -463,8 +464,9 @@ export class HeheBot {
                     premium: cache.pathEventPremiumRewardsClaimed,
                 }),
             }),
-            'Club': pack({
-                rewards: cache.chadRewards,
+            'Etc': pack({
+                chadRewards: cache.chadRewards,
+                sessionLosses: cache.sessionLosses,
             }),
             'countdown': nextTask.countdown,
         };
@@ -619,7 +621,22 @@ export class HeheBot {
             const json = response.body.trim();
 
             if (response.statusCode === 200 && json[0] === '{') {
-                return JSON.parse(json);
+                const parsed = JSON.parse(json);
+
+                // this might be a session loss
+                if (parsed.success === false && Object.keys(parsed).length === 1) {
+                    const html = await this._fetchHtml('/home.html');
+
+                    if (isGuest(html)) {
+                        await this.incCache({ sessionLosses: 1 });
+                        await this.fetchHtml('/home.html');
+                        return this.fetchAjax(query, referer, ajaxUrl);
+                    } else {
+                        return parsed;
+                    }
+                } else {
+                    return parsed;
+                }
             } else {
                 this.lastSoftError = fail(
                     'fetchAjax',

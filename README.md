@@ -73,11 +73,6 @@
 ## Path event (Slumber Party)
 
 - ✅ claim reward
-- 🟧 end of event - will there be a claimable reward? ~ 1 day
-- 🟧 canClaim = step < currentStep
-     check this on last reward
-     I was sure that step <= currentStep
-     ~ 1 day
 
 ## Misc
 
@@ -86,3 +81,7 @@
      reduce failed queries for insufficient fight energy etc
 - ❌ check event requirements and do pachinko/sell/etc to get first places
 - 🟧 pop assign: adjust exact task power, do not exceed (useful for new accs)
+- ❌ crosspromo
+- ❌ event girls troll
+- ❌ focus troll which still gives girls (unless you don't have quest items required for progress)
+- ❌ chose position in fights in your favor (tower, season etc)

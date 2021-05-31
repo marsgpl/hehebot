@@ -118,6 +118,10 @@ export class Browser {
                         } else {
                             console.log('🟨', this.props.debugPrefix, `body#${response.body.length}`);
                         }
+
+                        if (httpResponse.statusCode == 301 || httpResponse.statusCode == 302) {
+                            console.log('🟨', httpResponse.headers);
+                        }
                     }
 
                     Promise.all(promises)

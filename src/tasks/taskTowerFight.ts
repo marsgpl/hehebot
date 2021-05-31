@@ -64,7 +64,25 @@ async function fetchTower(bot: HeheBot): Promise<[JsonObject, JsonObject[]]> {
 //     {"id_member":"1391863","orgasm":44737,"ego":47047,"x":0,"curr_ego":47047,"nb_org":0,"figure":1}
 // ];
 
+// playerLeaguesData: { id_member: 64976, level: '366', match_history: [ null, null, null ], mojo: 12510, ico: 'https://hh2.hh-content.com/pictures/hero/ico/165.jpg', team: { '1': { level: 365, caracs: [Object], position_img: 'dolphin.png', dmg: 4836, orgasm: 250390, figure: 2, class: '1', rarity: 'legendary', Name: 'Bellona', ico: 'https://hh2.hh-content.com/pictures/girls/946021548/ico5.png', Graded2: '<g ></g><g ></g><g ></g><g ></g><g ></g>' }, '2': { level: 365, caracs: [Object], position_img: 'sodomy.png', dmg: 4928, orgasm: 255500, figure: 4, class: '1', rarity: 'legendary', Name: 'Jezebel', ico: 'https://hh2.hh-content.com/pictures/girls/41414350/ico5.png', Graded2: '<g ></g><g ></g><g ></g><g ></g><g ></g>' }, '3': { level: 365, caracs: [Object], position_img: 'missionary.png', dmg: 4836, orgasm: 250390, figure: 3, class: '1', rarity: 'legendary', Name: 'Kumiko', ico: 'https://hh2.hh-content.com/pictures/girls/960719275/ico5.png', Graded2: '<g ></g><g ></g><g ></g><g ></g><g ></g>' } }, caracs: { carac1: 31071, carac2: 29534, carac3: 30337, endurance: 244782, chance: 36450, ego: 297981, damage: 45580, def_carac1: 18047, def_carac2: 18189, def_carac3: 17906, damage_max: 58273.2, def_carac1_max: 30740.2, def_carac2_max: 30882.2, def_carac3_max: 30599.2 }, Name: 'billy', class: 1, club: { name: 'FOLLAPLUS', id_club: 1202 }, rewards: { data: { loot: false, rewards: [Array] } }, opponent: true }
+
 async function fetchOpponentData(bot: HeheBot, opponentId: string): Promise<JsonObject | undefined> {
+    const json = await bot.fetchAjax({
+        'namespace': 'h\\Leagues',
+        'class': 'Leagues',
+        'action': 'get_opponent_info',
+        'opponent_id': opponentId,
+    });
+
+    // { success: false, error: "You can't fight him." }
+
+    if (json.error?.match(/fight him/i)) {
+        // can't fight him, go to next
+        return json;
+    }
+
+    // const playerLeaguesData = mj(json.html, /playerLeaguesData = (\{.*?\});/);
+
     const html = await bot.fetchHtml(`/battle.html?league_battle=1&id_member=${opponentId}`);
 
     const hh_battle_players = mj(html, /hh_battle_players = (\[.*?\]);/im);
@@ -143,10 +161,17 @@ export default async function taskTowerFight(bot: HeheBot) {
 
         const opponent = opponents[i];
 
+        if (opponent.nb_challenges_played >= MAX_CHALLENGES_PER_OPPONENT) continue;
+
         const opponentData = await fetchOpponentData(bot, opponent.id_player);
 
         if (!opponentData) {
             throw fail('taskTowerFight', 'opponentData fetch failed');
+        }
+
+        if (opponentData.error) {
+            // allowed error
+            continue;
         }
 
         while (opponent.nb_challenges_played < MAX_CHALLENGES_PER_OPPONENT) {

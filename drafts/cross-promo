@@ -1,0 +1,21 @@
+/sex-friends.html
+
+hh_crosspromo.redirectToCrosspromo(13, 'https://www.hentaiheroes.com/appz/', 1)
+
+---
+
+class: Crosspromo
+action: click_reward
+crosspromo: 38
+
+---
+
+home.html
+
+onclick="hh_crosspromo.giveLocalCrosspromoReward(43, this)"
+
+---
+
+class: Crosspromo
+action: local_crosspromo_give_reward
+crosspromo: 43

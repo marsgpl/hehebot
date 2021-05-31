@@ -5,7 +5,7 @@ import {
     HeheBotState,
     TASK_STORY,
     TASK_ACTIVITIES,
-    TASK_MARKET_BUY,
+    TASK_MARKET,
     TASK_FIGHT_TROLL,
     TASK_SEASON_FIGHT,
     TASK_COLLECT_SALARIES,
@@ -132,5 +132,5 @@ export default async function taskFetchHome(bot: HeheBot) {
     bot.pushTask(TASK_COLLECT_SALARIES, TASK_NOTE);
     bot.pushTask(TASK_FIGHT_TROLL, TASK_NOTE);
     bot.pushTask(TASK_STORY, TASK_NOTE);
-    bot.pushTask(TASK_MARKET_BUY, TASK_NOTE);
+    bot.pushTask(TASK_MARKET, TASK_NOTE);
 }
