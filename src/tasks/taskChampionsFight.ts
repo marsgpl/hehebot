@@ -15,7 +15,7 @@ export default async function taskChampionsFight(bot: HeheBot) {
     }
 
     if (!canFight) {
-        throw fail('taskChampionsFight', 'notification missing and champAvailIn is false');
+        return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 15 * 60);
     }
 
     const html = await bot.fetchHtml('/champions-map.html');

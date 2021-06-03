@@ -1,14 +1,13 @@
 {
     "bots": [
         {
-            "disabled": true,
             "login": "pkairevent@gmail.com",
             "password": "SDJAOSdjn2f09385bgw0e9n0f1",
             "cacheFile": ".hehebot.cache.apex.json",
             "debug": true
         },
         {
-
+            "disabled": true,
             "login": "hh.potato@marsgpl.com",
             "password": "ds08n4SDVHI08r5SDH9g058bs",
             "cacheFile": ".hehebot.cache.potato.json",

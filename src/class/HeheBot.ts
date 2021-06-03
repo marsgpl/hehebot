@@ -122,6 +122,8 @@ export interface HeheBotCache {
     popStarted?: number;
     sessionLosses?: number;
     champFights?: number;
+    marketItemsBought?: number;
+    marketMoneySpent?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -472,6 +474,10 @@ export class HeheBot {
                     free: cache.pathEventFreeRewardsClaimed,
                     premium: cache.pathEventPremiumRewardsClaimed,
                 }),
+            }),
+            'Market': pack({
+                'items bought': cache.marketItemsBought,
+                'money spent': formatMoney(cache.marketMoneySpent || 0),
             }),
             'Etc': pack({
                 chadRewards: cache.chadRewards,
