@@ -8,9 +8,9 @@ const TASK_NOTE = 'market';
 export default async function taskMarket(bot: HeheBot) {
     const haveNewGoods = bot.state.notificationData?.shop?.includes('action');
 
-    // if (!haveNewGoods) {
-    //     return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 1 * 60 * 60); // 1h
-    // }
+    if (!haveNewGoods) {
+        return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 1 * 60 * 60); // 1h
+    }
 
     const html = await bot.fetchHtml('/shop.html');
 

@@ -5,22 +5,25 @@
 ## Clubs
 
 - fight Chad (only every 8 hours and if tickets > 1000)
-- if koban acc: join club, donate all gobans, leave club
 
 ## Season
 
-- setup non-complete girls (they must receive aff and xp)
-- end of season - will there be a claimable reward? ~ 16h
+- setup strongest non-complete girls (they must receive aff and xp)
+- when perform fight, chose position enemy does not have
 
 ## Tower of Fame
 
-- fight all if monthly card
 - setup strongest girls
+- when perform fight, chose position enemy does not have
+
+## Troll
+
+- setup strongest girls
+- when perform fight, chose position enemy does not have
 
 ## Adventure
 
-- if quest items absence don't block progress: focus troll which gives new girls
-- event girls troll
+- if progress not blocked by quest items: focus trolls which gives new girls (including event)
 - check troll power change on lvl 290 on potato ~ 4 days
      class: Battle
      action: fight
@@ -40,12 +43,9 @@
 
 ## Market
 
-- buy exp
-- buy affection
 - equip better equipment
 - auto sell bad equipment if event require selling (contest/event path/season)
-- upgrade characteristics if event require spending money
-- if level up - visit shop again
+- if level up - visit shop again (add flag isForced as in taskActivities)
 - apply exp to girls
 - apply affection to girls
 
@@ -54,23 +54,17 @@
 - check event requirements and do pachinko/sell/etc to get first places
 - pop assign: adjust exact task power, do not exceed (useful for new accs)
 
-## Harem
-
-- collect all salaries if monthly card
-- upgrade girl if affection reaches next star
-
 ## Path event (Slumber Party)
 
 - check for requirements and do sell/spend
 
 ## Misc
 
-- crosspromo
-- TODO remove after check (taskActivities) ~ 2-3 days
 - (!json.success || json.error) must be fatal: reduce failed queries for insufficient fight energy etc
-- chose position, class in fights in your favor (tower, season, champs, ...)
+- crosspromo
+- if koban acc: join club, donate all kobans, leave club
 - every 24h self-check for stat growth
 - refactor: move code out of huge tasks to smaller tasks
 - add more checks all over the code
 - nutaku login
-     https://nutaku.haremheroes.com/integrations/?action=startGame&sess=6gpntrvq2t343e422t4jbbb67s
+     <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=6gpntrvq2t343e422t4jbbb67s>

@@ -294,10 +294,6 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
         throw fail('startPop', json, popData);
     }
 
-    // TODO remove after check
-    let assignedGirlsCountBefore = Object.keys(assignedGirls).length;
-    // TODO end
-
     assignedGirls = {
         ...assignedGirls,
         ...girlsIds.reduce((acc: JsonObject, girlId) => {
@@ -305,13 +301,6 @@ async function startPop(bot: HeheBot, popId: string, popData: JsonObject, assign
             return acc;
         }, {}),
     };
-
-    // TODO remove after check
-    let assignedGirlsCountAfter = Object.keys(assignedGirls).length;
-    if (assignedGirlsCountBefore + girlsIds.length !== assignedGirlsCountAfter) {
-        throw fail('assignedGirlsCountAfter');
-    }
-    // TODO end
 
     await bot.incCache({ popStarted: 1 });
 }
