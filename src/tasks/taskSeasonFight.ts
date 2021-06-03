@@ -212,10 +212,10 @@ export default async function taskSeasonFight(bot: HeheBot) {
 
                 losses++;
 
-                if (losses >= 5) {
-                    bot.state.seasonError = 'bot loses too much';
-                    break;
-                }
+                // if (losses >= 5) {
+                //     bot.state.seasonError = 'bot loses too much at season';
+                //     break;
+                // }
             }
         }
     }

@@ -21,6 +21,10 @@ async function fetchTrollInfo(bot: HeheBot, worldId: number): Promise<JsonObject
 // ];
 
 async function fetchTrollData(bot: HeheBot, trollId: string): Promise<JsonObject | undefined> {
+    if (bot.config.forceTrollId) {
+        trollId = String(bot.config.forceTrollId);
+    }
+
     const html = await bot.fetchHtml(`/battle.html?id_troll=${trollId}`);
 
     const hh_battle_players = mj(html, /hh_battle_players = (\[.*?\]);/im);

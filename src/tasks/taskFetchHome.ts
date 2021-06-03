@@ -17,6 +17,7 @@ import {
     TASK_CHAMPIONS_FIGHT,
     TASK_PATH_EVENT_CLAIM_REWARD,
     TASK_TOWER_CLAIM_LEAGUE_REWARD,
+    TASK_FETCH_HOME,
 } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 import { m, mj } from '../helpers/m.js';
@@ -103,6 +104,9 @@ export default async function taskFetchHome(bot: HeheBot) {
     const seasonMojo = Number(m(html, /season_mojo_s = '([0-9]+)'/i)) || 0;
     const seasonHasPass = Boolean(Number(m(html, /season_has_pass = '([0-9]+)'/i)));
 
+    const champTimer = Number(m(html, /<span class="champion-timer".*?timer="([0-9]+)">/i));
+    const champAvailIn = champTimer ? champTimer - serverTs : NaN;
+
     bot.setStateMultiple({
         girls,
         memberInfo,
@@ -113,6 +117,7 @@ export default async function taskFetchHome(bot: HeheBot) {
         seasonId,
         seasonMojo,
         seasonHasPass,
+        champAvailIn,
         serverDate: new Date(serverTs * 1000),
         timeDeltaMs: !bot.cache.lastRequestTs ? 0 : bot.cache.lastRequestTs - serverTs * 1000,
     });
@@ -133,4 +138,6 @@ export default async function taskFetchHome(bot: HeheBot) {
     bot.pushTask(TASK_FIGHT_TROLL, TASK_NOTE);
     bot.pushTask(TASK_STORY, TASK_NOTE);
     bot.pushTask(TASK_MARKET, TASK_NOTE);
+
+    bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 15 * 60);
 }

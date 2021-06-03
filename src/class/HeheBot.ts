@@ -80,6 +80,7 @@ export interface HeheBotConfig {
     debug?: boolean;
     dropCookiesOnRestart?: boolean;
     isProduction?: boolean;
+    forceTrollId?: number;
 }
 
 export interface HeheBotCache {
@@ -120,6 +121,7 @@ export interface HeheBotCache {
     popRewardsClaimed?: number;
     popStarted?: number;
     sessionLosses?: number;
+    champFights?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -149,10 +151,12 @@ export interface HeheBotState {
     seasonRewards?: JsonObject;
     serverDate?: Date;
     timeDeltaMs?: number;
+    champAvailIn?: number;
 
     seasonError?: any;
     storyError?: any;
     popError?: any;
+    champError?: any;
 }
 
 export class HeheBot {
@@ -164,7 +168,7 @@ export class HeheBot {
     public cache: HeheBotCache = {};
     public state: HeheBotState = {};
 
-    constructor(protected config: HeheBotConfig) {
+    constructor(public config: HeheBotConfig) {
         this.cookieJar = new CookieJar({
             loadCookies: async () => {
                 if (this.config.dropCookiesOnRestart) {
@@ -406,6 +410,7 @@ export class HeheBot {
         if (state.popError) errors.push(state.popError);
         if (state.seasonError) errors.push(state.seasonError);
         if (state.storyError) errors.push(state.storyError);
+        if (state.champError) errors.push(state.champError);
 
         if (errors.length) {
             taskTitle += ' - ' + errors.join('; ');
@@ -432,6 +437,10 @@ export class HeheBot {
                 error: state.popError,
                 started: cache.popStarted,
                 done: cache.popRewardsClaimed,
+            }),
+            'Champions': pack({
+                error: state.champError,
+                fights: cache.champFights,
             }),
             'Troll': pack({
                 fights: cache.trollFights,
