@@ -34,13 +34,9 @@
 
 - fight priority to unclaimed girls
 
-## Market
-
-- ❌ equip better equipment
-- auto sell bad equipment
-
 ## Activities
 
+- ❌ some pops do not start ~ 8h
 - check event requirements and do pachinko/sell/etc to get first places
 - pop assign: adjust exact task power, do not exceed (useful for new accs)
 
