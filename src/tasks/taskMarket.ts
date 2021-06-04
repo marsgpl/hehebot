@@ -117,7 +117,10 @@ function getItemPower(item: JsonObject): number {
 }
 
 function itemABetterThanItemB(itemA: JsonObject, itemB: JsonObject): boolean {
-    return getItemPower(itemA) > getItemPower(itemB);
+    return getItemPower(itemA) > getItemPower(itemB) &&
+        itemA.carac1 &&
+        itemA.carac2 &&
+        itemA.carac3;
 }
 
 async function sellItem(bot: HeheBot, item: JsonObject) {
