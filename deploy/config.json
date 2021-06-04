@@ -4,28 +4,24 @@
             "login": "hh.potato@marsgpl.com",
             "password": "ds08n4SDVHI08r5SDH9g058bs",
             "cacheFile": "/tmp/.hehebot.cache.potato.json",
-            "forceTrollId": 5,
             "debug": true
         },
         {
             "login": "hh.lava@marsgpl.com",
             "password": "2084h98weSDIHPqwe0d923r87g5t",
             "cacheFile": "/tmp/.hehebot.cache.lava.json",
-            "forceTrollId": 5,
             "debug": true
         },
         {
             "login": "hh.cameraman@marsgpl.com",
             "password": "alsnf0283h49gADBFU20489gAWw",
             "cacheFile": "/tmp/.hehebot.cache.cameraman.json",
-            "forceTrollId": 5,
             "debug": true
         },
         {
             "login": "hh.kopbys@marsgpl.com",
             "password": "aiwo0nf9284ASDNPf23408gb",
             "cacheFile": "/tmp/.hehebot.cache.kopbys.json",
-            "forceTrollId": 5,
             "debug": true
         }
     ],

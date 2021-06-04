@@ -65,18 +65,14 @@ async function fightChamp(bot: HeheBot, champ: JsonObject): Promise<boolean> {
         return false;
     }
 
-    const teamIds = await reorderTeam(bot, championData);
+    const teamIds = await reorderTeam(bot, championData, 'champion');
 
     const result = await attackChamp(bot, String(championData.champion.id), teamIds);
 
     return result;
 }
 
-async function attackChamp(
-    bot: HeheBot,
-    champId: string,
-    teamIds: string[],
-): Promise<boolean> {
+async function attackChamp(bot: HeheBot, champId: string, teamIds: string[]): Promise<boolean> {
     const json = await bot.fetchAjax({
         'class': 'TeamBattle',
         'battle_type': 'champion',
@@ -93,7 +89,11 @@ async function attackChamp(
     }
 }
 
-async function reorderTeam(bot: HeheBot, championData: JsonObject): Promise<string[]> {
+export async function reorderTeam(
+    bot: HeheBot,
+    championData: JsonObject,
+    championType: string,
+): Promise<string[]> {
     const champPoses = championData.champion.poses; // [ 10, 2, 5, 11, 11 ]
     const champClass = championData.champion.class;
     const team: JsonObject[] = championData.team; // [{id_girl,class,figure,damage},...]
@@ -161,7 +161,7 @@ async function reorderTeam(bot: HeheBot, championData: JsonObject): Promise<stri
             'action': 'team_reorder',
             'team_order[]': finalTeamIds,
             'id_champion': String(championData.champion.id),
-            'champion_type': 'champion',
+            'champion_type': championType,
         });
 
         if (!json.success) {

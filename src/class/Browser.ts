@@ -1,3 +1,4 @@
+import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import { URL } from 'url';
@@ -10,6 +11,10 @@ export const COMMUNICATION_ERROR_RETRY_TIMEOUT = 1000 * 60 * 30; // 30m
 const COMMUNICATION_ERROR_MARKER = 'Browser.request communication error';
 
 export type FormData = {[key: string]: string | string[]};
+
+export interface BrowserRequestImageOptions {
+    savePath: string;
+}
 
 export interface BrowserRequestOptions {
     method?: 'GET' | 'POST';
@@ -70,6 +75,83 @@ export class Browser {
                 }
             }
         }
+    }
+
+    public downloadImg(url: string | URL, options: BrowserRequestImageOptions): Promise<void> {
+        return new Promise((resolve, reject) => {
+            url = typeof url === 'string' ? new URL(url) : url;
+
+            if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+                return reject(`url protocol '${url.protocol}' is not supported`);
+            }
+
+            const onResponse = (httpResponse: http.IncomingMessage) => {
+                if (httpResponse.statusCode === 200) {
+                    const file = fs.createWriteStream(options.savePath);
+
+                    file.on('finish', function() {
+                        file.close();
+                        resolve();
+                    });
+
+                    httpResponse.pipe(file);
+                } else {
+                    reject(fail('downloadImg', 'statusCode !== 200', httpResponse.headers));
+                }
+            };
+
+            const agentOptions: https.AgentOptions = {
+                keepAlive: true,
+                maxSockets: 1,
+            };
+
+            const agent = url.protocol === 'https:' ?
+                new https.Agent(agentOptions) :
+                new http.Agent(agentOptions);
+
+            const requestOptions: https.RequestOptions = {
+                method: 'GET',
+                agent,
+            };
+
+            requestOptions.headers = {
+                'Host': url.hostname,
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+            };
+
+            if (this.props.userAgent) {
+                requestOptions.headers['User-Agent'] = this.props.userAgent;
+            }
+
+            if (this.props.cookieJar) {
+                const cookiesFromJar = this.props.cookieJar.getCookiesForHeader(url, new Date);
+
+                if (cookiesFromJar) {
+                    const cokiesFromHeaders = requestOptions.headers['Cookie'];
+
+                    requestOptions.headers['Cookie'] = cokiesFromHeaders ?
+                        cookiesFromJar + '; ' + cokiesFromHeaders :
+                        cookiesFromJar;
+                }
+            }
+
+            const request = url.protocol === 'https:' ?
+                https.request(url, requestOptions, onResponse) :
+                http.request(url, requestOptions, onResponse);
+
+            request.once('timeout', () =>
+                reject(fail(COMMUNICATION_ERROR_MARKER, 'timeout')));
+
+            request.once('error', (error) =>
+                reject(fail(COMMUNICATION_ERROR_MARKER, error)));
+
+            request.end();
+
+            if (this.props.debug) {
+                console.log('🟦', this.props.debugPrefix, requestOptions.method, url.toString());
+            }
+        });
     }
 
     protected _request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {

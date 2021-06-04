@@ -5,3 +5,4 @@ node_modules
 /build.prod/
 /build.uglified/
 .hehebot.cache.*.json
+/images/

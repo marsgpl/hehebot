@@ -18,6 +18,7 @@ import {
     TASK_PATH_EVENT_CLAIM_REWARD,
     TASK_TOWER_CLAIM_LEAGUE_REWARD,
     TASK_FETCH_HOME,
+    TASK_DOWNLOAD_IMAGES,
 } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 import { m, mj } from '../helpers/m.js';
@@ -137,8 +138,11 @@ export default async function taskFetchHome(bot: HeheBot) {
     bot.pushTask(TASK_COLLECT_SALARIES, TASK_NOTE);
     bot.pushTask(TASK_FIGHT_TROLL, TASK_NOTE);
     bot.pushTask(TASK_STORY, TASK_NOTE);
-    bot.pushTask(TASK_MARKET, TASK_NOTE, null, {isForced: true});
-    // bot.pushTask(TASK_MARKET, TASK_NOTE);
+    // bot.pushTask(TASK_MARKET, TASK_NOTE, null, {isForced: true});
+    bot.pushTask(TASK_MARKET, TASK_NOTE);
 
     bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 15 * 60);
+
+    // not for production:
+        // bot.pushTask(TASK_DOWNLOAD_IMAGES, TASK_NOTE);
 }

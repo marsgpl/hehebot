@@ -2,10 +2,6 @@
 
 - <https://marsgpl.com/hehebot>
 
-## Clubs
-
-- ❌ fight Chad (only every 8 hours and if tickets > 1000) ~ 4h
-
 ## Season
 
 - setup strongest non-complete girls (they must receive aff and xp)
@@ -18,12 +14,9 @@
 
 ## Troll
 
+- ❌ if progress not blocked by quest items: focus trolls which gives new girls (including event): once in 8 hours select troll id and put in bot.cache
 - setup strongest girls
 - when perform fight, chose position enemy does not have
-
-## Adventure
-
-- ❌ if progress not blocked by quest items: focus trolls which gives new girls (including event)
 - check troll power change on lvl 290 on potato ~ 4 days
      class: Battle
      action: fight
@@ -44,7 +37,7 @@
 ## Market
 
 - ❌ equip better equipment
-- auto sell bad equipment if event require selling (contest/event path/season)
+- auto sell bad equipment
 
 ## Activities
 
@@ -64,4 +57,4 @@
 - refactor: move code out of huge tasks to smaller tasks
 - add more checks all over the code
 - ❌ nutaku login
-     <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=6gpntrvq2t343e422t4jbbb67s>
+     <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=XXX>

@@ -6,6 +6,7 @@ import htmlspecialcharsDecode from '../helpers/htmlspecialcharsDecode.js';
 const TASK_NOTE = 'market';
 
 const AFFECTION_MAX_OVERFLOW_VALUE = 30;
+const MAX_ITEMS_PER_PAGE = 100;
 
 export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
     const haveNewGoods = bot.state.notificationData?.shop?.includes('action');
@@ -34,11 +35,22 @@ export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
     const items = parseItems(html);
     const girls = parseGirls(html);
 
-    const itemsForSale = items.filter(item => !item.id_member);
+    const itemsForSale = items.filter(item =>
+        !item.id_member);
     const itemsForUse = items.filter(item =>
         !!item.id_member &&
         item.count &&
         item.value &&
+        item.id_m_i?.length);
+    const equipped = items.filter(item =>
+        !!item.id_member &&
+        item.type === 'armor' &&
+        item.equiped === '1' &&
+        item.id_m_i?.length);
+    const equipmentToSell = items.filter(item =>
+        !!item.id_member &&
+        item.type === 'armor' &&
+        item.equiped !== '1' &&
         item.id_m_i?.length);
 
     const expForSale = itemsForSale.filter(item => item.type === 'potion');
@@ -46,6 +58,8 @@ export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
 
     const affForSale = itemsForSale.filter(item => item.type === 'gift');
     const affForUse = itemsForUse.filter(item => item.type === 'gift');
+
+    await equipBetterEquipmentAndSellUseless(bot, equipped, equipmentToSell);
 
     if (expForSale.length) {
         await buyAllItems(bot, expForSale);
@@ -57,6 +71,91 @@ export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
 
     await applyExpToGirls(bot, girls, expForUse);
     await applyAffToGirls(bot, girls, affForUse);
+
+    if (equipmentToSell.length >= MAX_ITEMS_PER_PAGE) {
+        bot.pushTask(TASK_MARKET, TASK_NOTE, null, {isForced: true});
+    }
+}
+
+async function equipBetterEquipmentAndSellUseless(
+    bot: HeheBot,
+    equipped: JsonObject[],
+    equipmentToSell: JsonObject[],
+) {
+    const equippedByType: JsonObject = {};
+
+    equipped.forEach(item => {
+        equippedByType[item.subtype] = item;
+    });
+
+    for (const index in equipmentToSell) {
+        const thisItem = equipmentToSell[index];
+        const equippedItem = equippedByType[thisItem.subtype];
+
+        if (!equippedItem) {
+            await equipItem(bot, thisItem);
+        } else if (itemABetterThanItemB(thisItem, equippedItem)) {
+            await equipItem(bot, thisItem);
+        } else {
+            await sellItem(bot, thisItem);
+        }
+    }
+}
+
+function getItemPower(item: JsonObject): number {
+    const power = item.carac1 +
+        item.carac2 +
+        item.carac3 +
+        item.endurance / 2 +
+        item.chance / 2;
+
+    if (isNaN(power) || !power) {
+        throw fail('getItemPower', power, item);
+    }
+
+    return power;
+}
+
+function itemABetterThanItemB(itemA: JsonObject, itemB: JsonObject): boolean {
+    return getItemPower(itemA) > getItemPower(itemB);
+}
+
+async function sellItem(bot: HeheBot, item: JsonObject) {
+    const json = await bot.fetchAjax({
+        'class': 'Item',
+        'action': 'sell',
+        'id_m_i': item.id_m_i[0],
+        'id_item': item.id_item,
+        'type': item.type,
+        'who': '1',
+    });
+
+    if (!json.success) {
+        throw fail('sellItem', item, json);
+    }
+
+    bot.incCache({
+        itemsSold: 1,
+    });
+}
+
+async function equipItem(bot: HeheBot, item: JsonObject) {
+    const json = await bot.fetchAjax({
+        'class': 'Item',
+        'action': 'use',
+        'id_m_i': item.id_m_i[0],
+        'id_item': item.id_item,
+        'type': item.type,
+        'who': '1',
+    });
+
+    if (!json.success) {
+        throw fail('equipItem', item, json);
+    }
+
+    bot.incCache({
+        itemsEquipped: 1,
+    });
 }
 
 function findUpgradableGirlsPaths(html: HtmlString): string[] {
@@ -100,6 +199,9 @@ async function upgradeGirl(bot: HeheBot, girl: JsonObject | null, questPath: str
 }
 
 async function applyAffToGirls(bot: HeheBot, girls: JsonObject[], affItems: JsonObject[]) {
+    if (!affItems.length) return;
+    if (!girls.length) return;
+
     // value ASC
     affItems.sort((A, B) => {
         if (A.value > B.value) {
@@ -207,6 +309,9 @@ async function applyAffToGirls(bot: HeheBot, girls: JsonObject[], affItems: Json
 }
 
 async function applyExpToGirls(bot: HeheBot, girls: JsonObject[], expBooks: JsonObject[]) {
+    if (!expBooks.length) return;
+    if (!girls.length) return;
+
     // value ASC
     expBooks.sort((A, B) => {
         if (A.value > B.value) {
@@ -239,6 +344,8 @@ async function applyExpToGirls(bot: HeheBot, girls: JsonObject[], expBooks: Json
             throw fail('applyExpToGirls', 'book.id_m_i.length=0', book, girl);
         }
 
+        // {"can_pex":true,"xp":23490,"level_up":false,"level":332,"girl":null,"success":true}
+
         const json = await bot.fetchAjax({
             'class': 'Item',
             'action': 'give_xp',
@@ -248,11 +355,16 @@ async function applyExpToGirls(bot: HeheBot, girls: JsonObject[], expBooks: Json
             'who': girl.id,
         });
 
-        if (!json.success || !json.girl?.Xp) {
+        if (!json.success || !json.xp || !json.level) {
             throw fail('applyExpToGirls', book, girl, json);
         }
 
-        girl.Xp = json.girl.Xp;
+        girl.Xp.cur = json.xp;
+        girl.Xp.level = json.level;
+
+        if (json.girl?.Xp) {
+            girl.Xp = json.girl.Xp;
+        }
 
         bot.incCache({
             xpBooksUsed: 1,

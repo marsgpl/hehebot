@@ -21,6 +21,7 @@ import taskSeasonClaimReward from '../tasks/taskSeasonClaimReward.js';
 import taskOpenDailyFreePachinko from '../tasks/taskOpenDailyFreePachinko.js';
 import taskPathEventClaimReward from '../tasks/taskPathEventClaimReward.js';
 import taskTowerClaimLeagueReward from '../tasks/taskTowerClaimLeagueReward.js';
+import taskDownloadImages from '../tasks/taskDownloadImages.js';
 
 export type JsonObject = {[key: string]: any};
 export type HtmlString = string;
@@ -40,6 +41,7 @@ export const TASK_TOWER_FIGHT = 'TowerFight';
 export const TASK_OPEN_DAILY_FREE_PACHINKO = 'DailyPachinko';
 export const TASK_PATH_EVENT_CLAIM_REWARD = 'PartyClaim';
 export const TASK_TOWER_CLAIM_LEAGUE_REWARD = 'TowerClaim';
+export const TASK_DOWNLOAD_IMAGES = 'DownloadQuestImages';
 export const TASK_IDLE = 'IDLE';
 
 type Task = [TaskName, string, number, any];
@@ -59,6 +61,7 @@ type TaskName =
     typeof TASK_OPEN_DAILY_FREE_PACHINKO |
     typeof TASK_PATH_EVENT_CLAIM_REWARD |
     typeof TASK_TOWER_CLAIM_LEAGUE_REWARD |
+    typeof TASK_DOWNLOAD_IMAGES |
     typeof TASK_STORY;
 
 const AGE_VERIFICATION_COOKIE = 'age_verification';
@@ -67,7 +70,7 @@ const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/
 export const SLEEP_AFTER_EVERY_REQUEST_MS = 2000;
 
 const HEHE_HOST = 'www.hentaiheroes.com';
-const HEHE_BASE_URL = `https://${HEHE_HOST}`;
+export const HEHE_BASE_URL = `https://${HEHE_HOST}`;
 const HEHE_AJAX_URL = `${HEHE_BASE_URL}/ajax.php`;
 const HEHE_PHOENIX_AJAX_URL = `${HEHE_BASE_URL}/phoenix-ajax.php`;
 export const HEHE_HOME_URL = `${HEHE_BASE_URL}/home.html`;
@@ -129,6 +132,10 @@ export interface HeheBotCache {
     affItemsUsed?: number;
     affAppliedToGirls?: number;
     girlStarUpgrades?: number;
+    lastChadFightMs?: number;
+    chadFights?: number;
+    itemsEquipped?: number;
+    itemsSold?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -164,6 +171,7 @@ export interface HeheBotState {
     storyError?: any;
     popError?: any;
     champError?: any;
+    chadError?: any;
 }
 
 export class HeheBot {
@@ -262,6 +270,7 @@ export class HeheBot {
             case TASK_OPEN_DAILY_FREE_PACHINKO: return taskOpenDailyFreePachinko(this);
             case TASK_PATH_EVENT_CLAIM_REWARD: return taskPathEventClaimReward(this);
             case TASK_TOWER_CLAIM_LEAGUE_REWARD: return taskTowerClaimLeagueReward(this);
+            case TASK_DOWNLOAD_IMAGES: return taskDownloadImages(this);
             default: throw `Unknown task: ${name}`;
         }
     }
@@ -422,6 +431,7 @@ export class HeheBot {
         if (state.seasonError) errors.push(state.seasonError);
         if (state.storyError) errors.push(state.storyError);
         if (state.champError) errors.push(state.champError);
+        if (state.chadError) errors.push(state.chadError);
 
         if (errors.length) {
             taskTitle += ' - ' + errors.join('; ');
@@ -479,6 +489,11 @@ export class HeheBot {
                 rewards: cache.dailyRewardLootClaims,
                 pachinko: cache.freeDailyPachinkoOpened,
             }),
+            'Club': pack({
+                'error': state.chadError,
+                'chad fights': cache.chadFights,
+                'chad rewards': cache.chadRewards,
+            }),
             'Path event': pack({
                 rewards: pack({
                     free: cache.pathEventFreeRewardsClaimed,
@@ -493,9 +508,10 @@ export class HeheBot {
                 'aff items used': cache.affItemsUsed,
                 'girls aff': cache.affAppliedToGirls,
                 'girl upgrades': cache.girlStarUpgrades,
+                'items equipped': cache.itemsEquipped,
+                'items sold': cache.itemsSold,
             }),
             'Etc': pack({
-                chadRewards: cache.chadRewards,
                 sessionLosses: cache.sessionLosses,
             }),
             'countdown': nextTask.countdown,
@@ -677,6 +693,13 @@ export class HeheBot {
                 await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
             }
         }
+    }
+
+    public async fetchImage(imgUrl: string, saveTo: string): Promise<void> {
+        await this.browser.downloadImg(imgUrl, {
+            savePath: `${saveTo}${imgUrl.substr(HEHE_BASE_URL.length + 1).replace(/\//g, '_')}`,
+        });
+        // await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
     }
 
     protected async fetchKinkoidAjax(url: string, query: JsonObject): Promise<JsonObject> {
