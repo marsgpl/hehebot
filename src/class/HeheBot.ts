@@ -42,7 +42,7 @@ export const TASK_PATH_EVENT_CLAIM_REWARD = 'PartyClaim';
 export const TASK_TOWER_CLAIM_LEAGUE_REWARD = 'TowerClaim';
 export const TASK_IDLE = 'IDLE';
 
-type Task = [TaskName, string, number];
+type Task = [TaskName, string, number, any];
 
 type TaskName =
     typeof TASK_FETCH_HOME |
@@ -124,6 +124,11 @@ export interface HeheBotCache {
     champFights?: number;
     marketItemsBought?: number;
     marketMoneySpent?: number;
+    xpAppliedToGirls?: number;
+    xpBooksUsed?: number;
+    affItemsUsed?: number;
+    affAppliedToGirls?: number;
+    girlStarUpgrades?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -223,7 +228,7 @@ export class HeheBot {
             this.currentTask = undefined;
 
             const nowTs = Date.now();
-            const [name,, whenTs] = this.tasks[0] || [];
+            const [name,, whenTs, extraArgs] = this.tasks[0] || [];
 
             if (!name) {
                 break;
@@ -236,17 +241,17 @@ export class HeheBot {
 
             this.currentTask = this.tasks.shift();
 
-            await this.runTask(name);
+            await this.runTask(name, extraArgs);
         }
     }
 
-    protected async runTask(name: TaskName) {
+    protected async runTask(name: TaskName, extraArgs?: any) {
         switch (name) {
             case TASK_STORY: return taskStory(this);
             case TASK_FETCH_HOME: return taskFetchHome(this);
-            case TASK_ACTIVITIES: return taskActivities(this);
+            case TASK_ACTIVITIES: return taskActivities(this, extraArgs?.isForced);
             case TASK_CLUB_CHAD: return taskClubChad(this);
-            case TASK_MARKET: return taskMarket(this);
+            case TASK_MARKET: return taskMarket(this, extraArgs?.isForced);
             case TASK_FIGHT_TROLL: return taskFightTroll(this);
             case TASK_SEASON_FIGHT: return taskSeasonFight(this);
             case TASK_CHAMPIONS_FIGHT: return taskChampionsFight(this);
@@ -261,15 +266,19 @@ export class HeheBot {
         }
     }
 
-    public pushTask(name: TaskName, reason: string, when?: Date) {
+    public pushTask(name: TaskName, reason: string, when?: Date | null, extraArgs?: any) {
         const whenTs = when ? when.getTime() : Date.now();
-        const task: Task = [name, reason, whenTs];
+        const task: Task = [name, reason, whenTs, extraArgs];
         const prevTask = this.tasks.find(task => task[0] === name);
 
         if (prevTask) {
             if (prevTask[2] < task[2]) {
                 task[1] = prevTask[1];
                 task[2] = Math.min(task[2], prevTask[2]);
+                task[3] = {
+                    ...(task[3] || {}),
+                    ...(extraArgs || {}),
+                };
             }
 
             this.tasks = this.tasks.filter(task => task[0] !== name);
@@ -288,7 +297,7 @@ export class HeheBot {
         });
     }
 
-    public pushTaskIn(name: TaskName, reason: string, startIn: number) {
+    public pushTaskIn(name: TaskName, reason: string, startIn: number, extraArgs?: any) {
         const { serverDate, timeDeltaMs } = this.state;
 
         if (!serverDate || timeDeltaMs === undefined) {
@@ -302,7 +311,7 @@ export class HeheBot {
         // local = remote + timeDeltaMs
         const when = new Date(serverDate.getTime() + timeDeltaMs + startIn * 1000);
 
-        this.pushTask(name, reason, when);
+        this.pushTask(name, reason, when, extraArgs);
     }
 
     protected async loadCache() {
@@ -421,9 +430,10 @@ export class HeheBot {
         const metrics: HeheBotMetrics = {
             'Title': !state.heroInfo?.Name ?
                 'Initializing ...' :
-                `${state.heroInfo?.Name} (${state.heroEnergies?.hero_level})`,
+                `${state.heroInfo?.Name} (${state.heroInfo?.level})`,
             'Task': taskTitle,
             'Salary': pack({
+                girls: Object.keys(this.state.girls || []).length,
                 estimate: this.getSalaryEstimate(),
                 collected: formatMoney(cache.salaryCollected || 0),
             }),
@@ -477,7 +487,12 @@ export class HeheBot {
             }),
             'Market': pack({
                 'items bought': cache.marketItemsBought,
-                'money spent': formatMoney(cache.marketMoneySpent || 0),
+                'money spent': cache.marketMoneySpent && formatMoney(cache.marketMoneySpent),
+                'xp books used': cache.xpBooksUsed,
+                'girls xp': cache.xpAppliedToGirls,
+                'aff items used': cache.affItemsUsed,
+                'girls aff': cache.affAppliedToGirls,
+                'girl upgrades': cache.girlStarUpgrades,
             }),
             'Etc': pack({
                 chadRewards: cache.chadRewards,

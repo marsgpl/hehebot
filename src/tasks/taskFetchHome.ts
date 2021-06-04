@@ -137,7 +137,8 @@ export default async function taskFetchHome(bot: HeheBot) {
     bot.pushTask(TASK_COLLECT_SALARIES, TASK_NOTE);
     bot.pushTask(TASK_FIGHT_TROLL, TASK_NOTE);
     bot.pushTask(TASK_STORY, TASK_NOTE);
-    bot.pushTask(TASK_MARKET, TASK_NOTE);
+    bot.pushTask(TASK_MARKET, TASK_NOTE, null, {isForced: true});
+    // bot.pushTask(TASK_MARKET, TASK_NOTE);
 
     bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 15 * 60);
 }

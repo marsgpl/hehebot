@@ -4,7 +4,7 @@
 
 ## Clubs
 
-- fight Chad (only every 8 hours and if tickets > 1000)
+- ❌ fight Chad (only every 8 hours and if tickets > 1000) ~ 4h
 
 ## Season
 
@@ -23,7 +23,7 @@
 
 ## Adventure
 
-- if progress not blocked by quest items: focus trolls which gives new girls (including event)
+- ❌ if progress not blocked by quest items: focus trolls which gives new girls (including event)
 - check troll power change on lvl 290 on potato ~ 4 days
      class: Battle
      action: fight
@@ -43,11 +43,8 @@
 
 ## Market
 
-- equip better equipment
+- ❌ equip better equipment
 - auto sell bad equipment if event require selling (contest/event path/season)
-- if level up - visit shop again (add flag isForced as in taskActivities)
-- apply exp to girls
-- apply affection to girls
 
 ## Activities
 
@@ -60,11 +57,11 @@
 
 ## Misc
 
-- (!json.success || json.error) must be fatal: reduce failed queries for insufficient fight energy etc
+- ❌ (!json.success || json.error) must be fatal: reduce failed queries for insufficient fight energy etc
 - crosspromo
 - if koban acc: join club, donate all kobans, leave club
 - every 24h self-check for stat growth
 - refactor: move code out of huge tasks to smaller tasks
 - add more checks all over the code
-- nutaku login
+- ❌ nutaku login
      <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=6gpntrvq2t343e422t4jbbb67s>

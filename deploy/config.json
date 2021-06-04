@@ -20,6 +20,13 @@
             "cacheFile": "/tmp/.hehebot.cache.cameraman.json",
             "forceTrollId": 5,
             "debug": true
+        },
+        {
+            "login": "hh.kopbys@marsgpl.com",
+            "password": "aiwo0nf9284ASDNPf23408gb",
+            "cacheFile": "/tmp/.hehebot.cache.kopbys.json",
+            "forceTrollId": 5,
+            "debug": true
         }
     ],
     "listen": {

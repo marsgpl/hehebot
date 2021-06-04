@@ -1,6 +1,7 @@
 {
     "bots": [
         {
+            "disabled": true,
             "login": "pkairevent@gmail.com",
             "password": "SDJAOSdjn2f09385bgw0e9n0f1",
             "cacheFile": ".hehebot.cache.apex.json",
@@ -21,10 +22,16 @@
             "debug": true
         },
         {
-            "disabled": true,
             "login": "hh.cameraman@marsgpl.com",
             "password": "alsnf0283h49gADBFU20489gAWw",
             "cacheFile": ".hehebot.cache.cameraman.json",
+            "debug": true
+        },
+        {
+            "disabled": true,
+            "login": "hh.kopbys@marsgpl.com",
+            "password": "aiwo0nf9284ASDNPf23408gb",
+            "cacheFile": ".hehebot.cache.kopbys.json",
             "debug": true
         }
     ],

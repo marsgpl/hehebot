@@ -1,7 +1,7 @@
 import lowest from '../helpers/lowest.js';
 import fail from '../helpers/fail.js';
 import { mj } from '../helpers/m.js';
-import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
+import { HeheBot, JsonObject, TASK_ACTIVITIES, TASK_FETCH_HOME } from '../class/HeheBot.js';
 
 const TASK_NOTE = 'activities';
 
@@ -209,7 +209,7 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
     }
 
     if (popClaims > 0) {
-        await taskActivities(bot, true);
+        bot.pushTask(TASK_ACTIVITIES, TASK_NOTE, null, {isForced: true});
     }
 }
 
