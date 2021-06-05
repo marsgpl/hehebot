@@ -15,6 +15,11 @@ export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
         return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 1 * 60 * 60); // 1h
     }
 
+    if (bot.state.heroInfo?.soft_currency < 10e6) {
+        bot.state.marketError = 'money < 10M, market stopped';
+        return;
+    }
+
     const html = await bot.fetchHtml('/shop.html');
 
     const restockIn = parseRestockIn(html);

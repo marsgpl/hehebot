@@ -172,6 +172,7 @@ export interface HeheBotState {
     popError?: any;
     champError?: any;
     chadError?: any;
+    marketError?: any;
 }
 
 export class HeheBot {
@@ -432,6 +433,7 @@ export class HeheBot {
         if (state.storyError) errors.push(state.storyError);
         if (state.champError) errors.push(state.champError);
         if (state.chadError) errors.push(state.chadError);
+        if (state.marketError) errors.push(state.marketError);
 
         if (errors.length) {
             taskTitle += ' - ' + errors.join('; ');
@@ -501,6 +503,7 @@ export class HeheBot {
                 }),
             }),
             'Market': pack({
+                'error': state.marketError,
                 'items bought': cache.marketItemsBought,
                 'money spent': cache.marketMoneySpent && formatMoney(cache.marketMoneySpent),
                 'xp books used': cache.xpBooksUsed,
