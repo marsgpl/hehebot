@@ -12,20 +12,8 @@ import config from './config.json';
 const NODE_ENV = process.env.NODE_ENV;
 const CWD = path.dirname(new URL(import.meta.url).pathname);
 
-const app = new Koa;
-const bots: HeheBot[] = [];
-
-config.bots.forEach(botConfig => {
-    if (botConfig.disabled) return;
-
-    bots.push(new HeheBot({
-        ...botConfig,
-        isProduction: NODE_ENV === 'production',
-    }));
-});
-
 function reportError(...errors: any) {
-    console.error('🔸 Fatal error:', fail(...errors));
+    console.error('❌ Fatal error:', fail(...errors));
 }
 
 async function cleanup() {}
@@ -46,6 +34,18 @@ process.on('SIGUSR1', () => {
     console.log('SIGUSR1: production docker container was stopped');
     cleanup();
     process.exit(0);
+});
+
+const app = new Koa;
+const bots: HeheBot[] = [];
+
+config.bots.forEach(botConfig => {
+    if (botConfig.disabled) return;
+
+    bots.push(new HeheBot({
+        ...botConfig,
+        isProduction: NODE_ENV === 'production',
+    }));
 });
 
 render(app, {
@@ -83,9 +83,6 @@ app.use(async (ctx) => {
     }
 });
 
-/**
- * 🟥🟧🟨🟩🟦🟪⬛️⬜️🟫
- */
 app.listen(config.listen.port, config.listen.addr, 0, () => {
     console.log(`Mode: ${NODE_ENV}`);
     console.log('OS user:', os.userInfo().username);
