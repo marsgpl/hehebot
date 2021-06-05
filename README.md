@@ -54,3 +54,4 @@
 - add more checks all over the code
 - ❌ nutaku login
      <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=XXX>
+- download girls opened images
