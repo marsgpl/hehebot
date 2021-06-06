@@ -17,6 +17,11 @@ export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
 
     if (bot.state.heroInfo?.soft_currency < 10e6) {
         bot.state.marketError = 'money < 10M, market stopped';
+    } else {
+        bot.state.marketError = undefined;
+    }
+
+    if (bot.state.marketError) {
         return;
     }
 
