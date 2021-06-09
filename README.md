@@ -55,3 +55,4 @@
 - ❌ nutaku login
      <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=XXX>
 - download girls opened images
+- download side quests images

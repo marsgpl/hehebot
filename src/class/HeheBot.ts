@@ -136,6 +136,7 @@ export interface HeheBotCache {
     chadFights?: number;
     itemsEquipped?: number;
     itemsSold?: number;
+    sideQuestsStepsDone?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -166,6 +167,7 @@ export interface HeheBotState {
     serverDate?: Date;
     timeDeltaMs?: number;
     champAvailIn?: number;
+    sideQuestsAvailable?: boolean;
 
     seasonError?: any;
     storyError?: any;
@@ -472,6 +474,7 @@ export class HeheBot {
             'Story': pack({
                 error: state.storyError,
                 steps: cache.storyStepsDone,
+                'side quest steps': cache.sideQuestsStepsDone,
             }),
             'Season': pack({
                 error: state.seasonError,

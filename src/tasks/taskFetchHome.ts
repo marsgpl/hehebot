@@ -108,6 +108,8 @@ export default async function taskFetchHome(bot: HeheBot) {
     const champTimer = Number(m(html, /<span class="champion-timer".*?timer="([0-9]+)">/i));
     const champAvailIn = champTimer ? champTimer - serverTs : NaN;
 
+    const sideQuestsAvailable = Boolean(html.match(/(side\-quests\.html)/i));
+
     bot.setStateMultiple({
         girls,
         memberInfo,
@@ -119,6 +121,7 @@ export default async function taskFetchHome(bot: HeheBot) {
         seasonMojo,
         seasonHasPass,
         champAvailIn,
+        sideQuestsAvailable,
         serverDate: new Date(serverTs * 1000),
         timeDeltaMs: !bot.cache.lastRequestTs ? 0 : bot.cache.lastRequestTs - serverTs * 1000,
     });

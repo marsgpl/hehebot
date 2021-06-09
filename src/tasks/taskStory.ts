@@ -1,5 +1,6 @@
 import fail from '../helpers/fail.js';
-import { HeheBot, TASK_FETCH_HOME } from '../class/HeheBot.js';
+import { m } from '../helpers/m.js';
+import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 
 const TASK_NOTE = 'story';
 
@@ -11,14 +12,105 @@ const TASK_NOTE = 'story';
 
 // {"success":false,"error":"You don\u0027t have the wanted item."}
 
-export default async function taskStory(bot: HeheBot) {
-    if (bot.state.storyError) return;
+// side:
 
+// {"next_step":{"id_quest":"1000301","num_step":2,"portrait":null,"picture":null,"item":null,"cost":{"*":51},"win":"xp:281","dialogue":"I just finished working on your car! That blown tire is all fixed and I even took a look at your engine. I guess I did really well, because I even have some extra parts left over. It\u2019s okay though, you don\u2019t need your breaks, right?"},"changes":{"energy_quest":510,"energy_quest_recharge_time":0,"ts_quest":1623239233,"xp":16165322},"success":true}
+
+async function performSideQuests(bot: HeheBot): Promise<boolean> {
+    let success = false;
+
+    const html = await bot.fetchHtml('/side-quests.html');
+
+    const sideQuestsInfo: JsonObject[] = [];
+
+    const progressM = html.matchAll(/class="side-quest-progress".*?>Progress: ([0-9]+)\/([0-9]+)/gi);
+
+    for (const [, progressNow, progressMax] of progressM) {
+        sideQuestsInfo.push({
+            progressNow,
+            progressMax,
+        });
+    }
+
+    const hrefM = html.matchAll(/class="side-quest-button .*? href="([^"]+)"/gi);
+
+    let i = 0;
+    for (const [, href] of hrefM) {
+        sideQuestsInfo[i++].href = href;
+    }
+
+    if (sideQuestsInfo.length < 1) {
+        throw fail('performSideQuests', 'zero side quests were parsed');
+    }
+
+    for (let i = 0; i < sideQuestsInfo.length; ++i) {
+        const quest = sideQuestsInfo[i];
+
+        let fullRechargeIn = 0;
+        let currentQuestId = m(quest.href || '', /\/(\d+)$/);
+
+        if (!currentQuestId) {
+            throw fail('performSideQuests', 'currentQuestId is null', sideQuestsInfo);
+        }
+
+        while (true) {
+            const json = await bot.fetchAjax({
+                'class': 'Quest',
+                'action': 'next',
+                'id_quest': currentQuestId,
+            });
+
+            if (!json.success) {
+                if (json.error?.match(/have the wanted item/i)) {
+                    bot.state.storyError = 'side quest: ' + JSON.stringify(json);
+                    return success;
+                } else if (json.error?.match(/have enough energy/i)) {
+                    break;
+                } else {
+                    throw fail('performSideQuests', json);
+                }
+            }
+
+            success = true;
+
+            await bot.incCache({ sideQuestsStepsDone: 1 });
+
+            const isEnded = json.next_step?.ended;
+
+            currentQuestId = String(json.next_step?.id_quest || '');
+            fullRechargeIn = Number(json.changes?.energy_quest_recharge_time);
+
+            if (isEnded) {
+                bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, fullRechargeIn || 0);
+                return success;
+            }
+
+            if (!currentQuestId) {
+                throw fail('taskStory', 'currentQuestId', json);
+            }
+        }
+    }
+
+    return success;
+}
+
+export default async function taskStory(bot: HeheBot) {
     const energyNow = Number(bot.state.heroEnergies?.quest?.amount);
     const energyMax = Number(bot.state.heroEnergies?.quest?.max_amount);
 
     let currentQuestId = String(bot.state.heroInfo?.questing?.id_quest);
     let fullRechargeIn = Number(bot.state.heroEnergies?.quest?.recharge_time);
+
+    if (energyNow >= energyMax / 2 && bot.state.sideQuestsAvailable) {
+        const success = await performSideQuests(bot);
+        if (success) {
+            // we spent energy on side quests, do not continue here
+            return;
+        }
+    }
+
+    if (bot.state.storyError) return;
+
 
     if (!energyMax || !currentQuestId) {
         throw fail('taskStory', 'incomplete data', bot.state);
