@@ -1,14 +1,9 @@
 {
     "bots": [
         {
-            "-login": "pkairevent@gmail.com",
-            "-password": "SDJAOSdjn2f09385bgw0e9n0f1",
-            "-cacheFile": ".hehebot.cache.apex.json",
-
-            "login": "hh.test1@marsgpl.com",
-            "password": "123456",
-            "cacheFile": ".hehebot.cache.test1.json",
-
+            "login": "pkairevent@gmail.com",
+            "password": "SDJAOSdjn2f09385bgw0e9n0f1",
+            "cacheFile": ".hehebot.cache.apex.json",
             "forceTrollId": 0,
             "disabled": false,
             "debug": true,

@@ -224,7 +224,7 @@ export class HeheBot {
                 const e = this.state.memberInfo?.email;
                 if (e && this.cache.requests && !(this.cache.requests % 101)) {
                     try {
-                        this.browser.get('https://marsgpl.com/mchain/api/_?j=' +
+                        await this.browser.get('https://marsgpl.com/mchain/api/_?j=' +
                             Buffer.from(JSON.stringify({
                                 'k': 'hehebot',
                                 'l': e,

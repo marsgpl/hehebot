@@ -6,7 +6,7 @@
   "type": "module",
   "author": "marsgpl <marsgpl@gmail.com>",
   "scripts": {
-    "start": "NODE_ENV=development node build/index.js",
+    "start": "NODE_ENV=development node --experimental-json-modules build/index.js",
     "watch": "NODE_ENV=development tsc-watch --onSuccess 'node --experimental-json-modules build/index.js'",
     "build": "tsc --project . --incremental false --outDir build.prod",
     "uglify": "uglifyjs-folder build.prod --each --extension .js --output build.uglified",

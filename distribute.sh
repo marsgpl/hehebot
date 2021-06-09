@@ -20,3 +20,6 @@ cp config.json hehebot/build || exit 1
 
 rm -rf hehebot.zip || exit 1
 zip -vr hehebot.zip hehebot/ -x "*.DS_Store" || exit 1
+
+ssh marsgpl 'mkdir -p /var/www/marsgpl.com/etc' || exit 1
+rsync -rv hehebot.zip marsgpl:/var/www/marsgpl.com/etc/hehebot.zip || exit 1
