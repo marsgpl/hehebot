@@ -55,4 +55,5 @@
 - ❌ nutaku login
      <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=XXX>
 - download girls opened images
-- download side quests images
+- farm pachinko if new girls available
+- farm mythic girl with koban usage

@@ -71,6 +71,46 @@ function parseSeasonRewards(html: HtmlString, state: HeheBotState): JsonObject[]
     return seasonRewards;
 }
 
+async function serveNewbieAcc(bot: HeheBot, html: HtmlString, heroInfo: JsonObject) {
+    let currentQuestId = m(heroInfo.questing?.current_url || '', /\/(\d+)$/);
+
+    if (!currentQuestId) {
+        throw fail('serveNewbieAcc', 'currentQuestId is null', heroInfo);
+    }
+
+    while (true) {
+        const json = await bot.fetchAjax({
+            'class': 'Quest',
+            'action': 'next',
+            'id_quest': currentQuestId,
+        });
+
+        if (!json.success) {
+            if (json.error?.match(/have the wanted item/i)) {
+                return;
+            } else if (json.error?.match(/have enough energy/i)) {
+                return;
+            } else {
+                throw fail('taskStory', json);
+            }
+        }
+
+        await bot.incCache({ storyStepsDone: 1 });
+
+        const isEnded = json.next_step?.ended;
+
+        currentQuestId = String(json.next_step?.id_quest || '');
+
+        if (isEnded) {
+            return;
+        }
+
+        if (!currentQuestId) {
+            throw fail('taskStory', 'currentQuestId', json);
+        }
+    }
+}
+
 export default async function taskFetchHome(bot: HeheBot) {
     const html = await bot.fetchHtml('/home.html');
 
@@ -84,11 +124,16 @@ export default async function taskFetchHome(bot: HeheBot) {
         throw fail('taskFetchHome', 'girls');
     }
 
-    const memberInfo = mj(html, /memberInfo = (\{.*?\});/i);
-    if (!memberInfo?.Name) throw fail('taskFetchHome', 'memberInfo');
-
     const heroInfo = mj(html, /Hero\.infos = (\{.*?\});/i);
     if (!heroInfo?.id) throw fail('taskFetchHome', 'heroInfo');
+
+    if (html.match(/Q\.steps/i)) {
+        await serveNewbieAcc(bot, html, heroInfo);
+        return bot.pushTask(TASK_FETCH_HOME, TASK_NOTE);
+    }
+
+    const memberInfo = mj(html, /memberInfo = (\{.*?\});/i);
+    if (!memberInfo?.Name) throw fail('taskFetchHome', 'memberInfo');
 
     const heroEnergies = mj(html, /Hero\.energies = (\{.*?\});/i);
     if (!heroEnergies?.quest) throw fail('taskFetchHome', 'heroEnergies');
@@ -128,24 +173,25 @@ export default async function taskFetchHome(bot: HeheBot) {
 
     bot.state.seasonRewards = parseSeasonRewards(html, bot.state);
 
-    bot.pushTask(TASK_CLAIM_DAILY_REWARD, TASK_NOTE);
-    bot.pushTask(TASK_OPEN_DAILY_FREE_PACHINKO, TASK_NOTE);
-    bot.pushTask(TASK_TOWER_CLAIM_LEAGUE_REWARD, TASK_NOTE);
-    bot.pushTask(TASK_PATH_EVENT_CLAIM_REWARD, TASK_NOTE);
-    bot.pushTask(TASK_SEASON_CLAIM_REWARD, TASK_NOTE);
-    bot.pushTask(TASK_ACTIVITIES, TASK_NOTE);
-    bot.pushTask(TASK_CLUB_CHAD, TASK_NOTE);
-    bot.pushTask(TASK_CHAMPIONS_FIGHT, TASK_NOTE);
-    bot.pushTask(TASK_SEASON_FIGHT, TASK_NOTE);
-    bot.pushTask(TASK_TOWER_FIGHT, TASK_NOTE);
-    bot.pushTask(TASK_COLLECT_SALARIES, TASK_NOTE);
-    bot.pushTask(TASK_FIGHT_TROLL, TASK_NOTE);
-    bot.pushTask(TASK_STORY, TASK_NOTE);
-    // bot.pushTask(TASK_MARKET, TASK_NOTE, null, {isForced: true});
-    bot.pushTask(TASK_MARKET, TASK_NOTE);
+    if (bot.config.onlyDownloadImages) {
+        bot.pushTask(TASK_DOWNLOAD_IMAGES, TASK_NOTE);
+    } else {
+        bot.pushTask(TASK_CLAIM_DAILY_REWARD, TASK_NOTE);
+        bot.pushTask(TASK_OPEN_DAILY_FREE_PACHINKO, TASK_NOTE);
+        bot.pushTask(TASK_TOWER_CLAIM_LEAGUE_REWARD, TASK_NOTE);
+        bot.pushTask(TASK_PATH_EVENT_CLAIM_REWARD, TASK_NOTE);
+        bot.pushTask(TASK_SEASON_CLAIM_REWARD, TASK_NOTE);
+        bot.pushTask(TASK_ACTIVITIES, TASK_NOTE);
+        bot.pushTask(TASK_CLUB_CHAD, TASK_NOTE);
+        bot.pushTask(TASK_CHAMPIONS_FIGHT, TASK_NOTE);
+        bot.pushTask(TASK_SEASON_FIGHT, TASK_NOTE);
+        bot.pushTask(TASK_TOWER_FIGHT, TASK_NOTE);
+        bot.pushTask(TASK_COLLECT_SALARIES, TASK_NOTE);
+        bot.pushTask(TASK_FIGHT_TROLL, TASK_NOTE);
+        bot.pushTask(TASK_STORY, TASK_NOTE);
+        // bot.pushTask(TASK_MARKET, TASK_NOTE, null, {isForced: true});
+        bot.pushTask(TASK_MARKET, TASK_NOTE);
 
-    bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 15 * 60);
-
-    // not for production:
-        // bot.pushTask(TASK_DOWNLOAD_IMAGES, TASK_NOTE);
+        bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 15 * 60);
+    }
 }

@@ -7,8 +7,12 @@ const TASK_NOTE = 'tower';
 
 const MAX_CHALLENGES_PER_OPPONENT = 3;
 
-async function fetchTower(bot: HeheBot): Promise<[JsonObject, JsonObject[]]> {
+async function fetchTower(bot: HeheBot): Promise<[JsonObject, JsonObject[]] | 'home'> {
     const html = await bot.fetchHtml('/tower-of-fame.html');
+
+    if (html === 'home') {
+        return 'home';
+    }
 
     const player = mj(html, /heroLeaguesData = (\{.*?\});/i);
 
@@ -152,7 +156,16 @@ export default async function taskTowerFight(bot: HeheBot) {
         throw fail('taskTowerFight', 'energyNow=0 and fullRechargeIn=0', bot.state);
     }
 
-    const [, opponents] = await fetchTower(bot);
+    const result = await fetchTower(bot);
+
+    if (result === 'home') {
+        bot.state.towerError = 'tower not available';
+        return;
+    } else {
+        bot.state.towerError = undefined;
+    }
+
+    const [, opponents] = result;
 
     let outOfEnergy = false;
 

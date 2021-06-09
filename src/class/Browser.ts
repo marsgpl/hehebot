@@ -41,22 +41,22 @@ export interface BrowserProps {
 export class Browser {
     constructor(protected props: BrowserProps) {}
 
-    public get(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+    public get(url: string | URL, options: BrowserRequestOptions = {}, silent?: boolean): Promise<BrowserResponse> {
         options.method = 'GET';
-        return this.request(url, options);
+        return this.request(url, options, silent);
     }
 
-    public post(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+    public post(url: string | URL, options: BrowserRequestOptions = {}, silent?: boolean): Promise<BrowserResponse> {
         options.method = 'POST';
-        return this.request(url, options);
+        return this.request(url, options, silent);
     }
 
-    protected async request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+    protected async request(url: string | URL, options: BrowserRequestOptions = {}, silent?: boolean): Promise<BrowserResponse> {
         let errors = 0;
 
         while (true) {
             try {
-                return await this._request(url, options);
+                return await this._request(url, options, silent);
             } catch (error) {
                 if (typeof error === 'string' && error.includes(COMMUNICATION_ERROR_MARKER)) {
                     if (this.props.onNetworkError) {
@@ -154,7 +154,7 @@ export class Browser {
         });
     }
 
-    protected _request(url: string | URL, options: BrowserRequestOptions = {}): Promise<BrowserResponse> {
+    protected _request(url: string | URL, options: BrowserRequestOptions = {}, silent?: boolean): Promise<BrowserResponse> {
         return new Promise((resolve, reject) => {
             url = typeof url === 'string' ? new URL(url) : url;
 
@@ -188,11 +188,11 @@ export class Browser {
                             .putRawCookiesAndSave(url as URL, new Date, cookies));
                     }
 
-                    if (this.props.onRequestSuccess) {
+                    if (this.props.onRequestSuccess && !silent) {
                         promises.push(this.props.onRequestSuccess(response));
                     }
 
-                    if (this.props.debug) {
+                    if (this.props.debug && !silent) {
                         console.log('🟨', this.props.debugPrefix, response.statusCode, response.statusMessage);
 
                         if (response.body[0] === '{') {
@@ -274,7 +274,7 @@ export class Browser {
 
             request.end();
 
-            if (this.props.debug) {
+            if (this.props.debug && !silent) {
                 console.log('🟦', this.props.debugPrefix, options.method, url.toString());
 
                 if (options.method === 'POST') {

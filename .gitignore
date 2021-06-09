@@ -6,3 +6,8 @@ node_modules
 /build.uglified/
 .hehebot.cache.*.json
 /images/
+/image-quests/
+/image-side-quests/
+/image-girls-quests/
+/distribute/hehebot/
+/distribute/hehebot.zip

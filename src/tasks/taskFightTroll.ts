@@ -105,8 +105,12 @@ export default async function taskFightTroll(bot: HeheBot) {
     const trollInfo = await fetchTrollInfo(bot, worldId);
     const trollId = String(trollInfo?.id_troll);
 
-    if (!trollId) {
-        throw fail('taskFightTroll', 'trollId fetch failed', trollInfo);
+    if (!trollInfo || !trollId || trollId === 'undefined') {
+        bot.state.trollError = 'troll not available';
+        return;
+        // throw fail('taskFightTroll', 'trollId fetch failed', trollInfo);
+    } else {
+        bot.state.trollError = undefined;
     }
 
     while (true) {
