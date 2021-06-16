@@ -1,22 +1,28 @@
 {
     "bots": [
         {
+            "disabled": true,
             "login": "pkairevent@gmail.com",
             "password": "SDJAOSdjn2f09385bgw0e9n0f1",
             "cacheFile": ".hehebot.cache.apex.json",
-            "forceTrollId": 0,
-            "disabled": false,
             "debug": true,
+            "forceTrollId": 0,
             "dropCookiesOnRestart": false,
-            "isProduction": false,
             "onlyDownloadImages": false,
             "downloadParams": {
                 "saveQuestsTo": "./image-quests",
                 "saveSideQuestsTo": "./image-side-quests",
-                "saveGirlsQuestsTo": ".//image-girls-quests",
+                "saveGirlsQuestsTo": "./image-girls-quests",
                 "girlStartId": 1,
                 "questStartId": 1
             }
+        },
+        {
+            "isComix": true,
+            "login": "pkairevent@gmail.com",
+            "password": "SDJAOSdjn2f09385bgw0e9n0f1",
+            "cacheFile": ".hehebot.cache.apex.comix.json",
+            "debug": true
         }
     ],
     "listen": {

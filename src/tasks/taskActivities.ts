@@ -5,6 +5,8 @@ import { HeheBot, JsonObject, TASK_ACTIVITIES, TASK_FETCH_HOME } from '../class/
 
 const TASK_NOTE = 'activities';
 
+const MAX_DELAY_BEFORE_CHECK_MS = 1000 * 60 * 60 * 4; // check every 4h
+
 // home.html
 // var missions_datas = {"next_missions":71964};
 // var missions_datas = {"reward":true};
@@ -73,6 +75,10 @@ async function claimContestReward(bot: HeheBot, contestId: string) {
 }
 
 export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
+    const needToCheckByTmt =
+        !bot.cache.lastActivitiesCheckTs ||
+        bot.cache.lastActivitiesCheckTs + MAX_DELAY_BEFORE_CHECK_MS < Date.now();
+
     const canCollectPrize =
         bot.state.notificationData?.activities?.includes('reward') ||
         bot.state.missions_datas?.reward;
@@ -80,7 +86,7 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
     const canStartMission =
         bot.state.notificationData?.activities?.includes('action');
 
-    if (!canCollectPrize && !canStartMission && !isForced) {
+    if (!canCollectPrize && !canStartMission && !isForced && !needToCheckByTmt) {
         const stateChangeIn = lowest(
             Number(bot.state.missions_datas?.remaining_time),
             Number(bot.state.missions_datas?.pop_remaining_time));
@@ -93,6 +99,8 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
     }
 
     const html = await bot.fetchHtml('/activities.html');
+
+    bot.cache.lastActivitiesCheckTs = Date.now();
 
     // missions
 

@@ -15,11 +15,11 @@ export default async function taskMarket(bot: HeheBot, isForced?: boolean) {
         return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, 1 * 60 * 60); // 1h
     }
 
-    if (bot.state.heroInfo?.soft_currency < 10e6) {
-        bot.state.marketError = 'money < 10M, market stopped';
-    } else {
-        bot.state.marketError = undefined;
-    }
+    // if (bot.state.heroInfo?.soft_currency < 10e6) {
+    //     bot.state.marketError = 'money < 10M, market buying stopped';
+    // } else {
+    //     bot.state.marketError = undefined;
+    // }
 
     if (bot.state.marketError) {
         return;
@@ -197,7 +197,18 @@ async function upgradeGirl(bot: HeheBot, girl: JsonObject | null, questPath: str
     });
 
     if (!json.success) {
-        throw fail('upgradeGirl', girl, questPath, json);
+        if (json.error?.match(/have the wanted item/i)) {
+            bot.state.marketError = fail('market upgrade girl no item', girl, json);
+            return;
+        } else if (json.error?.match(/have enough money/i)) {
+            bot.state.marketError = fail('market upgrade girl not enough money', girl, json);
+            setTimeout(() => {
+                bot.state.marketError = undefined;
+            }, 1000 * 3600);
+            return;
+        } else {
+            throw fail('upgradeGirl', girl, questPath, json);
+        }
     }
 
     if (json.changes?.hard_currency !== undefined) {
@@ -411,17 +422,26 @@ function parseGirls(html: HtmlString): JsonObject[] {
 async function buyAllItems(bot: HeheBot, items: JsonObject[]): Promise<boolean> {
     let money = Number(bot.state.heroInfo?.soft_currency) || 0;
 
+    if (money < 500000) {
+        return false;
+    }
+
+    let bought = 0;
+
     for (let i in items) {
         const item = items[i];
         const price_hc = Number(item.price_hc) || 0;
         const price = Number(item.price) || 0;
+        const isHardCurrency = item.currency === 'hc';
 
-        if (price_hc) {
-            throw fail('taskMarket', 'buyAllItems', 'price_hc != 0', item);
+        // {"id_item":"630","type":"potion","subtype":"0","identifier":"XP3","rarity":"mythic","price":510,"currency":"hc","value":30000,"carac1":0,"carac2":0,"carac3":0,"endurance":0,"chance":0,"ego":0,"damage":0,"duration":0,"level_mini":"1","name":"Encyclopedia","Name":"Encyclopedia","ico":"https://hh2.hh-content.com/pictures/items/XP3.png","price_sell":85000,"count":1,"id_m_i":[]}; {"changes":{"hard_currency":37197},"id_m_i":"1615370514","success":true}
+
+        if (price_hc || isHardCurrency) {
+            continue;
         }
 
         if (money < price) {
-            return false;
+            continue;
         }
 
         const json = await bot.fetchAjax({
@@ -433,7 +453,15 @@ async function buyAllItems(bot: HeheBot, items: JsonObject[]): Promise<boolean> 
         });
 
         if (!json.success || !json.changes) {
-            throw fail('taskMarket', 'buyAllItems', json);
+            if (json.error?.match(/enough money/i)) {
+                continue;
+            } else {
+                throw fail('taskMarket', 'buyAllItems', item, json, money);
+            }
+        }
+
+        if (json.changes?.hard_currency !== undefined || !json.changes?.soft_currency) {
+            throw fail('buyAllItems', 'market item was purchased for hard currency wtf?', item, json, money);
         }
 
         money = json.changes.soft_currency;
@@ -442,9 +470,11 @@ async function buyAllItems(bot: HeheBot, items: JsonObject[]): Promise<boolean> 
             marketItemsBought: 1,
             marketMoneySpent: price,
         });
+
+        bought++;
     }
 
-    return true;
+    return bought > 0;
 }
 
 function parseItems(html: HtmlString): JsonObject[] {

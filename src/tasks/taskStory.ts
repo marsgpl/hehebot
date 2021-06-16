@@ -38,8 +38,8 @@ async function performSideQuests(bot: HeheBot): Promise<void> {
 
     for (const [, progressNow, progressMax] of progressM) {
         sideQuestsInfo.push({
-            progressNow,
-            progressMax,
+            progressNow: Number(progressNow),
+            progressMax: Number(progressMax),
         });
     }
 
@@ -88,6 +88,18 @@ async function performSideQuests(bot: HeheBot): Promise<void> {
                     return;
                 } else if (json.error?.match(/have enough energy/i)) {
                     break;
+                } else if (json.error?.match(/have enough money/i)) {
+                    bot.state.storyError = 'not enough money; ' + JSON.stringify(json);
+                    setTimeout(() => {
+                        bot.state.storyError = undefined;
+                    }, 1000 * 3600);
+                    break;
+                } else if (json.error?.match(/opened yet/i)) {
+                    bot.state.storyError = 'all main quests done; ' + JSON.stringify(json);
+                    setTimeout(() => {
+                        bot.state.storyError = undefined;
+                    }, 1000 * 3600 * 24);
+                    return;
                 } else {
                     throw fail('performSideQuests', json);
                 }
@@ -147,10 +159,22 @@ export default async function taskStory(bot: HeheBot) {
 
         if (!json.success) {
             if (json.error?.match(/have the wanted item/i)) {
-                bot.state.storyError = json;
+                bot.state.storyError = 'need quest item to proceed; ' + JSON.stringify(json);
                 return;
             } else if (json.error?.match(/have enough energy/i)) {
                 break;
+            } else if (json.error?.match(/have enough money/i)) {
+                bot.state.storyError = 'not enough money; ' + JSON.stringify(json);
+                setTimeout(() => {
+                    bot.state.storyError = undefined;
+                }, 1000 * 3600);
+                break;
+            } else if (json.error?.match(/opened yet/i)) {
+                bot.state.storyError = 'all main quests done; ' + JSON.stringify(json);
+                setTimeout(() => {
+                    bot.state.storyError = undefined;
+                }, 1000 * 3600 * 24);
+                return;
             } else {
                 throw fail('taskStory', json);
             }

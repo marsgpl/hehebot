@@ -1,6 +1,7 @@
 {
     "bots": [
         {
+            "isComix": false,
             "login": "hh.test1@marsgpl.com",
             "password": "123456",
             "cacheFile": ".hehebot.cache.test1.json",
@@ -8,7 +9,6 @@
             "disabled": false,
             "debug": true,
             "dropCookiesOnRestart": false,
-            "isProduction": false,
             "onlyDownloadImages": false,
             "downloadParams": {
                 "saveQuestsTo": "./image-quests",

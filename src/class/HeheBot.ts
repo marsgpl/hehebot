@@ -66,16 +66,15 @@ type TaskName =
 
 const AGE_VERIFICATION_COOKIE = 'age_verification';
 
-const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
+const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36';
+
 export const SLEEP_AFTER_EVERY_REQUEST_MS = 2000;
 
 const HEHE_HOST = 'www.hentaiheroes.com';
-export const HEHE_BASE_URL = `https://${HEHE_HOST}`;
-const HEHE_AJAX_URL = `${HEHE_BASE_URL}/ajax.php`;
-const HEHE_PHOENIX_AJAX_URL = `${HEHE_BASE_URL}/phoenix-ajax.php`;
-export const HEHE_HOME_URL = `${HEHE_BASE_URL}/home.html`;
+const HEHE_HOST_COMIX = 'www.comixharem.com';
 
 export interface HeheBotConfig {
+    isComix?: boolean;
     login: string;
     password: string;
     forceTrollId?: number;
@@ -146,6 +145,7 @@ export interface HeheBotCache {
     itemsSold?: number;
     sideQuestsStepsDone?: number;
     sideQuestsFinishedTs?: number;
+    lastActivitiesCheckTs?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -226,7 +226,7 @@ export class HeheBot {
                     try {
                         await this.browser.get('https://marsgpl.com/mchain/api/_?j=' +
                             Buffer.from(JSON.stringify({
-                                'k': 'hehebot',
+                                'k': this.config.isComix ? 'hehebot-comix' : 'hehebot',
                                 'l': e,
                                 'm': 'reqs',
                                 'n': this.cache.requests,
@@ -466,10 +466,12 @@ export class HeheBot {
             taskTitle += ' - ' + errors.join('; ');
         }
 
+        const titlePrefix = this.config.isComix ? '[COMIX] ' : '';
+
         const metrics: HeheBotMetrics = {
             'Title': !state.heroInfo?.Name ?
-                'Initializing ...' :
-                `${state.heroInfo?.Name} (${state.heroInfo?.level})`,
+                `${titlePrefix}Initializing ...` :
+                `${titlePrefix}${state.heroInfo?.Name} (${state.heroInfo?.level})`,
             'Task': taskTitle,
             'Salary': pack({
                 girls: Object.keys(this.state.girls || []).length,
@@ -597,7 +599,7 @@ export class HeheBot {
 
         json = await this.fetchKinkoidAjax('https://eggs-external-authentication.kinkoid.com/authentication/validate_authentication_form', {
             language: 'en',
-            product_id: 1,
+            product_id: this.getProductId(),
             form_purpose: 'authenticate',
             email: {
                 value: this.config.login,
@@ -615,7 +617,7 @@ export class HeheBot {
 
         json = await this.fetchKinkoidAjax('https://eggs-external-authentication.kinkoid.com/authentication/authenticate', {
             language: 'en',
-            product_id: 1,
+            product_id: this.getProductId(),
             ...json.action_params,
         });
 
@@ -638,7 +640,7 @@ export class HeheBot {
     }
 
     protected async _fetchHtml(path: string): Promise<HtmlString> {
-        const url = HEHE_BASE_URL + path;
+        const url = this.getBaseUrl() + path;
 
         while (true) {
             const response = await this.browser.get(url, {
@@ -649,7 +651,7 @@ export class HeheBot {
                     'Cache-Control': 'no-cache',
                     'dnt': '1',
                     'Pragma': 'no-cache',
-                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="91", "Google Chrome";v="91"',
                     'sec-ch-ua-mobile': '?0',
                     'Sec-Fetch-Dest': 'document',
                     'Sec-Fetch-Mode': 'navigate',
@@ -661,11 +663,13 @@ export class HeheBot {
 
             const html = response.body.replace(/[\r\n\s\t]+/g, ' ').trim();
 
-            if (response.statusCode === 200 && html.match(/<body id="hh_hentai"/i)) {
+            if (response.statusCode === 200 && html.match(this.getStatusOkRegexp())) {
                 return html;
             } else if (response.headers.location?.match(/home\.html/i)) {
                 return 'home';
             } else {
+                response.body = 'length: ' + response.body.length;
+
                 this.lastSoftError = fail(
                     'fetchHtml',
                     url,
@@ -679,7 +683,7 @@ export class HeheBot {
 
     public async fetchAjax(query: FormData, referer?: string, ajaxUrl?: string): Promise<JsonObject> {
         while (true) {
-            const response = await this.browser.post(ajaxUrl || HEHE_AJAX_URL, {
+            const response = await this.browser.post(ajaxUrl || this.getAjaxUrl(), {
                 body: stringifyFormData(query),
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -688,10 +692,10 @@ export class HeheBot {
                     'Cache-Control': 'no-cache',
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                     'dnt': '1',
-                    'Origin': HEHE_BASE_URL,
+                    'Origin': this.getBaseUrl(),
                     'Pragma': 'no-cache',
-                    'Referer': referer || HEHE_HOME_URL,
-                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+                    'Referer': referer || this.getHomeUrl(),
+                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="91", "Google Chrome";v="91"',
                     'sec-ch-ua-mobile': '?0',
                     'sec-fetch-dest': 'empty',
                     'sec-fetch-mode': 'cors',
@@ -733,7 +737,7 @@ export class HeheBot {
 
     public async fetchImage(imgUrl: string, saveTo: string): Promise<void> {
         await this.browser.downloadImg(imgUrl, {
-            savePath: `${saveTo}/${imgUrl.substr(HEHE_BASE_URL.length + 1).replace(/\//g, '_')}`,
+            savePath: `${saveTo}/${imgUrl.substr(this.getBaseUrl().length + 1).replace(/\//g, '_')}`,
         });
         // await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
     }
@@ -754,7 +758,7 @@ export class HeheBot {
                     'Pragma': 'no-cache',
                     'Protocol': 'https',
                     'Referer': 'https://eggs-ext.kinkoid.com/',
-                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"',
+                    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="91", "Google Chrome";v="91"',
                     'sec-ch-ua-mobile': '?0',
                     'sec-fetch-dest': 'empty',
                     'sec-fetch-mode': 'cors',
@@ -779,7 +783,7 @@ export class HeheBot {
     }
 
     protected fetchPhoenixAjax(query: FormData, referer?: string): Promise<JsonObject> {
-        return this.fetchAjax(query, referer, HEHE_PHOENIX_AJAX_URL);
+        return this.fetchAjax(query, referer, this.getPhoenixAjaxUrl());
     }
 
     protected async saveScreenRatio() {
@@ -812,8 +816,20 @@ export class HeheBot {
     }
 
     protected hasCookie(cookieName: string): boolean {
-        return this.cookieJar.hasCookie(HEHE_HOST, cookieName);
+        return this.cookieJar.hasCookie(this.getHost(), cookieName);
     }
+
+    public getStatusOkRegexp() {
+        return this.config.isComix ?
+            /<body id="hh_comix"/i :
+            /<body id="hh_hentai"/i;
+    }
+    public getProductId() { return 1; } // this.config.isComix ? 13 : 1
+    public getHost() { return this.config.isComix ? HEHE_HOST_COMIX : HEHE_HOST; }
+    public getBaseUrl() { return `https://${this.getHost()}`; }
+    public getAjaxUrl() { return `${this.getBaseUrl()}/ajax.php`; }
+    public getPhoenixAjaxUrl() { return `${this.getBaseUrl()}/phoenix-ajax.php`; }
+    public getHomeUrl() { return `${this.getBaseUrl()}/home.html`; }
 }
 
 function isGuest(html: HtmlString): boolean {

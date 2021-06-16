@@ -4,6 +4,8 @@ import fail from '../helpers/fail.js';
 const TASK_NOTE = 'salary';
 
 const COLLECT_MIN_DELAY_MS = 10 * 60 * 1000; // 10 minutes
+const NOOB_COLLECT_MIN_DELAY_MS = 10 * 60; // 1 minute
+const NOOB_UNTIL_LEVEL = 50;
 
 // {"time":120,"money":100,"success":true}
 
@@ -28,10 +30,14 @@ export default async function taskCollectSalaries(bot: HeheBot) {
     const girls = bot.state.girls;
     if (!girls) throw fail('taskCollectSalaries', 'no girls');
 
+    const minDelay = bot.state.heroInfo?.level < NOOB_UNTIL_LEVEL ?
+        NOOB_COLLECT_MIN_DELAY_MS :
+        COLLECT_MIN_DELAY_MS;
+
     if (bot.cache.lastSalaryCollectTs) {
         const delta = Date.now() - bot.cache.lastSalaryCollectTs;
-        if (delta < COLLECT_MIN_DELAY_MS) {
-            return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, (COLLECT_MIN_DELAY_MS - delta) / 1000);
+        if (delta < minDelay) {
+            return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, (minDelay - delta) / 1000);
         }
     }
 

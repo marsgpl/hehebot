@@ -90,6 +90,8 @@ async function serveNewbieAcc(bot: HeheBot, html: HtmlString, heroInfo: JsonObje
                 return;
             } else if (json.error?.match(/have enough energy/i)) {
                 return;
+            } else if (json.error?.match(/have enough money/i)) {
+                return;
             } else {
                 throw fail('taskStory', json);
             }

@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import fail from '../helpers/fail.js';
 import { m, mj } from '../helpers/m.js';
-import { HeheBot, HEHE_BASE_URL, JsonObject } from '../class/HeheBot.js';
+import { HeheBot, JsonObject } from '../class/HeheBot.js';
 
 const BASE_QUEST_URL = '/quest/';
 
@@ -36,7 +36,7 @@ async function fetchQuest(bot: HeheBot, questId: string, saveTo: string): Promis
         const step = steps[index];
 
         if ((step as any).picture) {
-            const imgUrl = `${HEHE_BASE_URL}${(step as any).picture}`;
+            const imgUrl = `${bot.getBaseUrl()}${(step as any).picture}`;
             await bot.fetchImage(imgUrl, saveTo);
         } else if (Array.isArray(step)) {
             const [,,imgName] = steps[index];
@@ -49,7 +49,7 @@ async function fetchQuest(bot: HeheBot, questId: string, saveTo: string): Promis
             imgPathParts[5] = '1600x';
             imgPathParts[6] = `${imgName}.jpg`;
 
-            const imgUrl = `${HEHE_BASE_URL}${imgPathParts.join('/')}`;
+            const imgUrl = `${bot.getBaseUrl()}${imgPathParts.join('/')}`;
 
             await bot.fetchImage(imgUrl, saveTo);
         } else {

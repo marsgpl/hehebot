@@ -4,28 +4,48 @@
             "login": "hh.potato@marsgpl.com",
             "password": "ds08n4SDVHI08r5SDH9g058bs",
             "cacheFile": "/tmp/.hehebot.cache.potato.json",
-            "forceTrollId": 2,
             "debug": true
         },
         {
             "login": "hh.lava@marsgpl.com",
             "password": "2084h98weSDIHPqwe0d923r87g5t",
             "cacheFile": "/tmp/.hehebot.cache.lava.json",
-            "forceTrollId": 2,
             "debug": true
         },
         {
             "login": "hh.cameraman@marsgpl.com",
             "password": "alsnf0283h49gADBFU20489gAWw",
             "cacheFile": "/tmp/.hehebot.cache.cameraman.json",
-            "forceTrollId": 2,
             "debug": true
         },
         {
             "login": "hh.kopbys@marsgpl.com",
             "password": "aiwo0nf9284ASDNPf23408gb",
             "cacheFile": "/tmp/.hehebot.cache.kopbys.json",
-            "forceTrollId": 2,
+            "debug": true
+        },
+
+
+
+        {
+            "isComix": true,
+            "login": "hh.comix.buttman@marsgpl.com",
+            "password": "bppsVk[zXW{MNR(unL&bdUcC-a",
+            "cacheFile": "/tmp/.hehebot.cache.buttman.comix.json",
+            "debug": true
+        },
+        {
+            "isComix": true,
+            "login": "hh.comix.sperman@marsgpl.com",
+            "password": "VziceyrNf#zq%(xf@TZyQqCxN}&9",
+            "cacheFile": "/tmp/.hehebot.cache.sperman.comix.json",
+            "debug": true
+        },
+        {
+            "isComix": true,
+            "login": "hh.comix.badgirl@marsgpl.com",
+            "password": "d_dwDT84_8gMr4W{Vi_eRyaWF",
+            "cacheFile": "/tmp/.hehebot.cache.badgirl.comix.json",
             "debug": true
         }
     ],
