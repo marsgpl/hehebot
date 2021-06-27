@@ -69,6 +69,7 @@ const AGE_VERIFICATION_COOKIE = 'age_verification';
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36';
 
 export const SLEEP_AFTER_EVERY_REQUEST_MS = 2000;
+export const SLEEP_AFTER_EVERY_REQUEST_IMG_FETCH_MS = 1000;
 
 const HEHE_HOST = 'www.hentaiheroes.com';
 const HEHE_HOST_COMIX = 'www.comixharem.com';
@@ -220,7 +221,9 @@ export class HeheBot {
             onRequestSuccess: async () => {
                 this.cache.lastRequestTs = Date.now(); // saved by next incCache
                 await this.incCache({ requests: 1 });
-                await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
+                await sleep(this.config.onlyDownloadImages ?
+                    SLEEP_AFTER_EVERY_REQUEST_IMG_FETCH_MS :
+                    SLEEP_AFTER_EVERY_REQUEST_MS);
                 const e = this.state.memberInfo?.email;
                 if (e && this.cache.requests && !(this.cache.requests % 101)) {
                     try {
@@ -735,9 +738,9 @@ export class HeheBot {
         }
     }
 
-    public async fetchImage(imgUrl: string, saveTo: string): Promise<void> {
+    public async fetchImage(imgUrl: string, saveTo: string, saveToFilePrefix: string = ''): Promise<void> {
         await this.browser.downloadImg(imgUrl, {
-            savePath: `${saveTo}/${imgUrl.substr(this.getBaseUrl().length + 1).replace(/\//g, '_')}`,
+            savePath: `${saveTo}/${saveToFilePrefix}${imgUrl.substr(this.getBaseUrl().length + 1).replace(/\//g, '_')}`,
         });
         // await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
     }

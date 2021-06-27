@@ -456,7 +456,8 @@ async function buyAllItems(bot: HeheBot, items: JsonObject[]): Promise<boolean> 
             if (json.error?.match(/enough money/i)) {
                 continue;
             } else {
-                throw fail('taskMarket', 'buyAllItems', item, json, money);
+                continue;
+                // throw fail('taskMarket', 'buyAllItems', item, json, money);
             }
         }
 

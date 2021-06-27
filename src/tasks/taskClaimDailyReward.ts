@@ -15,18 +15,26 @@ export default async function taskClaimDailyReward(bot: HeheBot) {
         return bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, claimIn);
     }
 
-    const json = await bot.fetchAjax({
+    let json = await bot.fetchAjax({
         'class': 'RewardNotification',
         'action': 'show_pending',
     });
 
     if (!json.success) {
-        throw fail('taskClaimDailyReward', json);
+        throw fail('taskClaimDailyReward', 'RewardNotification', json);
+    }
+
+    json = await bot.fetchAjax({
+        'action': 'process_rewards_queue',
+    });
+
+    if (!json.success) {
+        throw fail('taskClaimDailyReward', 'process_rewards_queue', json);
     }
 
     bot.cache.dailyRewardLastClaimAttemptMs = nowMs;
 
-    if (json.data?.loot) {
+    if (json.data?.loot || json.rewards?.length) {
         await bot.incCache({ dailyRewardLootClaims: 1 });
     } else {
         await bot.saveCache();

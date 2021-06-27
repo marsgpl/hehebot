@@ -18,11 +18,26 @@
             }
         },
         {
+            "disabled": true,
             "isComix": true,
             "login": "pkairevent@gmail.com",
             "password": "SDJAOSdjn2f09385bgw0e9n0f1",
             "cacheFile": ".hehebot.cache.apex.comix.json",
             "debug": true
+        },
+        {
+            "login": "hh.kopbys@marsgpl.com",
+            "password": "aiwo0nf9284ASDNPf23408gb",
+            "cacheFile": "/tmp/.hehebot.cache.kopbys.json",
+            "debug": true,
+            "onlyDownloadImages": true,
+            "downloadParams": {
+                "saveQuestsTo": "./image-quests",
+                "saveSideQuestsTo": "./image-side-quests",
+                "saveGirlsQuestsTo": "./image-girls-quests",
+                "girlStartId": 999999999999,
+                "questStartId": 1333
+            }
         }
     ],
     "listen": {

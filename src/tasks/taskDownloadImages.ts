@@ -8,17 +8,8 @@ const BASE_QUEST_URL = '/quest/';
 
 // ['So...','a42da9c0','p2a' ]
 type Step = [string, number | string, string | undefined];
-type NotOpenedGirlStep = {
-    num_step?: number;
-    portrait?: string; // '/img/quests/p/0ba1369a/p.png'
-    picture?: string; // '/img/quests/15/1/1600x/15 bunny2.jpg'
-    cost?: JsonObject; // { '$': 90000, HC: 60 },
-    win?: any[]; // [ [Array] ],
-    dialogue?: string;
-    end?: boolean;
-};
 
-async function fetchQuest(bot: HeheBot, questId: string, saveTo: string): Promise<string> {
+async function fetchQuest(bot: HeheBot, questId: string, saveTo: string, saveToFilePrefix: string = ''): Promise<string> {
     const html = await bot.fetchHtml(BASE_QUEST_URL + questId);
 
     // /img/quests/1/1/800x/p1a.jpg
@@ -37,7 +28,7 @@ async function fetchQuest(bot: HeheBot, questId: string, saveTo: string): Promis
 
         if ((step as any).picture) {
             const imgUrl = `${bot.getBaseUrl()}${(step as any).picture}`;
-            await bot.fetchImage(imgUrl, saveTo);
+            await bot.fetchImage(imgUrl, saveTo, saveToFilePrefix);
         } else if (Array.isArray(step)) {
             const [,,imgName] = steps[index];
             if (!imgName) continue;
@@ -51,7 +42,7 @@ async function fetchQuest(bot: HeheBot, questId: string, saveTo: string): Promis
 
             const imgUrl = `${bot.getBaseUrl()}${imgPathParts.join('/')}`;
 
-            await bot.fetchImage(imgUrl, saveTo);
+            await bot.fetchImage(imgUrl, saveTo, saveToFilePrefix);
         } else {
             throw fail('fetchQuest', 'unknown step format', step);
         }
@@ -103,7 +94,7 @@ export default async function taskDownloadImages(bot: HeheBot) {
 
     let questId: string | undefined = String(questStartId || '');
     do {
-        questId = await fetchQuest(bot, questId, saveQuestsTo);
+        questId = await fetchQuest(bot, questId, saveQuestsTo, `${questStartId}-`);
     } while (questId);
 
     console.log('🔸 side quests are not implemented yet');
@@ -151,7 +142,7 @@ async function downloadGirlsImages(bot: HeheBot, girlStartId: number, saveTo: st
                 console.log('🔸 questId:', questId);
                 try {
                     do {
-                        questId = await fetchQuest(bot, questId, saveTo);
+                        questId = await fetchQuest(bot, questId, saveTo, `${girlId}-`);
                     } while (questId);
                 } catch (error) {
                     console.log('🔸 error:', error);
