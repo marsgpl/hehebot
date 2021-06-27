@@ -54,3 +54,4 @@
      <https://nutaku.haremheroes.com/integrations/?action=startGame&sess=XXX>
 - farm mythic girl with koban usage
 - side quest download
+- TempPlaceOfPower -> PlaceOfPower - remember choice in cache

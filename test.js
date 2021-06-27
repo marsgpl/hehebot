@@ -24,11 +24,11 @@ function mj(source, regExp, noDecode) {
     }
 }
 
-const html = fs.readFileSync('dumps/champion.html', { charset: 'utf8' })
+const html = fs.readFileSync('dumps/pop.html', { charset: 'utf8' })
 	.toString()
 	.replace(/[\r\n\s\t]+/g, ' ')
 	.trim();
 
-const championData = mj(html, /championData = (\{.*?\});/i, true);
+const pops = mj(html, /pop_data\s*=\s*(\{.*?\});/, true);
 
-console.log('🔸 championData:', championData);
+console.log('🔸 pops:', pops);

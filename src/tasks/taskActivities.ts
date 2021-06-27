@@ -174,7 +174,7 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
 
     // pop
 
-    const pops = mj(html, /pop_data\s*=\s*(\{.*?\});/);
+    const pops = mj(html, /pop_data\s*=\s*(\{.*?\});/, true);
     let popClaims = 0;
     const assignedGirls: {[key: string]: true} = {};
 
@@ -196,6 +196,8 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
             const isStartable = popData.status === 'can_start';
             const isFinished = popData.status === 'pending_reward';
             const inProgress = popData.status === 'in_progress';
+            const isUpgradable = Number(popData.max_level || 0) > Number(popData.level || 0) &&
+                popData.levelup_cost;
 
             // "time_to_finish":"25200"
             // "remaining_time":"25170"
@@ -203,6 +205,10 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
             if (!isStartable && !isFinished && !inProgress) {
                 throw fail('activities pop', 'pop_data format fail', popKey, popData);
             }
+
+            // if (isUpgradable) {
+            //     while (await upgradePop(bot, popId, popData)) {}
+            // }
 
             if (isFinished) {
                 await claimPopReward(bot, popId, popData);
@@ -221,13 +227,13 @@ export default async function taskActivities(bot: HeheBot, isForced?: boolean) {
     }
 }
 
-// {"rewards":{"data":{"loot":true,"rewards":[{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_g10\u0022\u003E\u003C\/span\u003E \u003Cp\u003E3\u003C\/p\u003E","currency":true,"slot_class":true}]},"title":"Rewards","heroChangesUpdate":[]},"result":"won","pop_unavailable":false,"success":true}
+// {"level_power":4704000,"next_level_power":5268480,"max_team_power":11200,"next_max_team_power":12544,"changes":{"hard_currency":-600},"rewards":[{"loot":true,"rewards":[{"type":"ticket","value":"\u003Cp\u003E2\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_m1\u0022\u003E\u003C\/span\u003E \u003Cp\u003E1\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_g10\u0022\u003E\u003C\/span\u003E \u003Cp\u003E1\u003C\/p\u003E","currency":true,"slot_class":true}],"shards":[{"id_girl":827706883,"type":"girl_shards","slot_class":false,"rarity":"legendary","ico":"https:\/\/hh2.hh-content.com\/pictures\/girls\/827706883\/ico0.png","avatar":"https:\/\/hh2.hh-content.com\/pictures\/girls\/827706883\/ava0.png","black_avatar":"https:\/\/hh2.hh-content.com\/pictures\/girls\/827706883\/avb0.png","name":"Pit\u2019chun","girl_class":"1","caracs":{"carac1":5.4,"carac2":2.3,"carac3":2},"previous_value":10,"value":12}]},{"name":"pop_1_3","loot":true,"rewards":[{"type":"ticket","value":"\u003Cp\u003E2\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_m1\u0022\u003E\u003C\/span\u003E \u003Cp\u003E1\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_g10\u0022\u003E\u003C\/span\u003E \u003Cp\u003E1\u003C\/p\u003E","currency":true,"slot_class":true}],"shards":[{"id_girl":827706883,"type":"girl_shards","slot_class":false,"rarity":"legendary","ico":"https:\/\/hh2.hh-content.com\/pictures\/girls\/827706883\/ico0.png","avatar":"https:\/\/hh2.hh-content.com\/pictures\/girls\/827706883\/ava0.png","black_avatar":"https:\/\/hh2.hh-content.com\/pictures\/girls\/827706883\/avb0.png","name":"Pit\u2019chun","girl_class":"1","caracs":{"carac1":5.4,"carac2":2.3,"carac3":2},"previous_value":10,"value":13}]}],"success":true}
 
-async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject): Promise<void> {
+async function upgradePop(bot: HeheBot, popId: string, popData: JsonObject): Promise<boolean> {
     const params = {
         'namespace': 'h\\PlacesOfPower',
         'class': 'PlaceOfPower',
-        'action': 'claim',
+        'action': 'levelup',
         'id_place_of_power': popId,
     };
 
@@ -235,6 +241,26 @@ async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject):
 
     if (!json.success) {
         params.class = 'TempPlaceOfPower';
+        json = await bot.fetchAjax(params);
+    }
+
+    return Boolean(json.success);
+}
+
+// {"rewards":{"data":{"loot":true,"rewards":[{"type":"orbs","value":"\u003Cspan class=\u0022orb_icon o_g10\u0022\u003E\u003C\/span\u003E \u003Cp\u003E3\u003C\/p\u003E","currency":true,"slot_class":true}]},"title":"Rewards","heroChangesUpdate":[]},"result":"won","pop_unavailable":false,"success":true}
+
+async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject): Promise<void> {
+    const params = {
+        'namespace': 'h\\PlacesOfPower',
+        'class': 'TempPlaceOfPower',
+        'action': 'claim',
+        'id_place_of_power': popId,
+    };
+
+    let json = await bot.fetchAjax(params);
+
+    if (!json.success) {
+        params.class = 'PlaceOfPower';
         json = await bot.fetchAjax(params);
     }
 

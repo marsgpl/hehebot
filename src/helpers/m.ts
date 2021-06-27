@@ -11,7 +11,11 @@ export function mj(source: string, regExp: RegExp, noDecode?: boolean): JsonObje
     try {
         return JSON.parse(m(source, regExp, noDecode));
     } catch (error) {
-        // throw error;
-        return null;
+        try {
+            return JSON.parse(m(source, regExp, true));
+        } catch {
+            // throw error;
+            return null;
+        }
     }
 }

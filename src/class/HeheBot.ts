@@ -190,7 +190,7 @@ export interface HeheBotState {
 }
 
 export class HeheBot {
-    protected lastSoftError?: string;
+    protected networkError?: string;
     protected cookieJar: CookieJar;
     protected browser: Browser;
     protected tasks: Task[] = [];
@@ -219,6 +219,7 @@ export class HeheBot {
             debug: this.config.debug,
             debugPrefix: this.config.login,
             onRequestSuccess: async () => {
+                this.networkError = undefined;
                 this.cache.lastRequestTs = Date.now(); // saved by next incCache
                 await this.incCache({ requests: 1 });
                 await sleep(this.config.onlyDownloadImages ?
@@ -238,7 +239,7 @@ export class HeheBot {
                 }
             },
             onNetworkError: async (error, retryIn) => {
-                this.lastSoftError = fail(
+                this.networkError = fail(
                     'Network error',
                     error,
                     `retrying in ${Math.round(retryIn / 1000)}s`);
@@ -369,7 +370,6 @@ export class HeheBot {
             }
         } catch (error) {
             // we can continue without cache
-            // this.lastSoftError = fail('Load cache', error);
             this.cache = {};
         }
 
@@ -455,7 +455,7 @@ export class HeheBot {
 
         const errors: string[] = [];
 
-        if (this.lastSoftError) errors.push(JSON.stringify(this.lastSoftError));
+        if (this.networkError) errors.push(JSON.stringify(this.networkError));
         if (state.popError) errors.push(state.popError);
         if (state.seasonError) errors.push(state.seasonError);
         if (state.storyError) errors.push(state.storyError);
@@ -565,7 +565,7 @@ export class HeheBot {
 
     public exportDebugInfo(): HeheBotMetrics {
         return {
-            lastSoftError: this.lastSoftError,
+            networkError: this.networkError,
             currentTask: this.currentTask ? this.currentTask[0] : TASK_IDLE,
             tasks: this.tasks,
             ...this.state,
@@ -667,13 +667,15 @@ export class HeheBot {
             const html = response.body.replace(/[\r\n\s\t]+/g, ' ').trim();
 
             if (response.statusCode === 200 && html.match(this.getStatusOkRegexp())) {
+                this.networkError = undefined;
                 return html;
             } else if (response.headers.location?.match(/home\.html/i)) {
+                this.networkError = undefined;
                 return 'home';
             } else {
                 response.body = 'length: ' + response.body.length;
 
-                this.lastSoftError = fail(
+                this.networkError = fail(
                     'fetchHtml',
                     url,
                     response,
@@ -710,6 +712,7 @@ export class HeheBot {
             const json = response.body.trim();
 
             if (response.statusCode === 200 && json[0] === '{') {
+                this.networkError = undefined;
                 const parsed = JSON.parse(json);
 
                 // this might be a session loss
@@ -727,7 +730,7 @@ export class HeheBot {
                     return parsed;
                 }
             } else {
-                this.lastSoftError = fail(
+                this.networkError = fail(
                     'fetchAjax',
                     query,
                     response,
@@ -772,9 +775,10 @@ export class HeheBot {
             const json = response.body.trim();
 
             if (response.statusCode === 200 && json[0] === '{') {
+                this.networkError = undefined;
                 return JSON.parse(json);
             } else {
-                this.lastSoftError = fail(
+                this.networkError = fail(
                     'fetchKinkoidAjax',
                     query,
                     response,
