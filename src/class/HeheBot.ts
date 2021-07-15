@@ -1,5 +1,7 @@
 import fs from 'fs/promises';
 
+import execWithCrypto from '../helpers/execWithCrypto.js';
+
 import fail from '../helpers/fail.js';
 import sleep from '../helpers/sleep.js';
 import formatMoney from '../helpers/formatMoney.js';
@@ -147,6 +149,8 @@ export interface HeheBotCache {
     sideQuestsStepsDone?: number;
     sideQuestsFinishedTs?: number;
     lastActivitiesCheckTs?: number;
+    champTicketsBoughtForEnergy?: number;
+    gameUpdates?: number;
 }
 
 export interface HeheBotNextTaskInfo {
@@ -178,6 +182,7 @@ export interface HeheBotState {
     timeDeltaMs?: number;
     champAvailIn?: number;
     sideQuestsAvailable?: boolean;
+    canCollectSalarySum?: number;
 
     seasonError?: any;
     storyError?: any;
@@ -497,6 +502,7 @@ export class HeheBot {
             'Champions': pack({
                 error: state.champError,
                 fights: cache.champFights,
+                'tickets bought': cache.champTicketsBoughtForEnergy,
             }),
             'Troll': pack({
                 error: state.trollError,
@@ -552,6 +558,7 @@ export class HeheBot {
             }),
             'Etc': pack({
                 sessionLosses: cache.sessionLosses,
+                gameUpdates: cache.gameUpdates,
             }),
             'countdown': nextTask.countdown,
         };
@@ -596,6 +603,8 @@ export class HeheBot {
 
         return html;
     }
+
+    // Request URL: https://eggs-external-authentication.kinkoid.com/authentication/validate_authentication_form
 
     protected async auth() {
         let json;
@@ -715,6 +724,13 @@ export class HeheBot {
                 this.networkError = undefined;
                 const parsed = JSON.parse(json);
 
+                // maintenance
+                if (parsed.error?.match(/updating the game/)) {
+                    await this.incCache({ gameUpdates: 1 });
+                    await sleep(1000 * 60 * 5);
+                    return this.fetchAjax(query, referer, ajaxUrl);
+                }
+
                 // this might be a session loss
                 if (parsed.success === false && Object.keys(parsed).length === 1) {
                     const html = await this._fetchHtml('/home.html');
@@ -726,9 +742,9 @@ export class HeheBot {
                     } else {
                         return parsed;
                     }
-                } else {
-                    return parsed;
                 }
+
+                return parsed;
             } else {
                 this.networkError = fail(
                     'fetchAjax',
@@ -748,10 +764,33 @@ export class HeheBot {
         // await sleep(SLEEP_AFTER_EVERY_REQUEST_MS);
     }
 
+    protected encryptKinkoidParams(params: JsonObject): JsonObject {
+        const encrypted_params = execWithCrypto((t: any, e: any) => {
+            const a = params;
+            const u = t.box.keyPair();
+            const c = t.randomBytes(t.box.nonceLength);
+            const f = e.decodeUTF8(JSON.stringify(a));
+            const l = e.decodeBase64("5oZlw1DhRQBIaTFXKlBRooG3UQCb6Og8ScMIATwniCI=");
+            const h = t.box(f, c, l, u.secretKey);
+
+            return {
+                cipher_text: e.encodeBase64(h),
+                public_key: e.encodeBase64(u.publicKey),
+                nonce: e.encodeBase64(c),
+                version: 0
+            };
+        });
+
+        return {
+            encrypted_params:
+                Buffer.from((JSON.stringify(encrypted_params))).toString('base64'),
+        };
+    }
+
     protected async fetchKinkoidAjax(url: string, query: JsonObject): Promise<JsonObject> {
         while (true) {
             const response = await this.browser.post(url, {
-                body: JSON.stringify(query),
+                body: JSON.stringify(this.encryptKinkoidParams(query)),
                 headers: {
                     'Accept': '*/*',
                     // 'Accept-Encoding': 'gzip, deflate, br',

@@ -1,4 +1,4 @@
-import { HeheBot, TASK_FETCH_HOME } from '../class/HeheBot.js';
+import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 
 const TASK_NOTE = 'salary';
@@ -18,7 +18,8 @@ async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number,
 
     const collected = Number(json.money) || 0;
     const nextPayIn = Number(json.time) || 0;
-
+console.log('🔸 json:', json);
+console.log('🔸 nextPayIn:', nextPayIn);
     if (!json.success || !collected || !nextPayIn) {
         throw fail('collectGirlSalary', `girlId=${girlId}`, json);
     }
@@ -27,8 +28,11 @@ async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number,
 }
 
 export default async function taskCollectSalaries(bot: HeheBot) {
-    const girls = bot.state.girls;
-    if (!girls) throw fail('taskCollectSalaries', 'no girls');
+    const { canCollectSalarySum } = bot.state;
+    if (!canCollectSalarySum) return;
+
+    // const girls = bot.state.girls;
+    // if (!girls!.length) throw fail('taskCollectSalaries', 'no girls');
 
     const minDelay = bot.state.heroInfo?.level < NOOB_UNTIL_LEVEL ?
         NOOB_COLLECT_MIN_DELAY_MS :
@@ -41,12 +45,34 @@ export default async function taskCollectSalaries(bot: HeheBot) {
         }
     }
 
+    const html = await bot.fetchHtml('/harem.html');
+
+    const girls: JsonObject = {};
+    try {
+        const girlsM = html.matchAll(/girlsDataList\[.*?([0-9]+).*?\] = (\{.*?\});/ig);
+        for (const [, girlId, girl] of girlsM) {
+            const girlData = JSON.parse(girl);
+            if (girlData.own) {
+                girls[girlId] = girlData;
+            }
+        }
+        if (!Object.keys(girls).length) {
+            throw 'no girls';
+        }
+    } catch (error) {
+        throw fail('taskFetchHome', 'girls');
+    }
+
+    bot.state.girls = girls;
+
     let collectedOverall = 0;
     let closestPayIn = 0;
 
     for (const girlId in girls) {
         const girl = girls[girlId];
         const payIn = Number(girl.pay_in) || 0;
+
+        if (!girl.own) continue;
 
         if (payIn <= 0) {
             const [collected, nextPayIn] = await collectGirlSalary(bot, girlId);
@@ -66,5 +92,6 @@ export default async function taskCollectSalaries(bot: HeheBot) {
         throw fail('taskCollectSalaries', 'closestPayIn', closestPayIn);
     }
 
+    bot.state.canCollectSalarySum = 0;
     bot.pushTaskIn(TASK_FETCH_HOME, TASK_NOTE, closestPayIn);
 }

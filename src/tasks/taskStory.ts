@@ -131,12 +131,9 @@ export default async function taskStory(bot: HeheBot) {
     let currentQuestId = String(bot.state.heroInfo?.questing?.id_quest);
     let fullRechargeIn = Number(bot.state.heroEnergies?.quest?.recharge_time);
 
-    if (energyNow >= energyMax / 2 && bot.state.sideQuestsAvailable) {
+    if (energyNow >= energyMax / 2 && bot.state.sideQuestsAvailable && !bot.config.isComix) {
         await performSideQuests(bot);
     }
-
-    if (bot.state.storyError) return;
-
 
     if (!energyMax || !currentQuestId) {
         throw fail('taskStory', 'incomplete data', bot.state);
@@ -148,6 +145,29 @@ export default async function taskStory(bot: HeheBot) {
 
     if (!energyNow) {
         throw fail('taskStory', 'energyNow=0 and fullRechargeIn=0', bot.state);
+    }
+
+    if (bot.state.storyError) {
+        if (bot.state.storyError.match('main quests done') &&
+            !bot.state.storyError.match('ChampionController buy_ticket fail')
+        ) {
+            const json = await bot.fetchAjax({
+                'namespace': 'h\\Champions',
+                'class': 'ChampionController',
+                'action': 'buy_ticket',
+                'currency': 'energy_quest',
+                'amount': '1',
+            });
+
+            if (!json.success) {
+                bot.state.storyError +=
+                    '; ChampionController buy_ticket fail: ' + JSON.stringify(json);
+            }
+
+            await bot.incCache({ champTicketsBoughtForEnergy: 1 });
+        }
+
+        return;
     }
 
     while (true) {

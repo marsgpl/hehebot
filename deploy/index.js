@@ -7,7 +7,7 @@ import getTimestamp from './helpers/getTimestamp.js';
 import createDockerContainer from './helpers/createDockerContainer.js';
 import destroyDockerContainer from './helpers/destroyDockerContainer.js';
 
-const DOCKER_LOGIN_CMD = 'echo OPqsj9d02e8nrJsoidvh44pHBV | docker login --username ewj9f4wsk3j90rghtOJ02fhig --password-stdin docker.marsgpl.com';
+const DOCKER_LOGIN_CMD = 'echo LApz9jn09fj0e358hgh38hfew9wr | docker login --username 0dsanf249ng0sDHPsdhig09234h5 --password-stdin docker.marsgpl.com';
 const DOCKER_REMOVE_DANGLING_IMAGES_CMD = 'docker images -q -f dangling=true | xargs docker image rm &>/dev/null || true';
 
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';

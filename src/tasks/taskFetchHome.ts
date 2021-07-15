@@ -126,6 +126,8 @@ export default async function taskFetchHome(bot: HeheBot) {
         throw fail('taskFetchHome', 'girls');
     }
 
+    const canCollectSalarySum = Number(m(html, /Collect\s*<span\s*class=.sum.\s*amount=.([0-9]+).>/) || 0);
+
     const heroInfo = mj(html, /Hero\.infos = (\{.*?\});/i);
     if (!heroInfo?.id) throw fail('taskFetchHome', 'heroInfo');
 
@@ -158,6 +160,7 @@ export default async function taskFetchHome(bot: HeheBot) {
     const sideQuestsAvailable = Boolean(html.match(/(side\-quests\.html)/i));
 
     bot.setStateMultiple({
+        canCollectSalarySum,
         girls,
         memberInfo,
         heroInfo,
@@ -179,7 +182,7 @@ export default async function taskFetchHome(bot: HeheBot) {
         bot.pushTask(TASK_DOWNLOAD_IMAGES, TASK_NOTE);
     } else {
         bot.pushTask(TASK_CLAIM_DAILY_REWARD, TASK_NOTE);
-        bot.pushTask(TASK_OPEN_DAILY_FREE_PACHINKO, TASK_NOTE);
+        // bot.pushTask(TASK_OPEN_DAILY_FREE_PACHINKO, TASK_NOTE);
         bot.pushTask(TASK_TOWER_CLAIM_LEAGUE_REWARD, TASK_NOTE);
         bot.pushTask(TASK_PATH_EVENT_CLAIM_REWARD, TASK_NOTE);
         bot.pushTask(TASK_SEASON_CLAIM_REWARD, TASK_NOTE);
