@@ -131,7 +131,7 @@ export default async function taskStory(bot: HeheBot) {
     let currentQuestId = String(bot.state.heroInfo?.questing?.id_quest);
     let fullRechargeIn = Number(bot.state.heroEnergies?.quest?.recharge_time);
 
-    if (energyNow >= energyMax / 2 && bot.state.sideQuestsAvailable && !bot.config.isComix) {
+    if (energyNow >= energyMax / 2 && bot.state.sideQuestsAvailable) {
         await performSideQuests(bot);
     }
 

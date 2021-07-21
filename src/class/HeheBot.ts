@@ -675,7 +675,18 @@ export class HeheBot {
 
             const html = response.body.replace(/[\r\n\s\t]+/g, ' ').trim();
 
-            if (response.statusCode === 200 && html.match(this.getStatusOkRegexp())) {
+            if (response.statusCode === 200 &&
+                html.match(/updating the game/i) &&
+                html.match(/back online in a minute/i)
+            ) {
+                this.networkError = fail(
+                    'fetchHtml: MAINTENANCE',
+                    url,
+                    response,
+                    `retry in ${Math.round(COMMUNICATION_ERROR_RETRY_TIMEOUT / 1000)}s`);
+
+                await sleep(COMMUNICATION_ERROR_RETRY_TIMEOUT);
+            } else if (response.statusCode === 200 && html.match(this.getStatusOkRegexp())) {
                 this.networkError = undefined;
                 return html;
             } else if (response.headers.location?.match(/home\.html/i)) {
