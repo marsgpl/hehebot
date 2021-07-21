@@ -89,6 +89,8 @@ async function fetchOpponentData(bot: HeheBot, opponentId: string): Promise<Json
 
     const html = await bot.fetchHtml(`/battle.html?league_battle=1&id_member=${opponentId}`);
 
+    // https://www.hentaiheroes.com/league-battle.html?number_of_battles=1&id_opponent=125393
+
     const hh_battle_players = mj(html, /hh_battle_players = (\[.*?\]);/im);
 
     if (Array.isArray(hh_battle_players)) {

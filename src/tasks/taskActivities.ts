@@ -252,7 +252,7 @@ async function upgradePop(bot: HeheBot, popId: string, popData: JsonObject): Pro
 async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject): Promise<void> {
     const params = {
         'namespace': 'h\\PlacesOfPower',
-        'class': 'TempPlaceOfPower',
+        'class': 'PlaceOfPower',
         'action': 'claim',
         'id_place_of_power': popId,
     };
@@ -260,7 +260,7 @@ async function claimPopReward(bot: HeheBot, popId: string, popData: JsonObject):
     let json = await bot.fetchAjax(params);
 
     if (!json.success) {
-        params.class = 'PlaceOfPower';
+        params.class = 'TempPlaceOfPower';
         json = await bot.fetchAjax(params);
     }
 

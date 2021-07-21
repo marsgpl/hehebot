@@ -424,14 +424,14 @@ export class HeheBot {
         try {
             const { girls } = this.state;
 
-            let estimatePerS = 0;
+            let sum = 0;
 
             for (const girlId in girls) {
                 const girl = girls[girlId];
-                estimatePerS += (Number(girl.salary) / Number(girl.pay_time)) || 0;
+                sum += Number(girl.salary) || 0;
             }
 
-            return formatMoney(estimatePerS * 3600) + '/h';
+            return formatMoney(sum);
         } catch (error) {
             throw fail('getSalaryEstimate', error);
         }

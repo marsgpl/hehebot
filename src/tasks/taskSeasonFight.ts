@@ -62,15 +62,8 @@ async function fetchArena(bot: HeheBot): Promise<[JsonObject, JsonObject[]]> {
 function getAvgs(caracs: JsonObject): JsonObject {
     return {
         hp: (caracs.endurance + caracs.ego) / 2,
-        atk: (caracs.damage + caracs.damage_max) / 2,
-        def: (
-            caracs.def_carac1 +
-            caracs.def_carac1_max +
-            caracs.def_carac2 +
-            caracs.def_carac2_max +
-            caracs.def_carac3 +
-            caracs.def_carac3_max
-        ) / 6,
+        atk: caracs.damage,
+        def: caracs.defense,
     }
 }
 
