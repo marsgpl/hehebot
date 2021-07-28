@@ -68,12 +68,12 @@ type TaskName =
 
 const AGE_VERIFICATION_COOKIE = 'age_verification';
 
-const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36';
+const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
 
 export const SLEEP_AFTER_EVERY_REQUEST_MS = 2000;
 export const SLEEP_AFTER_EVERY_REQUEST_IMG_FETCH_MS = 1000;
 
-const HEHE_HOST = 'www.hentaiheroes.com';
+export const HEHE_HOST = 'www.hentaiheroes.com';
 const HEHE_HOST_COMIX = 'www.comixharem.com';
 
 export interface HeheBotConfig {

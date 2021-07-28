@@ -1,5 +1,5 @@
 import { FormData } from '../class/Browser.js';
-import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
+import { HeheBot, HEHE_HOST, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 import fail from '../helpers/fail.js';
 import { mj } from '../helpers/m.js';
 
@@ -25,45 +25,39 @@ async function fetchTrollData(bot: HeheBot, trollId: string): Promise<JsonObject
         trollId = String(bot.config.forceTrollId);
     }
 
-    const html = await bot.fetchHtml(`/battle.html?id_troll=${trollId}`);
+    const html = await bot.fetchHtml(`/troll-pre-battle.html?id_opponent=${trollId}`);
 
-    const hh_battle_players = mj(html, /hh_battle_players = (\[.*?\]);/im);
-
-    if (Array.isArray(hh_battle_players)) {
-        return hh_battle_players.find(data => data.id_troll);
-    }
+    return {};
 }
 
 // {"log":[{"damage":127.5,"x":202,"attacker_ability":"critical","defender_ability":"","heal":0,"c":1,"f":"3:10"},{"damage":40,"x":146,"attacker_ability":"","defender_ability":"","heal":0},{"damage":77,"x":202,"attacker_ability":"","defender_ability":"","heal":0},{"damage":40,"x":146,"attacker_ability":"","defender_ability":"","heal":0},{"damage":127,"x":302,"attacker_ability":"","defender_ability":"","heal":0,"o":1,"f":"2:7"},{"damage":0,"x":146,"attacker_ability":"","defender_ability":"block","heal":0},{"damage":79,"x":206,"attacker_ability":"","defender_ability":"","heal":0}],"end":{"rewards":{"data":{"loot":true,"rewards":[{"type":"soft_currency","value":"\u003Cp\u003E800\u003C\/p\u003E","currency":true,"slot_class":true}]},"title":"You won!","heroChangesUpdate":{"soft_currency":"23558","energy_fight":9,"energy_fight_recharge_time":4497,"ts_fight":1622049869},"sub_title":"Only you can give them an orgasm!","lose":false},"result":"won","battle_won":true,"updated_infos":{"energy_fight":-1,"energy_fight_recharge_time":4497,"energy_challenge_recharge_time":0,"energy_kiss_recharge_time":1276},"drops":{"hero":{"soft_currency":800},"orbs":[],"items":[],"girl_shards":[],"equipment":[],"skins":[],"team":[],"personalization":[],"club":[]}},"objective_points":{"contests":{"name":"All Shall Fear Your Skills!","points_gained":200}},"success":true}
 
 // {"success":false,"error":"Not enough fight energy."}
 
-async function attackTroll(bot: HeheBot, trollData: JsonObject): Promise<false | number> {
-    const fightParams: FormData = {};
-
-    Object.keys(trollData).forEach(key => {
-        fightParams[`who[${key}]`] = String(trollData[key]);
-    });
+async function attackTroll(bot: HeheBot, trollId: string): Promise<false | number> {
+    // https://www.hentaiheroes.com/troll-battle.html?number_of_battles=1&id_opponent=13
 
     const json = await bot.fetchAjax({
-        'class': 'Battle',
-        'action': 'fight',
-        'battles_amount': '0',
-        ...fightParams,
-    });
+        'action': 'do_troll_battles',
+        'id_opponent': String(trollId),
+        'number_of_battles': '1',
+    }, `https://${HEHE_HOST}/troll-battle.html?number_of_battles=1&id_opponent=${trollId}`);
 
-    if (json.error?.match(/Not enough/i) || json.error?.match(/fight energy/i)) {
+    let err = json.error || json.error_message;
+
+    if (
+        err?.match(/Not enough/i) ||
+        err?.match(/fight energy/i) ||
+        json.success === false // new update
+    ) {
         return false;
     }
 
     if (!json.success) {
-        throw fail('attackTroll', trollData, json);
+        throw fail('attackTroll', trollId, json);
     }
 
-    const isWin = (json.end?.battle_won || json.end?.result === 'win') &&
-        json.end?.rewards?.title.match(/won/i);
-
-    if (!isWin) {
+    if (json.result !== 'won') {
         throw fail('attackTroll', 'we lost', json);
     }
 
@@ -120,7 +114,7 @@ export default async function taskFightTroll(bot: HeheBot) {
             throw fail('taskFightTroll', 'trollData fetch failed');
         }
 
-        const result = await attackTroll(bot, trollData);
+        const result = await attackTroll(bot, trollId);
 
         if (result === false) {
             // out of energy

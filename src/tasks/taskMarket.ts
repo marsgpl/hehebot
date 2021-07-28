@@ -197,10 +197,12 @@ async function upgradeGirl(bot: HeheBot, girl: JsonObject | null, questPath: str
     });
 
     if (!json.success) {
-        if (json.error?.match(/have the wanted item/i)) {
+        let err = json.error || json.error_message;
+
+        if (err?.match(/have the wanted item/i)) {
             bot.state.marketError = fail('market upgrade girl no item', girl, json);
             return;
-        } else if (json.error?.match(/have enough money/i)) {
+        } else if (err?.match(/have enough money/i)) {
             bot.state.marketError = fail('market upgrade girl not enough money', girl, json);
             setTimeout(() => {
                 bot.state.marketError = undefined;
@@ -453,7 +455,9 @@ async function buyAllItems(bot: HeheBot, items: JsonObject[]): Promise<boolean> 
         });
 
         if (!json.success || !json.changes) {
-            if (json.error?.match(/enough money/i)) {
+            let err = json.error || json.error_message;
+
+            if (err?.match(/enough money/i)) {
                 continue;
             } else {
                 continue;

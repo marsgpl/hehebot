@@ -18,8 +18,7 @@ async function collectGirlSalary(bot: HeheBot, girlId: string): Promise<[number,
 
     const collected = Number(json.money) || 0;
     const nextPayIn = Number(json.time) || 0;
-console.log('🔸 json:', json);
-console.log('🔸 nextPayIn:', nextPayIn);
+
     if (!json.success || !collected || !nextPayIn) {
         throw fail('collectGirlSalary', `girlId=${girlId}`, json);
     }

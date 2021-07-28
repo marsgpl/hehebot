@@ -85,12 +85,14 @@ async function serveNewbieAcc(bot: HeheBot, html: HtmlString, heroInfo: JsonObje
             'id_quest': currentQuestId,
         });
 
+        let err = json.error || json.error_message;
+
         if (!json.success) {
-            if (json.error?.match(/have the wanted item/i)) {
+            if (err?.match(/have the wanted item/i)) {
                 return;
-            } else if (json.error?.match(/have enough energy/i)) {
+            } else if (err?.match(/have enough energy/i)) {
                 return;
-            } else if (json.error?.match(/have enough money/i)) {
+            } else if (err?.match(/have enough money/i)) {
                 return;
             } else {
                 throw fail('taskStory', json);

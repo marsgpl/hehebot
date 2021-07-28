@@ -1,7 +1,7 @@
 import fail from '../helpers/fail.js';
 import { mj } from '../helpers/m.js';
 import { FormData } from '../class/Browser.js';
-import { HeheBot, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
+import { HeheBot, HEHE_HOST, JsonObject, TASK_FETCH_HOME } from '../class/HeheBot.js';
 
 const TASK_NOTE = 'tower';
 
@@ -63,13 +63,6 @@ async function fetchTower(bot: HeheBot): Promise<[JsonObject, JsonObject[]] | 'h
     return [player, opponents];
 }
 
-// var hh_battle_players = [
-//     {"id_member":"452891","orgasm":109417,"ego":154835.25,"x":0,"curr_ego":154835.25,"nb_org":0,"figure":5},
-//     {"id_member":"1391863","orgasm":44737,"ego":47047,"x":0,"curr_ego":47047,"nb_org":0,"figure":1}
-// ];
-
-// playerLeaguesData: { id_member: 64976, level: '366', match_history: [ null, null, null ], mojo: 12510, ico: 'https://hh2.hh-content.com/pictures/hero/ico/165.jpg', team: { '1': { level: 365, caracs: [Object], position_img: 'dolphin.png', dmg: 4836, orgasm: 250390, figure: 2, class: '1', rarity: 'legendary', Name: 'Bellona', ico: 'https://hh2.hh-content.com/pictures/girls/946021548/ico5.png', Graded2: '<g ></g><g ></g><g ></g><g ></g><g ></g>' }, '2': { level: 365, caracs: [Object], position_img: 'sodomy.png', dmg: 4928, orgasm: 255500, figure: 4, class: '1', rarity: 'legendary', Name: 'Jezebel', ico: 'https://hh2.hh-content.com/pictures/girls/41414350/ico5.png', Graded2: '<g ></g><g ></g><g ></g><g ></g><g ></g>' }, '3': { level: 365, caracs: [Object], position_img: 'missionary.png', dmg: 4836, orgasm: 250390, figure: 3, class: '1', rarity: 'legendary', Name: 'Kumiko', ico: 'https://hh2.hh-content.com/pictures/girls/960719275/ico5.png', Graded2: '<g ></g><g ></g><g ></g><g ></g><g ></g>' } }, caracs: { carac1: 31071, carac2: 29534, carac3: 30337, endurance: 244782, chance: 36450, ego: 297981, damage: 45580, def_carac1: 18047, def_carac2: 18189, def_carac3: 17906, damage_max: 58273.2, def_carac1_max: 30740.2, def_carac2_max: 30882.2, def_carac3_max: 30599.2 }, Name: 'billy', class: 1, club: { name: 'FOLLAPLUS', id_club: 1202 }, rewards: { data: { loot: false, rewards: [Array] } }, opponent: true }
-
 async function fetchOpponentData(bot: HeheBot, opponentId: string): Promise<JsonObject | undefined> {
     const json = await bot.fetchAjax({
         'namespace': 'h\\Leagues',
@@ -80,46 +73,39 @@ async function fetchOpponentData(bot: HeheBot, opponentId: string): Promise<Json
 
     // { success: false, error: "You can't fight him." }
 
-    if (json.error?.match(/fight him/i)) {
+    let err = json.error || json.error_message;
+
+    if (err?.match(/fight him/i)) {
         // can't fight him, go to next
         return json;
     }
 
-    // const playerLeaguesData = mj(json.html, /playerLeaguesData = (\{.*?\});/);
+    const html = await bot.fetchHtml(`/tower-of-fame.html?number_of_battles=1&id_opponent=${opponentId}`);
 
-    const html = await bot.fetchHtml(`/battle.html?league_battle=1&id_member=${opponentId}`);
-
-    // https://www.hentaiheroes.com/league-battle.html?number_of_battles=1&id_opponent=125393
-
-    const hh_battle_players = mj(html, /hh_battle_players = (\[.*?\]);/im);
-
-    if (Array.isArray(hh_battle_players)) {
-        return hh_battle_players[1];
-    }
+    return {};
 }
 
-// {"log":[{"damage":19476,"x":44798,"attacker_ability":"","defender_ability":"","heal":0,"f":"1:3"},{"damage":0,"x":12748,"attacker_ability":"","defender_ability":"block","heal":0},{"damage":19476,"x":44798,"attacker_ability":"","defender_ability":"","heal":0},{"damage":0,"x":12748,"attacker_ability":"","defender_ability":"","heal":0},{"damage":19476,"x":44798,"attacker_ability":"","defender_ability":"","heal":0}],"end":{"rewards":{"data":{"loot":true,"rewards":[{"type":"xp","value":"\u003Cp\u003E+181\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"league_points","value":"\u003Cp\u003E+25p\u003C\/p\u003E","slot_class":true,"avatar_id":null}]},"title":"You won!","heroChangesUpdate":{"league_points":null,"xp":"1281715","energy_challenge":4,"energy_challenge_recharge_time":21925,"ts_challenge":1622164270},"sub_title":"Only you can give them an orgasm!\u003Cbr\u003EYou\u0027ve earned \u003Cspan class=\u0022leagues-points\u0022\u003E15\u003C\/span\u003E Points and a bonus of \u003Cspan class=\u0022leagues-points\u0022\u003E10\u003C\/span\u003E Points for your remaining Ego!","lose":false},"result":"won","battle_won":true,"updated_infos":{"energy_challenge":-1,"energy_fight_recharge_time":28733,"energy_challenge_recharge_time":21925,"energy_kiss_recharge_time":33015},"drops":{"hero":{"league_points":25,"xp":181},"orbs":[],"items":[],"girl_shards":[],"equipment":[],"skins":[],"team":[],"personalization":[],"club":[]}},"success":true}
+// {"rewards":{"data":{"loot":true,"rewards":[{"type":"xp","value":"\u003Cp\u003E+60\u003C\/p\u003E","currency":true,"slot_class":true},{"type":"league_points","value":"\u003Cp\u003E+3p\u003C\/p\u003E","slot_class":true,"avatar_id":null}]},"title":"You lost!","heroChangesUpdate":{"league_points":3,"xp":8040776},"sub_title":"This one was tough, but don\u2019t worry - you can improve your performances by upgrading your stats, buying better equipment and using boosters.\u003Cbr\u003EYou\u0027ve earned \u003Cspan class=\u0022leagues-points\u0022\u003E3\u003C\/span\u003E Points and a bonus of \u003Cspan class=\u0022leagues-points\u0022\u003E0\u003C\/span\u003E Points for your remaining Ego!","redirectUrl":"\/tower-of-fame.html","lose":true},"result":"won","hero_changes":{"energy_challenge":14,"energy_challenge_recharge_time":2100,"ts_challenge":1626897880},"rounds":[{"hero_hit":{"id_hitter_girl":"960719275","totalDamage":18497,"is_critical":false,"defender":{"ego":350528}},"opponent_hit":{"id_hitter_girl":"948443498","totalDamage":38227,"is_critical":false,"defender":{"ego":248287}}},{"hero_hit":{"id_hitter_girl":"946021548","totalDamage":18497,"is_critical":false,"defender":{"ego":332031}},"opponent_hit":{"id_hitter_girl":"451654840","totalDamage":76454,"is_critical":true,"defender":{"ego":171833}}},{"hero_hit":{"id_hitter_girl":"230856770","totalDamage":18497,"is_critical":false,"defender":{"ego":313534}},"opponent_hit":{"id_hitter_girl":"503862914","totalDamage":38227,"is_critical":false,"defender":{"ego":133606}}},{"hero_hit":{"id_hitter_girl":"1","totalDamage":18497,"is_critical":false,"defender":{"ego":295037}},"opponent_hit":{"id_hitter_girl":"1","totalDamage":76454,"is_critical":true,"defender":{"ego":57152}}},{"hero_hit":{"id_hitter_girl":"4","totalDamage":18497,"is_critical":false,"defender":{"ego":276540}},"opponent_hit":{"id_hitter_girl":"4","totalDamage":38227,"is_critical":false,"defender":{"ego":18925}}},{"hero_hit":{"id_hitter_girl":"7","totalDamage":18497,"is_critical":false,"defender":{"ego":258043}},"opponent_hit":{"id_hitter_girl":"5","totalDamage":38227,"is_critical":false,"defender":{"ego":-19302}}}],"success":true}
 
-async function attackOpponent(bot: HeheBot, opponentData: JsonObject): Promise<false | number> {
-    const fightParams: FormData = {};
-
-    Object.keys(opponentData).forEach(key => {
-        fightParams[`who[${key}]`] = String(opponentData[key]);
-    });
-
+async function attackOpponent(bot: HeheBot, opponentId: string): Promise<false | number> {
     const json = await bot.fetchAjax({
-        'class': 'Battle',
-        'action': 'fight',
-        'battles_amount': '0',
-        ...fightParams,
-    });
+        'action': 'do_league_battles',
+        'id_opponent': String(opponentId),
+        'number_of_battles': '1',
+    }, `https://${HEHE_HOST}/league-battle.html?number_of_battles=1&id_opponent=${opponentId}`);
 
-    if (json.error?.match(/Not enough/i) || json.error?.match(/challenge energy/i)) {
+    let err = json.error || json.error_message;
+
+    if (
+        err?.match(/Not enough/i) ||
+        err?.match(/challenge energy/i) ||
+        json.success === false // new update
+    ) {
         return false;
     }
 
     if (!json.success) {
-        throw fail('attackOpponent', opponentData, json);
+        throw fail('attackOpponent', opponentId, json);
     }
 
     const isWin = (json.end?.battle_won || json.end?.result === 'win') &&
@@ -190,7 +176,7 @@ export default async function taskTowerFight(bot: HeheBot) {
         }
 
         while (opponent.nb_challenges_played < MAX_CHALLENGES_PER_OPPONENT) {
-            const result = await attackOpponent(bot, opponentData);
+            const result = await attackOpponent(bot, opponent.id_player);
 
             if (result === false) {
                 outOfEnergy = true;
@@ -200,6 +186,10 @@ export default async function taskTowerFight(bot: HeheBot) {
             }
 
             opponent.nb_challenges_played++;
+
+            if (opponent.nb_challenges_played < MAX_CHALLENGES_PER_OPPONENT) {
+                await fetchOpponentData(bot, opponent.id_player);
+            }
         }
     }
 
