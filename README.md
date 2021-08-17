@@ -1,6 +1,11 @@
 # HeHe bot
 
-- <https://marsgpl.com/hehebot>
+## Troll
+
+- ❌ FightTroll battle is broken - bot stucks
+- ❌ if progress not blocked by quest items: focus trolls which gives new girls (including event): once in 8 hours select troll id and put in bot.cache
+- setup strongest girls
+- when perform fight, chose position enemy does not have
 
 ## Season
 
@@ -9,12 +14,6 @@
 
 ## Tower of Fame
 
-- setup strongest girls
-- when perform fight, chose position enemy does not have
-
-## Troll
-
-- ❌ if progress not blocked by quest items: focus trolls which gives new girls (including event): once in 8 hours select troll id and put in bot.cache
 - setup strongest girls
 - when perform fight, chose position enemy does not have
 

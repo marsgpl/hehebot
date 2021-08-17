@@ -26,7 +26,7 @@
             "debug": true
         },
         {
-            "disabled": true,
+            "disabled": false,
             "login": "hh.kopbys@marsgpl.com",
             "password": "aiwo0nf9284ASDNPf23408gb",
             "cacheFile": ".hehebot.cache.kopbys.json",
@@ -36,11 +36,12 @@
                 "saveQuestsTo": "./image-quests",
                 "saveSideQuestsTo": "./image-side-quests",
                 "saveGirlsQuestsTo": "./image-girls-quests",
-                "girlStartId": 0,
+                "girlStartId": 86,
                 "questStartId": 0
             }
         },
         {
+            "disabled": true,
             "login": "hh.potato@marsgpl.com",
             "password": "ds08n4SDVHI08r5SDH9g058bs",
             "cacheFile": ".hehebot.cache.potato.json",
