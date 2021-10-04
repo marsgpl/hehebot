@@ -13,7 +13,7 @@ const DOCKER_REMOVE_DANGLING_IMAGES_CMD = 'docker images -q -f dangling=true | x
 const DOCKER_IMAGE_NAME = 'docker.marsgpl.com/hehebot:latest';
 const DOCKER_CONTAINER_NAME = 'hehebot';
 
-const HOST = 'workers-2';
+const HOST = 'workers';
 
 let cacheFiles = [];
 
